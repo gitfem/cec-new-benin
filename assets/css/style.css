@@ -1297,19 +1297,185 @@ body{font-family:var(--friendly-sans);font-size:16px;line-height:1.65}.hero-cont
   }
 }
 
+/* ==========================================================================
+   SOCIAL MEDIA FEED & CONNECT BUTTONS - PROFESSIONAL FORMATTING
+   ========================================================================== */
+.footer-social-wrapper {
+  margin-top: 22px;
+}
+.footer-social-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.74rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #fbbf24;
+  margin-bottom: 12px;
+}
+.social-feed-pulse {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #00e5ff;
+  box-shadow: 0 0 10px #00e5ff;
+  animation: feedPulse 2s infinite ease-in-out;
+  display: inline-block;
+  flex-shrink: 0;
+}
+@keyframes feedPulse {
+  0%, 100% { transform: scale(1); opacity: 0.95; }
+  50% { transform: scale(1.35); opacity: 0.45; }
+}
+.social-feed-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+}
+.social-feed-btn {
+  display: flex !important;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  color: #ffffff !important;
+  text-decoration: none !important;
+  transition: all 0.24s cubic-bezier(0.16, 1, 0.3, 1);
+  margin-bottom: 0 !important;
+  width: 100%;
+  position: relative;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+.social-feed-btn:before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: transparent;
+  transition: background 0.22s ease;
+}
+.social-feed-icon-box {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  font-size: 1.15rem;
+  transition: transform 0.22s ease;
+}
+.social-feed-btn.social-kingchat .social-feed-icon-box {
+  background: #00a2ed;
+  color: #ffffff;
+  box-shadow: 0 4px 14px rgba(0, 162, 237, 0.4);
+}
+.social-feed-btn.social-youtube .social-feed-icon-box {
+  background: #e62117;
+  color: #ffffff;
+  box-shadow: 0 4px 14px rgba(230, 33, 23, 0.4);
+}
+.social-feed-btn.social-facebook .social-feed-icon-box {
+  background: #1877f2;
+  color: #ffffff;
+  box-shadow: 0 4px 14px rgba(24, 119, 242, 0.4);
+}
+.social-feed-btn.social-instagram .social-feed-icon-box {
+  background: linear-gradient(135deg, #833ab4, #fd1d1d, #fcb045);
+  color: #ffffff;
+  box-shadow: 0 4px 14px rgba(253, 29, 29, 0.4);
+}
+.social-feed-btn.social-twitter .social-feed-icon-box {
+  background: #111827;
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+}
+.social-feed-body {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  flex-grow: 1;
+}
+.social-feed-name {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #ffffff;
+  line-height: 1.25;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.social-feed-handle {
+  font-size: 0.76rem;
+  font-weight: 500;
+  color: #94a3b8;
+  line-height: 1.25;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.social-feed-arrow {
+  font-size: 0.74rem;
+  color: rgba(255, 255, 255, 0.35);
+  margin-left: auto;
+  flex-shrink: 0;
+  transition: all 0.22s ease;
+}
+.social-feed-btn:hover {
+  background: rgba(255, 255, 255, 0.11);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.38);
+}
+.social-feed-btn.social-kingchat:hover {
+  border-color: #00a2ed;
+}
+.social-feed-btn.social-kingchat:hover:before {
+  background: #00a2ed;
+}
+.social-feed-btn.social-youtube:hover {
+  border-color: #e62117;
+}
+.social-feed-btn.social-youtube:hover:before {
+  background: #e62117;
+}
+.social-feed-btn.social-facebook:hover {
+  border-color: #1877f2;
+}
+.social-feed-btn.social-facebook:hover:before {
+  background: #1877f2;
+}
+.social-feed-btn:hover .social-feed-icon-box {
+  transform: scale(1.08);
+}
+.social-feed-btn:hover .social-feed-arrow {
+  color: #ffffff;
+  transform: translate(2px, -2px);
+}
+.kingschat-svg {
+  display: inline-block;
+  vertical-align: middle;
+}
+
 .footer .social-link{
   min-width:38px;
   min-height:38px;
-  display:flex;
+  display:inline-flex;
   align-items:center;
   justify-content:center;
   gap:8px;
-  padding:0 12px;
+  padding:6px 14px;
   margin:0;
   border:1px solid rgba(255,255,255,.22);
   border-radius:999px;
   color:#fff;
   transition:.2s;
+  text-decoration:none;
 }
 .footer .social-link:hover{
   background:#177a87;

@@ -176,7 +176,24 @@ createApp({
       const links = Array.isArray(this.cms.nav) && this.cms.nav.length ? this.cms.nav : this.fallbackNav;
       return links.map(item => ({label:item.label, href:item.href || '#/'}));
     },
-    socialLinks(){ return (this.cms.site && Array.isArray(this.cms.site.social_links)) ? this.cms.site.social_links : []; },
+    socialLinks(){
+      const site = (this.cms && this.cms.site) ? this.cms.site : {};
+      const links = Array.isArray(site.social_links) ? site.social_links : [];
+      const kc = links.find(l => l.key === 'kingchat') || {};
+      const yt = links.find(l => l.key === 'youtube') || {};
+      const fb = links.find(l => l.key === 'facebook') || {};
+      const ig = links.find(l => l.key === 'instagram') || {};
+      const tw = links.find(l => l.key === 'twitter') || {};
+
+      const list = [
+        { label: 'KingsChat', feedLabel: 'KingsChat Feed', key: 'kingchat', icon: '', url: site.kingchat || kc.url || 'https://kingschat.online/user/cenewbenin', handle: kc.handle || '@cenewbenin' },
+        { label: 'YouTube', feedLabel: 'YouTube Channel', key: 'youtube', icon: 'fa-brands fa-youtube', url: site.youtube || yt.url || 'https://youtube.com/@christembassy', handle: yt.handle || 'Christ Embassy' },
+        { label: 'Facebook', feedLabel: 'Facebook Page', key: 'facebook', icon: 'fa-brands fa-facebook-f', url: site.facebook || fb.url || 'https://facebook.com/christembassy', handle: fb.handle || 'CE New Benin' }
+      ];
+      if (site.instagram || (ig && ig.url)) { list.push({ label: 'Instagram', feedLabel: 'Instagram', key: 'instagram', icon: 'fa-brands fa-instagram', url: site.instagram || ig.url, handle: ig.handle || '' }); }
+      if (site.twitter || (tw && tw.url)) { list.push({ label: 'Twitter / X', feedLabel: 'X', key: 'twitter', icon: 'fa-brands fa-x-twitter', url: site.twitter || tw.url, handle: tw.handle || '' }); }
+      return list.filter(item => item.url && item.url !== '#');
+    },
     hlsUrl(){ return String((this.cms.live && this.cms.live.hls_url) || LIVE.hls || '').trim(); },
     liveFeedUrl(){ return /\.ts(\?.*)?$/i.test(this.hlsUrl) ? '' : this.hlsUrl; },
     isHlsStream(){ return /\.m3u8(\?.*)?$/i.test(this.hlsUrl); },

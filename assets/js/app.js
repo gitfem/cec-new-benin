@@ -1283,16 +1283,64 @@ createApp({
     footerExploreNav(){ return this.footerNav.filter(item => (item.footer_group || (['#/visit','#/groups','#/locations','#/give'].includes(item.href) ? 'next' : 'explore')) === 'explore').slice(0, 7); },
     footerNextNav(){ return this.footerNav.filter(item => (item.footer_group || (['#/visit','#/groups','#/locations','#/give'].includes(item.href) ? 'next' : 'explore')) === 'next').slice(0, 7); },
     socialLinks(){
-      const links = this.cms.site && Array.isArray(this.cms.site.social_links) ? this.cms.site.social_links : [];
-      if(links.length){ return links; }
-      const fallback = [
-        {label:'Facebook', key:'facebook', icon:'fa-brands fa-facebook-f', url:this.cms.site && this.cms.site.facebook},
-        {label:'Twitter', key:'twitter', icon:'fa-brands fa-x-twitter', url:this.cms.site && this.cms.site.twitter},
-        {label:'Instagram', key:'instagram', icon:'fa-brands fa-instagram', url:this.cms.site && this.cms.site.instagram},
-        {label:'YouTube', key:'youtube', icon:'fa-brands fa-youtube', url:this.cms.site && this.cms.site.youtube},
-        {label:'KingChat', key:'kingchat', icon:'', url:this.cms.site && this.cms.site.kingchat}
+      const site = (this.cms && this.cms.site) ? this.cms.site : {};
+      const links = Array.isArray(site.social_links) ? site.social_links : [];
+      
+      const kc = links.find(l => l.key === 'kingchat') || {};
+      const yt = links.find(l => l.key === 'youtube') || {};
+      const fb = links.find(l => l.key === 'facebook') || {};
+      const ig = links.find(l => l.key === 'instagram') || {};
+      const tw = links.find(l => l.key === 'twitter') || {};
+
+      const list = [
+        {
+          label: 'KingsChat',
+          feedLabel: 'KingsChat Feed',
+          key: 'kingchat',
+          icon: '',
+          url: site.kingchat || kc.url || 'https://kingschat.online/user/cenewbenin',
+          handle: kc.handle || '@cenewbenin'
+        },
+        {
+          label: 'YouTube',
+          feedLabel: 'YouTube Channel',
+          key: 'youtube',
+          icon: 'fa-brands fa-youtube',
+          url: site.youtube || yt.url || 'https://youtube.com/@christembassy',
+          handle: yt.handle || 'Christ Embassy'
+        },
+        {
+          label: 'Facebook',
+          feedLabel: 'Facebook Page',
+          key: 'facebook',
+          icon: 'fa-brands fa-facebook-f',
+          url: site.facebook || fb.url || 'https://facebook.com/christembassy',
+          handle: fb.handle || 'CE New Benin'
+        }
       ];
-      return fallback.filter(item => item.url && item.url !== '#');
+
+      if (site.instagram || (ig && ig.url)) {
+        list.push({
+          label: 'Instagram',
+          feedLabel: 'Instagram',
+          key: 'instagram',
+          icon: 'fa-brands fa-instagram',
+          url: site.instagram || ig.url,
+          handle: ig.handle || ''
+        });
+      }
+      if (site.twitter || (tw && tw.url)) {
+        list.push({
+          label: 'Twitter / X',
+          feedLabel: 'X',
+          key: 'twitter',
+          icon: 'fa-brands fa-x-twitter',
+          url: site.twitter || tw.url,
+          handle: tw.handle || ''
+        });
+      }
+
+      return list.filter(item => item.url && item.url !== '#');
     },
     rootLiveSettings(){ return (this.cms && this.cms.live) ? this.cms.live : {}; },
     rootHlsUrl(){ return this.rootLiveSettings.hls_url || OLD.hls; },

@@ -13,13 +13,13 @@
     "twitter": "https://twitter.com/christembassy",
     "instagram": "https://instagram.com/christembassy",
     "youtube": "https://youtube.com/@christembassy",
-    "kingchat": "https://kingschat.online",
+    "kingchat": "https://kingschat.online/user/cenewbenin",
     "social_links": [
       {
         "label": "KingsChat",
         "key": "kingchat",
         "icon": "",
-        "url": "https://kingschat.online",
+        "url": "https://kingschat.online/user/cenewbenin",
         "handle": "@cenewbenin"
       },
       {

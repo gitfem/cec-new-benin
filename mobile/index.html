@@ -15,7 +15,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
-  <link href="style.css?v=28" rel="stylesheet">
+  <link href="style.css?v=30" rel="stylesheet">
 </head>
 <body>
 <div id="app" :class="{ready: ready, 'menu-open': menuOpen}">
@@ -471,8 +471,12 @@
         <h3>Contact</h3>
         <p><span v-if="cms.site.phone">{{ cms.site.phone }}<br></span><span v-if="cms.site.email">{{ cms.site.email }}<br></span><span v-if="cms.site.address">{{ cms.site.address }}</span></p>
         <div class="socials" v-if="socialLinks.length">
-          <a v-for="social in socialLinks" :href="social.url" target="_blank" rel="noopener" :aria-label="social.label">
-            <i v-if="social.icon" :class="social.icon"></i><span v-else>K</span>
+          <a v-for="social in socialLinks" :href="social.url" target="_blank" rel="noopener" :aria-label="social.label" :class="'social-btn-' + social.key" :title="social.feedLabel || social.label">
+            <i v-if="social.icon" :class="social.icon"></i>
+            <svg v-else-if="social.key === 'kingchat'" class="kingschat-svg" viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+              <path d="M12 2C6.48 2 2 6.03 2 11c0 2.87 1.5 5.43 3.86 7.03-.17.97-.68 2.37-1.78 3.44-.22.21-.08.57.22.58 1.83.07 3.66-.54 4.96-1.52.88.29 1.83.47 2.74.47 5.52 0 10-4.03 10-9s-4.48-9-10-9zm-1.2 12.8h-1.6V8.2h1.6v2.9l2.7-2.9h2.1l-3 3.2 3.2 4.4h-2.1l-2.1-3-0.8.8v2.2z"/>
+            </svg>
+            <span v-else>K</span>
           </a>
         </div>
       </div>
@@ -498,6 +502,6 @@
 </div>
 
 <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
-<script src="app.js?v=35"></script>
+<script src="app.js?v=36"></script>
 </body>
 </html>

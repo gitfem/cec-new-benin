@@ -243,8 +243,14 @@ h1,h2,h3,p{margin-top:0}
 .give-note{margin:0;color:#64748b;text-align:center;font-size:.8rem;line-height:1.45}
 .menu-list{display:grid;gap:8px;margin-bottom:18px}
 .menu-list a{display:flex;justify-content:space-between;align-items:center;padding:18px;background:var(--soft);border:1px solid var(--line);border-radius:14px;font-weight:900}
-.socials{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}
-.socials a{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;background:#050505;color:#fff}
+.socials{display:flex;flex-wrap:wrap;gap:12px;margin-top:14px}
+.socials a{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;background:#0f172a;color:#fff;font-size:1.1rem;transition:.22s;text-decoration:none}
+.socials a.social-btn-kingchat{background:#00a2ed;color:#fff;box-shadow:0 4px 12px rgba(0,162,237,.35)}
+.socials a.social-btn-youtube{background:#e62117;color:#fff;box-shadow:0 4px 12px rgba(230,33,23,.35)}
+.socials a.social-btn-facebook{background:#1877f2;color:#fff;box-shadow:0 4px 12px rgba(24,119,242,.35)}
+.socials a.social-btn-instagram{background:linear-gradient(135deg,#833ab4,#fd1d1d,#fcb045);color:#fff;box-shadow:0 4px 12px rgba(253,29,29,.35)}
+.socials a.social-btn-twitter{background:#000;color:#fff}
+.socials a:hover{transform:translateY(-2px);filter:brightness(1.1)}
 .live-login-card{display:grid;gap:14px;background:#fff;border:1px solid var(--line);border-radius:22px;padding:18px;box-shadow:0 18px 56px rgba(0,0,0,.08)}
 .live-login-card label{display:grid;gap:7px;font-size:.75rem;font-weight:900;text-transform:uppercase;letter-spacing:.08em;color:#475569}
 .live-login-card label span{font-weight:700;color:#94a3b8;text-transform:none;letter-spacing:0}
