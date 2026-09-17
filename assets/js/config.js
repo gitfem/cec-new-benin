@@ -23,7 +23,7 @@ const CEC_CONFIG = {
       presidentTitle: "President of Christ Embassy"
     },
     logo: {
-      image: "assets/uploaded_media/christ_embassy_official_logo.png",
+      image: "assets/uploaded_media/cec_newbenin_church_logo_1.png",
       svg: "logo.svg",
       alt: "Christ Embassy Church Official Logo"
     },

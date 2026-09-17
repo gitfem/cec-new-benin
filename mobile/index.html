@@ -9,8 +9,8 @@
   <meta name="apple-mobile-web-app-title" content="CE New Benin">
   <title>Christ Embassy New Benin | Church of Excellence</title>
   <meta name="description" content="Welcome to Christ Embassy New Benin with Pastor Joseph Atibi-Brown — Church of Excellence.">
-  <link rel="manifest" href="manifest.json">
-  <link rel="apple-touch-icon" href="icon.svg">
+  <link rel="icon" type="image/png" href="../favicon.png">
+  <link rel="apple-touch-icon" href="../assets/uploaded_media/cec_newbenin_church_logo_icon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
@@ -323,24 +323,71 @@
       </a>
     </section>
 
+    <section v-else-if="route==='about'" class="screen">
+      <div class="page-hero compact" :style="pageHeroStyle('about')">
+        <span class="eyebrow">{{ page('about').eyebrow || 'About Us' }}</span>
+        <h1>{{ page('about').title || 'About Christ Embassy New Benin' }}</h1>
+        <p>{{ page('about').subtitle || 'Church of Excellence' }}</p>
+      </div>
+
+      <!-- Pastor Profile Card Mobile -->
+      <article class="rich-card mb-3" style="background:#fff; border-radius:14px; padding:20px; box-shadow:0 4px 15px rgba(0,0,0,0.06);">
+        <img v-if="page('about').pastor_image" :src="asset(page('about').pastor_image)" alt="Pastor Joseph Atibi-Brown" style="border-radius:10px; width:100%; height:260px; object-fit:cover; margin-bottom:16px;">
+        <span style="display:inline-block; background:#fef3c7; color:#92400e; font-weight:700; font-size:0.75rem; padding:4px 10px; border-radius:6px; margin-bottom:8px;">LEADERSHIP</span>
+        <h2 style="font-size:1.5rem; color:#0f172a; margin:0 0 4px; font-weight:700;">{{ page('about').pastor_name || 'Pastor Joseph Atibi-Brown' }}</h2>
+        <div style="color:#b45309; font-weight:600; font-size:0.9rem; margin-bottom:12px;">{{ page('about').pastor_title || 'Pastor, Christ Embassy New Benin' }}</div>
+        <p style="color:#334155; font-size:0.95rem; line-height:1.7; margin:0;">{{ page('about').pastor_bio }}</p>
+      </article>
+
+      <!-- Global Vision Card Mobile -->
+      <article class="rich-card mb-3" style="background:linear-gradient(135deg, #07152f 0%, #0f2b5c 100%); color:#fff; border-radius:14px; padding:20px; border:1px solid rgba(230,167,25,0.4);">
+        <span style="color:#fbbf24; font-weight:800; font-size:0.75rem; letter-spacing:0.1em; display:block; margin-bottom:6px;">OUR GLOBAL VISION</span>
+        <h3 style="font-size:1.25rem; color:#fff; margin:0 0 10px; font-weight:700;">To Take the Divine Presence of God to the Nations</h3>
+        <blockquote style="margin:0 0 10px; padding:10px 14px; background:rgba(255,255,255,0.08); border-left:3px solid #f59e0b; border-radius:0 6px 6px 0; font-style:italic; font-size:0.95rem; line-height:1.6; color:#fff;">
+          "{{ page('about').global_vision_statement }}"
+        </blockquote>
+        <p style="color:#cbd5e1; font-size:0.8rem; margin:0;"><i class="fa-solid fa-crown text-warning me-1"></i> {{ page('about').global_leadership }}</p>
+      </article>
+
+      <!-- Local Expression Card Mobile -->
+      <article class="rich-card mb-3" style="background:linear-gradient(135deg, #090e17 0%, #152238 100%); color:#fff; border-radius:14px; padding:20px; border:1px solid rgba(230,167,25,0.4);">
+        <span style="color:#fbbf24; font-weight:800; font-size:0.75rem; letter-spacing:0.1em; display:block; margin-bottom:6px;">OUR LOCAL EXPRESSION</span>
+        <h3 style="font-size:1.25rem; color:#fff; margin:0 0 10px; font-weight:700;">Church of Excellence in Action</h3>
+        <p style="color:#f1f5f9; font-size:0.95rem; line-height:1.7; margin:0;">{{ page('about').local_expression_body }}</p>
+      </article>
+      <a href="#/visit" class="primary-btn full"><i class="fa-solid fa-calendar-check"></i> Plan a Visit</a>
+    </section>
+
     <section v-else-if="route==='visit'" class="screen">
       <div class="page-hero compact" :style="pageHeroStyle('visit')">
         <span class="eyebrow">{{ visitPage.eyebrow || 'Plan a Visit' }}</span>
         <h1>{{ visitPage.title || 'Plan a Visit' }}</h1>
         <p>{{ visitPage.subtitle || 'Everything you need to know before joining us.' }}</p>
       </div>
-      <article v-if="visitPage.body" class="rich-card" v-html="visitPage.body"></article>
+      <article v-if="visitPage.what_to_expect" class="rich-card mb-3" style="background:#fff; border-radius:14px; padding:18px; color:#334155; font-size:0.95rem; line-height:1.7; box-shadow:0 2px 10px rgba(0,0,0,0.04);">
+        <h3 style="color:#0f172a; font-size:1.2rem; margin:0 0 8px; font-weight:700;">What to Expect</h3>
+        <p style="margin:0;">{{ visitPage.what_to_expect }}</p>
+      </article>
+      
+      <!-- Weekly Services List Mobile -->
+      <div v-if="visitPage.services && visitPage.services.length" class="mb-3">
+        <h3 style="font-size:1.1rem; color:#0f172a; margin:16px 0 10px; font-weight:700;">Weekly Services Schedule</h3>
+        <div v-for="(srv, i) in visitPage.services" :key="i" class="rich-card mb-2" style="background:#fff; border-radius:12px; padding:14px 16px; border-left:4px solid #d97706; box-shadow:0 2px 8px rgba(0,0,0,0.04);">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px; gap:8px;">
+            <b style="color:#0f172a; font-size:1rem;">{{ srv.name }}</b>
+            <span style="background:#1e3a8a; color:#fff; font-size:0.75rem; padding:3px 8px; border-radius:4px; font-weight:600; flex-shrink:0;">{{ srv.time }}</span>
+          </div>
+          <p style="color:#475569; font-size:0.88rem; margin:0; line-height:1.5;">{{ srv.description }}</p>
+        </div>
+      </div>
+
       <article class="contact-card visit-info-card">
         <h3>Service Info</h3>
         <p v-if="cms.site.address"><b>Address</b><br>{{ cms.site.address }}</p>
         <p v-if="cms.site.office_hours"><b>Office / Service Hours</b><br>{{ cms.site.office_hours }}</p>
         <p v-if="cms.site.phone || cms.site.email"><b>Contact</b><br><span v-if="cms.site.phone">{{ cms.site.phone }}<br></span><span v-if="cms.site.email">{{ cms.site.email }}</span></p>
-        <a href="#/locations" class="primary-btn full">View Locations</a>
+        <a href="#/live" class="primary-btn full"><i class="fa-solid fa-video me-1"></i> Watch Live Stream</a>
       </article>
-      <a v-for="item in visitLocations" :href="'#/locations/' + item.id" class="list-card">
-        <img v-if="item.image_url" :src="item.image_url" :alt="item.title">
-        <div><b>{{ item.title }}</b><p>{{ item.meta_text || item.subtitle }}</p></div>
-      </a>
     </section>
 
     <section v-else-if="route==='give'" class="screen">

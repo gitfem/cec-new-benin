@@ -550,13 +550,13 @@ const LivePage = {
             <div class="youtube-actions"><div><b>YouTube Live</b><span>Uses the selected YouTube channel ID.</span></div><a :href="youtubePage" target="_blank" rel="noopener" class="btn-brand">Open YouTube Page</a></div>
           </div>
 
-          <div class="live-service-info mt-3 p-3 rounded" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);">
+          <div class="live-service-info mt-3 p-4 rounded" style="background: #ffffff; border: 1px solid #e2e8f0; box-shadow: 0 4px 20px rgba(0,0,0,0.05); border-radius: 14px;">
             <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
               <div>
-                <span v-if="liveSettings.theme" class="badge mb-2" style="background: rgba(230,167,25,0.18); color: #ffcb45; border: 1px solid rgba(230,167,25,0.3); font-size: 0.8rem;"><i class="fa-solid fa-scroll me-1"></i> {{liveSettings.theme}}</span>
-                <h3 class="fw-bold mb-2" style="font-size: 1.45rem;">{{liveSettings.title || 'Live Service of Excellence'}}</h3>
-                <p class="text-muted m-0" style="font-size: 0.95rem; line-height: 1.6;">{{liveSettings.description || 'Welcome to our live service with Pastor Joseph Atibi-Brown. Experience the supernatural power of God through worship and the ministered Word.'}}</p>
-                <div v-if="liveSettings.minister" class="text-warning small mt-2"><i class="fa-solid fa-user-tie me-1"></i> Minister: <b>{{liveSettings.minister}}</b></div>
+                <span v-if="liveSettings.theme" class="badge mb-2" style="background: #fef3c7; color: #92400e; border: 1px solid #fde68a; font-size: 0.82rem; font-weight: 700;"><i class="fa-solid fa-scroll me-1"></i> {{liveSettings.theme}}</span>
+                <h3 class="fw-bold mb-2" style="font-size: 1.5rem; color: #0f172a;">{{liveSettings.title || 'Live Service of Excellence'}}</h3>
+                <p class="m-0" style="color: #334155; font-size: 1rem; line-height: 1.65;">{{liveSettings.description || 'Welcome to our live service with Pastor Joseph Atibi-Brown. Experience the supernatural power of God through worship and the ministered Word.'}}</p>
+                <div v-if="liveSettings.minister" class="small mt-2" style="color: #b45309; font-weight: 600;"><i class="fa-solid fa-user-tie me-1"></i> Minister: <b style="color: #0f172a;">{{liveSettings.minister}}</b></div>
               </div>
               <a href="#/give" class="btn-brand flex-shrink-0"><i class="fa-solid fa-heart me-1"></i> Give Online</a>
             </div>
@@ -923,28 +923,28 @@ const VisitPage = {
     <section class="section visit-page-section"><div class="container-wide">
       <div class="visit-layout">
         <div>
-          <div class="eyebrow">Welcome to Church of Excellence</div>
-          <h2 class="title-mid">We would love to welcome you.</h2>
-          <p class="text-lg mb-4">{{pageCms.what_to_expect || 'From the moment you step through our doors, you will experience a warm family welcome, inspiring worship, engaging programs, and transformative teaching from Pastor Joseph Atibi-Brown.'}}</p>
+          <div class="eyebrow" style="color: #b45309; font-weight: 700;">Welcome to Church of Excellence</div>
+          <h2 class="title-mid" style="color: #0f172a;">We would love to welcome you.</h2>
+          <p class="text-lg mb-4" style="color: #334155; line-height: 1.85;">{{pageCms.what_to_expect || 'From the moment you step through our doors, you will experience a warm family welcome, inspiring worship, engaging programs, and transformative teaching from Pastor Joseph Atibi-Brown.'}}</p>
           
-          <h3 class="fw-bold mt-4 mb-3">Weekly Services Schedule</h3>
+          <h3 class="fw-bold mt-4 mb-3" style="color: #0f172a;">Weekly Services Schedule</h3>
           <div class="row g-3">
             <div v-for="(srv, i) in services" :key="i" class="col-md-12">
-              <div class="p-3 rounded" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);">
-                <div class="d-flex justify-content-between align-items-center mb-1">
-                  <h5 class="fw-bold m-0 text-warning">{{srv.name}}</h5>
-                  <span class="badge bg-secondary">{{srv.time}}</span>
+              <div class="p-4 rounded" style="background: #ffffff; border: 1px solid #e2e8f0; border-left: 5px solid #d97706; box-shadow: 0 4px 20px rgba(0,0,0,0.04);">
+                <div class="d-flex justify-content-between align-items-center mb-2 flex-wrap gap-2">
+                  <h5 class="fw-bold m-0" style="color: #0f172a; font-size: 1.25rem;">{{srv.name}}</h5>
+                  <span class="badge" style="background: #1e3a8a; color: #ffffff; font-size: 0.85rem; padding: 6px 14px; font-weight: 600;">{{srv.time}}</span>
                 </div>
-                <p class="text-muted m-0 small">{{srv.description}}</p>
+                <p class="m-0" style="color: #334155; font-size: 1rem; line-height: 1.65;">{{srv.description}}</p>
               </div>
             </div>
           </div>
         </div>
-        <div class="visit-info-panel">
-          <h3>Location & Contact</h3>
-          <p v-if="site.address"><b>Sanctuary Address</b><br>{{site.address}}</p>
-          <p v-if="site.office_hours"><b>Service & Office Hours</b><br>{{site.office_hours}}</p>
-          <p v-if="site.phone || site.email"><b>Telephone & Email</b><br><span v-if="site.phone">{{site.phone}}<br></span><span v-if="site.email">{{site.email}}</span></p>
+        <div class="visit-info-panel" style="background: #0f172a; color: #ffffff; border-radius: 16px; padding: 2.2rem; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 10px 40px rgba(0,0,0,0.15);">
+          <h3 style="color: #fbbf24; font-weight: 700; margin-bottom: 20px;">Location & Contact</h3>
+          <p v-if="site.address" style="color: #f8fafc; line-height: 1.7; margin-bottom: 16px;"><b style="color: #94a3b8; text-transform: uppercase; font-size: 0.78rem; letter-spacing: 0.08em; display: block; margin-bottom: 4px;">Sanctuary Address</b>{{site.address}}</p>
+          <p v-if="site.office_hours" style="color: #f8fafc; line-height: 1.7; margin-bottom: 16px;"><b style="color: #94a3b8; text-transform: uppercase; font-size: 0.78rem; letter-spacing: 0.08em; display: block; margin-bottom: 4px;">Service & Office Hours</b>{{site.office_hours}}</p>
+          <p v-if="site.phone || site.email" style="color: #f8fafc; line-height: 1.7; margin-bottom: 20px;"><b style="color: #94a3b8; text-transform: uppercase; font-size: 0.78rem; letter-spacing: 0.08em; display: block; margin-bottom: 4px;">Telephone & Email</b><span v-if="site.phone">{{site.phone}}<br></span><span v-if="site.email">{{site.email}}</span></p>
           <a href="#/live" class="btn-brand w-100 mt-3 text-center"><i class="fa-solid fa-video me-1"></i> Watch Live Stream</a>
         </div>
       </div>
@@ -967,36 +967,36 @@ const AboutPage = {
     <section class="section about-page-section"><div class="container-wide">
       
       <!-- Pastor Profile Card -->
-      <div class="row g-5 align-items-center mb-5 p-4 rounded" style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.08);">
+      <div class="row g-5 align-items-center mb-5 p-4 rounded" style="background: #ffffff; border: 1px solid #e2e8f0; box-shadow: 0 10px 40px rgba(0,0,0,0.06); border-radius: 16px;">
         <div class="col-lg-4 text-center">
           <img :src="pastorImage" class="img-fluid rounded shadow-lg" alt="Pastor Joseph Atibi-Brown" style="max-height: 420px; width: 100%; object-fit: cover;">
         </div>
         <div class="col-lg-8">
-          <span class="badge mb-2" style="background: rgba(230,167,25,0.2); color: #ffcb45; border: 1px solid rgba(230,167,25,0.3); font-size: 0.85rem;"><i class="fa-solid fa-church me-1"></i> Leadership</span>
-          <h2 class="title-serif mb-1" style="font-size: 2.4rem;">{{pageCms.pastor_name || 'Pastor Joseph Atibi-Brown'}}</h2>
-          <div class="text-warning fw-bold mb-3">{{pageCms.pastor_title || 'Pastor, Christ Embassy New Benin'}}</div>
-          <p class="text-lg" style="line-height: 1.8; color: #d0d7de;">{{pageCms.pastor_bio || "Pastor Joseph Atibi-Brown is a passionate minister of the gospel whose dynamic teaching of God's Word brings clarity, faith, and supernatural results. Under his spiritual leadership, Christ Embassy New Benin continues to flourish as a beacon of light, excellence, and salvation."}}</p>
+          <span class="badge mb-2" style="background: #fef3c7; color: #92400e; border: 1px solid #fde68a; font-size: 0.85rem; font-weight: 700;"><i class="fa-solid fa-church me-1"></i> Leadership</span>
+          <h2 class="title-serif mb-1" style="font-size: clamp(2.2rem, 3.8vw, 3rem); color: #0f172a; font-weight: 700;">{{pageCms.pastor_name || 'Pastor Joseph Atibi-Brown'}}</h2>
+          <div class="fw-bold mb-3" style="color: #b45309; font-size: 1.15rem; letter-spacing: 0.02em;">{{pageCms.pastor_title || 'Pastor, Christ Embassy New Benin'}}</div>
+          <p class="text-lg" style="line-height: 1.85; color: #1e293b; font-size: 1.1rem; font-weight: 450;">{{pageCms.pastor_bio || "Pastor Joseph Atibi-Brown is a passionate minister of the gospel whose dynamic teaching of God's Word brings clarity, faith, and supernatural results. Under his spiritual leadership, Christ Embassy New Benin continues to flourish as a beacon of light, excellence, and salvation."}}</p>
         </div>
       </div>
 
       <!-- Global Vision & Local Expression Grid -->
       <div class="row g-4 mb-5">
         <div class="col-md-6">
-          <div class="p-4 rounded h-100" style="background: rgba(18,55,116,0.25); border: 1px solid rgba(255,255,255,0.1);">
-            <div class="eyebrow text-warning"><i class="fa-solid fa-earth-americas me-1"></i> {{pageCms.global_vision_title || 'Our Global Vision'}}</div>
-            <h3 class="fw-bold mb-3" style="font-size: 1.5rem;">To Take the Divine Presence of God to the Nations</h3>
-            <blockquote class="text-lg fst-italic" style="color: #fff; line-height: 1.7; border-left: 3px solid var(--accent); padding-left: 16px;">
+          <div class="p-4 rounded h-100" style="background: linear-gradient(135deg, #07152f 0%, #0f2b5c 100%); color: #ffffff; border: 1px solid rgba(230,167,25,0.45); box-shadow: 0 12px 40px rgba(7,21,47,0.25); border-radius: 16px;">
+            <div class="eyebrow" style="color: #fbbf24; letter-spacing: 0.15em;"><i class="fa-solid fa-earth-americas me-2"></i> {{pageCms.global_vision_title || 'Our Global Vision'}}</div>
+            <h3 class="fw-bold mb-3" style="font-size: 1.55rem; color: #ffffff;">To Take the Divine Presence of God to the Nations</h3>
+            <blockquote class="fst-italic" style="color: #ffffff; font-size: 1.12rem; line-height: 1.8; border-left: 4px solid #f59e0b; padding-left: 18px; margin: 18px 0; background: rgba(255,255,255,0.08); border-radius: 0 8px 8px 0; padding: 16px 20px;">
               "{{pageCms.global_vision_statement || 'To take the divine presence of God to the nations and peoples of the world; and to demonstrate the character of the Spirit.'}}"
             </blockquote>
-            <p class="small text-muted mt-3 mb-0">{{pageCms.global_leadership || 'Christ Embassy is a worldwide ministry founded and presided over by Rev. Dr. Chris Oyakhilome D.Sc., D.D.'}}</p>
+            <p class="small mt-3 mb-0" style="color: #cbd5e1; font-weight: 500;"><i class="fa-solid fa-crown me-1 text-warning"></i> {{pageCms.global_leadership || 'Christ Embassy is a worldwide ministry founded and presided over by Rev. Dr. Chris Oyakhilome D.Sc., D.D.'}}</p>
           </div>
         </div>
 
         <div class="col-md-6">
-          <div class="p-4 rounded h-100" style="background: rgba(230,167,25,0.08); border: 1px solid rgba(230,167,25,0.25);">
-            <div class="eyebrow text-warning"><i class="fa-solid fa-fire me-1"></i> {{pageCms.local_expression_title || 'Our Local Expression'}}</div>
-            <h3 class="fw-bold mb-3" style="font-size: 1.5rem;">Church of Excellence in Action</h3>
-            <p class="text-lg" style="color: #e2e8f0; line-height: 1.8;">
+          <div class="p-4 rounded h-100" style="background: linear-gradient(135deg, #090e17 0%, #152238 100%); color: #ffffff; border: 1px solid rgba(230,167,25,0.45); box-shadow: 0 12px 40px rgba(0,0,0,0.25); border-radius: 16px;">
+            <div class="eyebrow" style="color: #fbbf24; letter-spacing: 0.15em;"><i class="fa-solid fa-fire me-2"></i> {{pageCms.local_expression_title || 'Our Local Expression'}}</div>
+            <h3 class="fw-bold mb-3" style="font-size: 1.55rem; color: #ffffff;">Church of Excellence in Action</h3>
+            <p style="color: #f1f5f9; font-size: 1.08rem; line-height: 1.85; font-weight: 400; margin: 0;">
               {{pageCms.local_expression_body || 'At Christ Embassy New Benin (Church of Excellence), under the leadership of Pastor Joseph Atibi-Brown, we actively translate this divine mandate into vibrant local action. We demonstrate the character of the Holy Spirit across Benin City and beyond through life-transforming services, discipleship, and community outreach.'}}
             </p>
           </div>

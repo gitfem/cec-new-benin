@@ -1,7 +1,9 @@
 {
   "site": {
     "name": "Christ Embassy New Benin",
-    "logo": "assets/uploaded_media/christ_embassy_official_logo.png",
+    "logo": "assets/uploaded_media/cec_newbenin_church_logo_1_web.png",
+    "logo_full": "assets/uploaded_media/cec_newbenin_church_logo_1.png",
+    "logo_icon": "assets/uploaded_media/cec_newbenin_church_logo_icon.png",
     "email": "[— To Be Supplied]",
     "phone": "[— To Be Supplied]",
     "support_phone": "[— To Be Supplied]",
