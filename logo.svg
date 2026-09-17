@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 80" fill="none">
+  <defs>
+    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FDE047" />
+      <stop offset="50%" stop-color="#EAB308" />
+      <stop offset="100%" stop-color="#CA8A04" />
+    </linearGradient>
+    <linearGradient id="blueGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1E3A8A" />
+      <stop offset="100%" stop-color="#0F172A" />
+    </linearGradient>
+  </defs>
+  <!-- Emblem Circle -->
+  <circle cx="40" cy="40" r="32" fill="url(#blueGrad)" stroke="url(#goldGrad)" stroke-width="2.5" />
+  <!-- Radiant Cross & Dove/Flame Motif -->
+  <path d="M40 18 V62" stroke="url(#goldGrad)" stroke-width="3" stroke-linecap="round" />
+  <path d="M26 32 H54" stroke="url(#goldGrad)" stroke-width="3" stroke-linecap="round" />
+  <circle cx="40" cy="40" r="14" fill="none" stroke="#FDE047" stroke-width="1.5" stroke-dasharray="2 3" opacity="0.8" />
+  <path d="M33 46 Q40 37 47 46" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" fill="none" />
+  <!-- Church Name Typography -->
+  <text x="84" y="34" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="16" font-weight="800" letter-spacing="1.5" fill="#0F172A">CHRIST EMBASSY</text>
+  <text x="84" y="52" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="13" font-weight="700" letter-spacing="2" fill="#CA8A04">NEW BENIN</text>
+  <text x="84" y="66" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="9" font-weight="500" letter-spacing="1" fill="#64748B">CHURCH OF EXCELLENCE</text>
+</svg>

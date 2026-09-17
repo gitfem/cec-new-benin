@@ -1,0 +1,456 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#050505">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="CE New Benin">
+  <title>Christ Embassy New Benin | Church of Excellence</title>
+  <meta name="description" content="Welcome to Christ Embassy New Benin with Pastor Joseph Atibi-Brown — Church of Excellence.">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+  <link href="style.css?v=28" rel="stylesheet">
+</head>
+<body>
+<div id="app" :class="{ready: ready, 'menu-open': menuOpen}">
+  <header class="mobile-header">
+    <a href="#/" class="brand" @click="menuOpen=false">
+      <span class="brand-mark" :class="{'has-logo': siteLogo}">
+        <img v-if="siteLogo" :src="asset(siteLogo)" :alt="siteName">
+        <template v-else>{{ brandInitial }}</template>
+      </span>
+      <span class="brand-copy"><b>{{ brandMain }}</b><em>{{ brandSuffix }}</em></span>
+    </a>
+    <!-- <button class="icon-button" type="button" @click="menuOpen=!menuOpen" aria-label="Open menu">
+      <i :class="menuOpen ? 'fa-solid fa-xmark' : 'fa-solid fa-bars'"></i>
+    </button> -->
+  </header>
+
+  <aside class="drawer">
+    <a v-for="item in navItems" :href="item.href" @click="menuOpen=false">{{ item.label }}<i class="fa-solid fa-arrow-right"></i></a>
+  </aside>
+
+  <main v-if="!ready" class="mobile-loader-shell">
+    <div class="mobile-loader-header">
+      <div class="fb-shimmer mobile-loader-logo"></div>
+      <div class="fb-shimmer mobile-loader-menu"></div>
+    </div>
+    <section class="mobile-loader-hero">
+      <div class="fb-shimmer fb-line short"></div>
+      <div class="fb-shimmer fb-mobile-title"></div>
+      <div class="fb-shimmer fb-line"></div>
+      <div class="mobile-loader-actions">
+        <div class="fb-shimmer mobile-loader-button"></div>
+        <div class="fb-shimmer mobile-loader-button ghost"></div>
+      </div>
+    </section>
+    <section class="screen mobile-loader-quick">
+      <div class="fb-shimmer" v-for="item in 5"></div>
+    </section>
+    <section class="screen mobile-loader-list">
+      <div class="mobile-loader-card" v-for="item in 4">
+        <div class="fb-shimmer fb-thumb"></div>
+        <div>
+          <div class="fb-shimmer fb-line"></div>
+          <div class="fb-shimmer fb-line medium"></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <main v-else>
+    <section v-if="route==='home'" class="screen home-screen">
+      <div class="hero-card" :style="{backgroundImage: heroImage}">
+        <video v-if="isHeroVideo" class="mobile-hero-video" :src="activeSlideMedia" autoplay muted loop playsinline preload="metadata"></video>
+        <div class="hero-shade"></div>
+        <div class="hero-content">
+          <span class="live-pill"><i class="fa-solid fa-circle"></i> Mobile Church</span>
+          <span class="eyebrow">{{ hero.eyebrow || 'Welcome' }}</span>
+          <h1 v-if="activeSlide.title">{{ activeSlide.title }}</h1>
+          <p>{{ activeSlide.subtitle || hero.subtitle || 'Worship, connect, and grow wherever you are.' }}</p>
+          <div class="action-row">
+            <a class="primary-btn" href="#/live"><i class="fa-solid fa-play"></i> Watch Live</a>
+            <a class="ghost-btn" href="#/visit">Plan Visit</a>
+          </div>
+        </div>
+      </div>
+
+      <section class="quick-grid">
+        <a href="#/live"><i class="fa-solid fa-signal"></i><span>Live</span></a>
+        <a href="#/events"><i class="fa-solid fa-calendar-days"></i><span>Events</span></a>
+        <a href="#/stories"><i class="fa-solid fa-comment-dots"></i><span>Stories</span></a>
+        <a href="#/give"><i class="fa-solid fa-heart"></i><span>Give</span></a>
+        <!-- <a href="#/menu"><i class="fa-solid fa-compass"></i><span>Explore</span></a> -->
+      </section>
+
+      <a v-if="upcomingEvent.title || upcomingEvent.image_url" :href="upcomingEvent.link_url || '#/events'" class="feature-event">
+        <img v-if="upcomingEvent.image_url" :src="asset(upcomingEvent.image_url)" :alt="upcomingEvent.title">
+        <div>
+          <span class="eyebrow">{{ upcomingEvent.eyebrow || 'Upcoming' }}</span>
+          <h2>{{ upcomingEvent.title }}</h2>
+          <p>{{ upcomingEvent.event_date || upcomingEvent.subtitle }}</p>
+        </div>
+        <i class="fa-solid fa-arrow-right"></i>
+      </a>
+
+      <section v-if="featureBanners.length" class="section-block">
+        <div class="section-head"><span class="eyebrow">Connect</span><h2>Ways to experience church</h2></div>
+        <div class="scroll-row">
+          <a v-for="item in featureBanners" :href="item.href || '#/'" class="image-tile">
+            <img :src="asset(item.image_url)" :alt="item.title">
+            <b>{{ item.title }}</b>
+          </a>
+        </div>
+      </section>
+
+      <section v-if="latestSermons.length" class="section-block dark-block">
+        <div class="section-head"><span class="eyebrow">Watch</span><h2>Latest messages</h2></div>
+        <a v-for="sermon in latestSermons.slice(0,2)" :href="'#/watch/' + sermon.id" class="media-item">
+          <img v-if="sermon.poster_url || sermon.media_url" :src="asset(sermon.poster_url || sermon.media_url)" :alt="sermon.title">
+          <span v-else class="media-icon"><i class="fa-solid fa-play"></i></span>
+          <div><b>{{ sermon.title }}</b><small>{{ sermon.speaker || sermon.eyebrow || 'Sermon' }}</small></div>
+        </a>
+      </section>
+
+      <section v-if="stories.length" class="section-block">
+        <div class="section-head"><span class="eyebrow">Stories</span><h2>Latest stories</h2></div>
+        <a v-for="story in stories.slice(0,3)" :href="'#/stories/' + story.id" class="story-home-card">
+          <img v-if="story.image_url" :src="story.image_url" :alt="story.title">
+          <span v-else class="media-icon"><i class="fa-solid fa-comment-dots"></i></span>
+          <div><b>{{ story.title }}</b><small>{{ story.subtitle || story.eyebrow || 'Story' }}</small></div>
+        </a>
+        <a href="#/stories" class="primary-btn full">View Stories</a>
+      </section>
+    </section>
+
+    <section v-else-if="route==='live'" class="screen live-screen">
+      <div v-if="!member" class="page-hero live-login-hero">
+        <span class="live-pill"><i class="fa-solid fa-circle"></i> Live Service Access</span>
+        <span class="eyebrow">Member Sign In</span>
+        <h1>Enter live service</h1>
+        <p>Sign in to watch the player or YouTube stream, join chat, and view announcements.</p>
+      </div>
+      <form v-if="!member" class="live-login-card" @submit.prevent="loginLive">
+        <div v-if="liveError" class="form-alert">{{ liveError }}</div>
+        <label>Full Name<input v-model="liveForm.name" placeholder="Your full name"></label>
+        <label>Phone Number<input v-model="liveForm.phone" placeholder="080..."></label>
+        <label>Email Address <span>optional</span><input v-model="liveForm.email" placeholder="name@email.com"></label>
+        <label>Group<select v-model="liveForm.group"><option value="">Select group</option><option v-for="group in groupOptions" :value="group">{{ group }}</option></select></label>
+        <div class="view-toggle">
+          <button type="button" :class="{active:liveForm.mode==='individual'}" @click="liveForm.mode='individual'; liveForm.count=1">Individual</button>
+          <button type="button" :class="{active:liveForm.mode==='group'}" @click="liveForm.mode='group'">Group</button>
+        </div>
+        <label v-if="liveForm.mode==='group'">Number Viewing<input v-model="liveForm.count" type="number" min="1"></label>
+        <label class="check-line"><input v-model="liveForm.remember" type="checkbox"> Remember me</label>
+        <button class="primary-btn full" type="submit">Continue <i class="fa-solid fa-arrow-right"></i></button>
+      </form>
+
+      <template v-else>
+        <div class="live-member-bar">
+          <div><b>{{ member.name }}</b><span>{{ member.group }}<template v-if="liveViewers > 0"> / {{ liveViewers }} online</template></span></div>
+          <button type="button" @click="logoutLive">Logout</button>
+        </div>
+        <div v-if="liveNotice" class="notice-card">
+          <button type="button" @click="dismissLiveNotice"><i class="fa-solid fa-xmark"></i></button>
+          <span class="eyebrow">Live Notice</span>
+          <h3>{{ liveNotice.title || 'Message from Admin' }}</h3>
+          <p>{{ liveNotice.message }}</p>
+        </div>
+        <div class="stream-tabs">
+          <button type="button" :class="{active:activeStream==='player'}" @click="switchStream('player')"><i class="fa-solid fa-play"></i> Player</button>
+          <button type="button" :class="{active:activeStream==='youtube'}" @click="switchStream('youtube')"><i class="fa-brands fa-youtube"></i> YouTube</button>
+        </div>
+        <div v-if="activeStream==='player'" class="player-card native-mobile-player">
+          <video ref="liveVideo" preload="auto" controls playsinline webkit-playsinline x-webkit-airplay="allow" @loadedmetadata="markStreamReady" @canplay="markStreamReady" @playing="markStreamReady" @waiting="handleLiveStall" @stalled="handleLiveStall" @ended="handleLiveStall" @timeupdate="checkLiveDrift" @error="markStreamError" @play="isPlaying=true" @pause="isPlaying=false"></video>
+          <button v-if="!isPlaying" type="button" class="native-big-play" @click="toggleLivePlay" aria-label="Play live stream"><i class="fa-solid fa-play"></i></button>
+        </div>
+        <div v-else class="player-card">
+          <iframe :src="youtubeUrl" title="YouTube Live" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+        </div>
+        <a v-if="activeStream==='youtube'" class="primary-btn full" :href="youtubePage" target="_blank" rel="noopener"><i class="fa-brands fa-youtube"></i> Open YouTube</a>
+        <article v-if="announcementHtml" class="announcement-card">
+          <button type="button" @click="announcementOpen=!announcementOpen">Announcement <i :class="announcementOpen ? 'fa-solid fa-chevron-up' : 'fa-solid fa-chevron-down'"></i></button>
+          <div v-show="announcementOpen" v-html="announcementHtml"></div>
+        </article>
+        <section class="chat-card">
+          <div class="chat-title"><i class="fa-solid fa-comments"></i> Live Chat</div>
+          <div class="chat-list" ref="chatList">
+            <div v-for="item in chat" :key="item.id || item.name + item.date + item.shout" class="chat-msg">
+              <b>{{ item.name }}</b><small>{{ item.date }}</small><p>{{ item.shout }}</p>
+            </div>
+          </div>
+          <form class="chat-form" @submit.prevent="postChat">
+            <input v-model="chatText" maxlength="500" placeholder="Type your message...">
+            <button>Send</button>
+          </form>
+          <small v-if="chatError" class="form-alert">{{ chatError }}</small>
+        </section>
+      </template>
+    </section>
+
+    <section v-else-if="route==='watch' && routeParts[1]" class="screen">
+      <div class="page-hero compact" :style="sermonDetail.image_url ? {backgroundImage:'linear-gradient(to bottom, rgba(0,0,0,.28), rgba(0,0,0,.86)), url(' + sermonDetail.image_url + ')'} : {}">
+        <span class="eyebrow">{{ sermonDetail.eyebrow || 'Watch' }}</span>
+        <h1>{{ sermonDetail.title || 'Message not found' }}</h1>
+        <p>{{ sermonDetail.subtitle || sermonDetail.speaker || '' }}</p>
+      </div>
+      <div class="mobile-sermon-media">
+        <iframe v-if="sermonDetail.media_type === 'embed' && sermonDetail.embed_url" :src="sermonDetail.embed_url" :title="sermonDetail.title" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+        <video v-else-if="sermonDetail.media_type === 'video'" :src="sermonDetail.media_url" :poster="sermonDetail.poster_url" controls playsinline preload="metadata"></video>
+        <audio v-else-if="sermonDetail.media_type === 'audio'" :src="sermonDetail.media_url" controls preload="metadata"></audio>
+        <img v-else-if="sermonDetail.media_url || sermonDetail.poster_url" :src="sermonDetail.media_url || sermonDetail.poster_url" :alt="sermonDetail.title">
+      </div>
+      <div class="event-detail-pills">
+        <span v-if="sermonDetail.speaker"><i class="fa-solid fa-user"></i> {{ sermonDetail.speaker }}</span>
+        <span v-if="sermonDetail.eyebrow"><i class="fa-solid fa-video"></i> {{ sermonDetail.eyebrow }}</span>
+      </div>
+      <article v-if="sermonDetail.body" class="rich-card" v-html="sermonDetail.body"></article>
+      <article v-else-if="sermonDetail.subtitle" class="rich-card">{{ sermonDetail.subtitle }}</article>
+      <a href="#/watch" class="primary-btn full"><i class="fa-solid fa-arrow-left"></i> Back to Watch</a>
+    </section>
+
+    <section v-else-if="route==='watch'" class="screen">
+      <div class="page-hero compact"><span class="eyebrow">Watch</span><h1>Messages</h1></div>
+      <a v-for="sermon in latestSermons" :href="'#/watch/' + sermon.id" class="list-card">
+        <img v-if="sermon.poster_url || sermon.media_url" :src="asset(sermon.poster_url || sermon.media_url)" :alt="sermon.title">
+        <div><b>{{ sermon.title }}</b><p>{{ sermon.subtitle }}</p></div>
+      </a>
+    </section>
+
+    <section v-else-if="route==='stories' && routeParts[1]" class="screen story-mobile-screen">
+      <div class="page-hero compact" :style="storyDetail.image_url ? {backgroundImage:'linear-gradient(to bottom, rgba(0,0,0,.28), rgba(0,0,0,.86)), url(' + storyDetail.image_url + ')'} : {}">
+        <span class="eyebrow">{{ storyDetail.eyebrow || 'Stories' }}</span>
+        <h1>{{ storyDetail.title }}</h1>
+        <p>{{ storyDetail.subtitle || '' }}</p>
+      </div>
+      <div v-if="storyDetail.media_type === 'video'" class="mobile-sermon-media"><video :src="storyDetail.media_url" :poster="storyDetail.thumb_url" controls playsinline preload="metadata"></video></div>
+      <div v-else-if="storyDetail.media_type === 'embed'" class="mobile-sermon-media"><iframe :src="storyDetail.media_url" :title="storyDetail.title" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe></div>
+      <img v-else-if="storyDetail.media_url" class="event-detail-photo" :src="storyDetail.media_url" :alt="storyDetail.title">
+      <article v-if="storyDetail.body" class="rich-card" v-html="storyDetail.body"></article>
+      <article v-else-if="storyDetail.subtitle" class="rich-card">{{ storyDetail.subtitle }}</article>
+
+      <section class="mobile-comments">
+        <div class="section-head compact-head"><span class="eyebrow">Comments</span><h2>Conversation</h2></div>
+        <div v-if="storyDetail.comments.length" class="mobile-comment-list">
+          <article v-for="comment in storyDetail.comments" class="mobile-comment">
+            <div><b>{{ comment.display_name || 'Anonymous' }}</b><small>{{ comment.date_label }}</small></div>
+            <p>{{ comment.comment }}</p>
+          </article>
+        </div>
+        <div v-else class="empty-card">No approved comments yet.</div>
+        <form class="mobile-comment-form" @submit.prevent="submitStoryComment">
+          <input v-model="storyCommentForm.display_name" maxlength="120" placeholder="Name optional">
+          <textarea v-model="storyCommentForm.comment" maxlength="800" rows="4" placeholder="Write an anonymous comment..." required></textarea>
+          <small v-if="storyCommentForm.message" class="form-success">{{ storyCommentForm.message }}</small>
+          <small v-if="storyCommentForm.error" class="form-alert">{{ storyCommentForm.error }}</small>
+          <button class="primary-btn full" type="submit" :disabled="storyCommentForm.posting">{{ storyCommentForm.posting ? 'Posting...' : 'Post Comment' }}</button>
+        </form>
+      </section>
+      <a href="#/stories" class="primary-btn full"><i class="fa-solid fa-arrow-left"></i> Back to Stories</a>
+    </section>
+
+    <section v-else-if="route==='stories'" class="screen story-mobile-screen">
+      <div class="page-hero compact"><span class="eyebrow">Stories</span><h1>Stories</h1><p>Testimonies, moments, and updates from church life.</p></div>
+      <div v-if="!stories.length" class="empty-card">No stories posted yet.</div>
+      <a v-for="story in stories" :href="'#/stories/' + story.id" class="story-mobile-card">
+        <img v-if="story.image_url" :src="story.image_url" :alt="story.title">
+        <span v-else class="media-icon"><i class="fa-solid fa-play"></i></span>
+        <div>
+          <small>{{ story.eyebrow || 'Stories' }}</small>
+          <b>{{ story.title }}</b>
+          <p>{{ story.subtitle }}</p>
+        </div>
+      </a>
+    </section>
+
+    <section v-else-if="route==='events' && routeParts[1]" class="screen">
+      <div class="page-hero compact" :style="eventDetail.image_url ? {backgroundImage:'linear-gradient(to bottom, rgba(0,0,0,.28), rgba(0,0,0,.86)), url(' + eventDetail.image_url + ')'} : {}">
+        <span class="eyebrow">{{ eventDetail.eyebrow || 'Event' }}</span>
+        <h1>{{ eventDetail.title || 'Event not found' }}</h1>
+        <p>{{ eventDetail.subtitle || eventDetail.event_date || '' }}</p>
+      </div>
+      <img v-if="eventDetail.image_url" class="event-detail-photo" :src="eventDetail.image_url" :alt="eventDetail.title">
+      <div class="event-detail-pills">
+        <span v-if="eventDetail.event_date"><i class="fa-solid fa-calendar-days"></i> {{ eventDetail.event_date }}</span>
+        <span v-if="eventDetail.location"><i class="fa-solid fa-location-dot"></i> {{ eventDetail.location }}</span>
+      </div>
+      <article v-if="eventDetail.body" class="rich-card" v-html="eventDetail.body"></article>
+      <article v-else-if="eventDetail.subtitle" class="rich-card">{{ eventDetail.subtitle }}</article>
+      <a href="#/events" class="primary-btn full"><i class="fa-solid fa-arrow-left"></i> Back to Events</a>
+    </section>
+
+    <section v-else-if="route==='events'" class="screen">
+      <div class="page-hero compact"><span class="eyebrow">Events</span><h1>Coming up</h1></div>
+      <a v-for="event in events" :href="'#/events/' + event.id" class="list-card">
+        <img v-if="event.image_url" :src="asset(event.image_url)" :alt="event.title">
+        <div><b>{{ event.title }}</b><p>{{ event.event_date || event.subtitle }}</p></div>
+      </a>
+    </section>
+
+    <section v-else-if="contentConfig && routeParts[1]" class="screen">
+      <div class="page-hero compact" :style="contentDetail.image_url ? {backgroundImage:'linear-gradient(to bottom, rgba(0,0,0,.28), rgba(0,0,0,.86)), url(' + contentDetail.image_url + ')'} : {}">
+        <span class="eyebrow">{{ contentDetail.eyebrow }}</span>
+        <h1>{{ contentDetail.title }}</h1>
+        <p>{{ contentDetail.subtitle || contentDetail.meta_text }}</p>
+      </div>
+      <img v-if="contentDetail.image_url" class="event-detail-photo" :src="contentDetail.image_url" :alt="contentDetail.title">
+      <div v-if="contentDetail.meta_text" class="event-detail-pills">
+        <span><i class="fa-solid fa-circle-info"></i> {{ contentDetail.meta_text }}</span>
+      </div>
+      <article v-if="contentDetail.body" class="rich-card" v-html="contentDetail.body"></article>
+      <article v-else-if="contentDetail.subtitle" class="rich-card">{{ contentDetail.subtitle }}</article>
+      <a :href="'#/' + contentConfig.slug" class="primary-btn full"><i class="fa-solid fa-arrow-left"></i> Back to {{ contentConfig.title }}</a>
+    </section>
+
+    <section v-else-if="contentConfig" class="screen">
+      <div class="page-hero compact" :style="pageHeroStyle(contentConfig.slug)">
+        <span class="eyebrow">{{ page(contentConfig.slug).eyebrow || contentConfig.eyebrow }}</span>
+        <h1>{{ page(contentConfig.slug).title || contentConfig.title }}</h1>
+        <p>{{ page(contentConfig.slug).subtitle || '' }}</p>
+      </div>
+      <article v-if="page(contentConfig.slug).body" class="rich-card page-intro" v-html="page(contentConfig.slug).body"></article>
+      <div v-if="!contentItems.length" class="empty-card">No {{ contentConfig.title.toLowerCase() }} posted yet.</div>
+      <a v-for="item in contentItems" :href="item.href" class="list-card">
+        <img v-if="item.image_url" :src="item.image_url" :alt="item.title">
+        <span v-else class="media-icon"><i class="fa-solid fa-location-dot" v-if="route==='locations'"></i><i class="fa-solid fa-users" v-else-if="route==='groups'"></i><i class="fa-solid fa-hands-praying" v-else></i></span>
+        <div><b>{{ item.title }}</b><p>{{ item.meta_text || item.subtitle }}</p></div>
+      </a>
+    </section>
+
+    <section v-else-if="route==='visit'" class="screen">
+      <div class="page-hero compact" :style="pageHeroStyle('visit')">
+        <span class="eyebrow">{{ visitPage.eyebrow || 'Plan a Visit' }}</span>
+        <h1>{{ visitPage.title || 'Plan a Visit' }}</h1>
+        <p>{{ visitPage.subtitle || 'Everything you need to know before joining us.' }}</p>
+      </div>
+      <article v-if="visitPage.body" class="rich-card" v-html="visitPage.body"></article>
+      <article class="contact-card visit-info-card">
+        <h3>Service Info</h3>
+        <p v-if="cms.site.address"><b>Address</b><br>{{ cms.site.address }}</p>
+        <p v-if="cms.site.office_hours"><b>Office / Service Hours</b><br>{{ cms.site.office_hours }}</p>
+        <p v-if="cms.site.phone || cms.site.email"><b>Contact</b><br><span v-if="cms.site.phone">{{ cms.site.phone }}<br></span><span v-if="cms.site.email">{{ cms.site.email }}</span></p>
+        <a href="#/locations" class="primary-btn full">View Locations</a>
+      </article>
+      <a v-for="item in visitLocations" :href="'#/locations/' + item.id" class="list-card">
+        <img v-if="item.image_url" :src="item.image_url" :alt="item.title">
+        <div><b>{{ item.title }}</b><p>{{ item.meta_text || item.subtitle }}</p></div>
+      </a>
+    </section>
+
+    <section v-else-if="route==='give'" class="screen">
+      <div class="page-hero compact"><span class="eyebrow">{{ page('give').eyebrow || 'Giving' }}</span><h1>{{ page('give').title || 'Give securely' }}</h1><p>{{ page('give').subtitle || 'Partner with the work and mission of the church.' }}</p></div>
+      <article v-if="page('give').body" class="rich-card" v-html="page('give').body"></article>
+
+      <div class="mobile-give-card">
+        <div class="give-card-head">
+          <span><i class="fa-solid fa-shield-halved"></i> Secure giving</span>
+          <b>{{ giveAmountLabel }}</b>
+        </div>
+        <div class="mobile-amount-grid">
+          <button type="button" v-for="value in [25,50,100,250]" :class="{active:giveForm.customAmount==='' && giveForm.amount===value}" @click="setGiveAmount(value)">{{ '$' + value }}</button>
+        </div>
+        <label>Custom Amount (USD)</label>
+        <input v-model="giveForm.customAmount" type="number" min="1" step="0.01" placeholder="Enter amount">
+
+        <label>Give Towards</label>
+        <select v-model="giveForm.towards">
+          <option>General Offering</option>
+          <option>Tithe</option>
+          <option>Building Fund</option>
+          <option>Missions</option>
+          <option>First Fruits</option>
+          <option>Partnership</option>
+        </select>
+
+        <label>Frequency</label>
+        <select v-model="giveForm.frequency">
+          <option>One Time</option>
+          <option>Weekly</option>
+          <option>Monthly</option>
+        </select>
+
+        <label>Your Name</label>
+        <input v-model="giveForm.name" type="text" placeholder="Full name">
+        <label>Phone</label>
+        <input v-model="giveForm.phone" type="tel" placeholder="Phone number">
+        <label>Email for Receipt</label>
+        <input v-model="giveForm.email" type="email" placeholder="you@example.com">
+
+        <label>Payment Method</label>
+        <div class="mobile-payment-methods">
+          <button type="button" :class="{active:giveForm.method==='PayPal'}" @click="giveForm.method='PayPal'; giveForm.error=''"><i class="fa-brands fa-paypal"></i> PayPal</button>
+          <button type="button" :class="{active:giveForm.method==='Bank Transfer'}" @click="giveForm.method='Bank Transfer'; giveForm.error=''"><i class="fa-solid fa-building-columns"></i> Bank Transfer</button>
+        </div>
+
+        <label>Note</label>
+        <input v-model="giveForm.note" type="text" placeholder="Optional note">
+        <small v-if="giveForm.error" class="form-alert">{{ giveForm.error }}</small>
+        <div v-if="giveForm.method === 'Bank Transfer'" class="transfer-box" v-html="giveHelp"></div>
+        <form ref="mobilePaypalForm" method="post" action="https://www.paypal.com/cgi-bin/webscr">
+          <input type="hidden" name="cmd" value="_xclick">
+          <input type="hidden" name="business" :value="paypalRecipient">
+          <input type="hidden" name="currency_code" value="USD">
+          <input type="hidden" name="amount" :value="selectedGiveAmount.toFixed(2)">
+          <input type="hidden" name="item_name" :value="siteName + ' - ' + giveForm.towards + ' - ' + giveForm.frequency">
+          <input type="hidden" name="no_shipping" value="1">
+          <input type="hidden" name="payer_email" :value="giveForm.email">
+        </form>
+        <button class="primary-btn full" type="button" @click="submitGive"><i :class="giveForm.method === 'PayPal' ? 'fa-brands fa-paypal' : 'fa-solid fa-heart'"></i> {{ giveForm.method === 'PayPal' ? 'Continue to PayPal' : 'View Transfer Details' }}</button>
+        <p class="give-note" v-html="giveHelp"></p>
+      </div>
+    </section>
+
+    <section v-else-if="hasGenericPage" class="screen">
+      <div class="page-hero compact" :style="pageHeroStyle(route)">
+        <span class="eyebrow">{{ genericPage.eyebrow || 'Page' }}</span>
+        <h1>{{ genericPage.title || 'Page' }}</h1>
+        <p>{{ genericPage.subtitle || '' }}</p>
+      </div>
+      <article v-if="genericPage.body" class="rich-card" v-html="genericPage.body"></article>
+    </section>
+
+    <section v-else class="screen">
+      <div class="page-hero compact"><span class="eyebrow">Menu</span><h1>Explore</h1></div>
+      <div class="menu-list">
+        <a v-for="item in navItems" :href="item.href">{{ item.label }}<i class="fa-solid fa-chevron-right"></i></a>
+      </div>
+      <div class="contact-card">
+        <h3>Contact</h3>
+        <p><span v-if="cms.site.phone">{{ cms.site.phone }}<br></span><span v-if="cms.site.email">{{ cms.site.email }}<br></span><span v-if="cms.site.address">{{ cms.site.address }}</span></p>
+        <div class="socials" v-if="socialLinks.length">
+          <a v-for="social in socialLinks" :href="social.url" target="_blank" rel="noopener" :aria-label="social.label">
+            <i v-if="social.icon" :class="social.icon"></i><span v-else>K</span>
+          </a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div v-if="showMiniLive" class="mobile-mini-player">
+    <video ref="miniLiveVideo" playsinline autoplay muted @loadedmetadata="syncMiniLive" @canplay="syncMiniLive"></video>
+    <div class="mobile-mini-top"><span><i class="fa-solid fa-circle"></i> Live</span><a href="#/live">Open</a></div>
+    <div class="mobile-mini-controls">
+      <button type="button" @click="toggleMiniLiveMute" :title="miniLiveMuted ? 'Unmute' : 'Mute'"><i :class="miniLiveMuted ? 'fa-solid fa-volume-xmark' : 'fa-solid fa-volume-high'"></i></button>
+      <button type="button" @click="closeMiniLive" title="Close"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+  </div>
+  <nav class="bottom-nav">
+    <a href="#/" :class="{active: route==='home'}"><i class="fa-solid fa-house"></i><span>Home</span></a>
+    <a href="#/live" :class="{active: route==='live'}"><i class="fa-solid fa-play"></i><span>Live</span></a>
+    <a href="#/watch" :class="{active: route==='watch'}"><i class="fa-solid fa-video"></i><span>Watch</span></a>
+    <a href="#/events" :class="{active: route==='events'}"><i class="fa-solid fa-calendar"></i><span>Events</span></a>
+    <a href="#/stories" :class="{active: route==='stories'}"><i class="fa-solid fa-comment-dots"></i><span>Stories</span></a>
+    <a href="#/menu" :class="{active: route==='menu'}"><i class="fa-solid fa-grip"></i><span>Menu</span></a>
+  </nav>
+</div>
+
+<script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+<script src="app.js?v=35"></script>
+</body>
+</html>

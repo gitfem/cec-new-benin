@@ -1,0 +1,26 @@
+[
+  {
+    "id": 1,
+    "name": "Sister Joy (Benin City)",
+    "shout": "Hallelujah! What a glorious service with Pastor Joseph Atibi-Brown!",
+    "date": "2026-09-17 10:15:20"
+  },
+  {
+    "id": 2,
+    "name": "Brother Osas",
+    "shout": "Praise God! Christ Embassy New Benin, Church of Excellence!",
+    "date": "2026-09-17 10:19:45"
+  },
+  {
+    "id": 3,
+    "name": "Deaconess Eki",
+    "shout": "Walking in supernatural victory every day! Amen!",
+    "date": "2026-09-17 10:24:10"
+  },
+  {
+    "id": 4,
+    "name": "Brother Michael",
+    "shout": "The Word of God is working in me mightily. Glory to God!",
+    "date": "2026-09-17 10:28:30"
+  }
+]

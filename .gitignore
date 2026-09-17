@@ -1,0 +1,8 @@
+# Scratch and temporary reference files
+scratch/
+cebeninzone1_*
+ref_*
+*.tmp
+*.log
+.DS_Store
+Thumbs.db
