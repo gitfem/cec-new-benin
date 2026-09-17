@@ -290,6 +290,9 @@
         <button class="nav-link-btn" :class="{active: tab==='slides'}" @click="tab='slides'">
           <i class="fa-solid fa-images"></i> Hero & Slides
         </button>
+        <button class="nav-link-btn" :class="{active: tab==='homepage'}" @click="tab='homepage'">
+          <i class="fa-solid fa-layer-group"></i> Experience Cards & Home
+        </button>
         <button class="nav-link-btn" :class="{active: tab==='sermons'}" @click="tab='sermons'">
           <i class="fa-solid fa-book-bible"></i> Sermons & Media
         </button>
@@ -302,8 +305,14 @@
         <button class="nav-link-btn" :class="{active: tab==='stories'}" @click="tab='stories'">
           <i class="fa-solid fa-quote-left"></i> Testimonies
         </button>
+        <button class="nav-link-btn" :class="{active: tab==='about'}" @click="tab='about'">
+          <i class="fa-solid fa-circle-info"></i> About Us & Vision
+        </button>
+        <button class="nav-link-btn" :class="{active: tab==='visit'}" @click="tab='visit'">
+          <i class="fa-solid fa-map-location-dot"></i> Plan a Visit Page
+        </button>
         <button class="nav-link-btn" :class="{active: tab==='settings'}" @click="tab='settings'">
-          <i class="fa-solid fa-church"></i> Pastor & Church Info
+          <i class="fa-solid fa-church"></i> Church Info & Logo
         </button>
         <button class="nav-link-btn" :class="{active: tab==='attendance'}" @click="tab='attendance'">
           <i class="fa-solid fa-clipboard-user"></i> Attendance Log
@@ -684,6 +693,141 @@
           </div>
         </section>
 
+        <!-- TAB: EXPERIENCE CARDS & HOMEPAGE -->
+        <section v-if="tab==='homepage'">
+          <!-- Welcome Section -->
+          <div class="admin-card">
+            <div class="card-title-lg">Homepage Welcome & Headline</div>
+            <div class="row g-3">
+              <div class="col-md-12">
+                <label class="form-label">Main Welcome Header</label>
+                <input type="text" v-model="cms.home.welcome_header" class="form-control" placeholder="Welcome to Christ Embassy New Benin">
+              </div>
+              <div class="col-md-12">
+                <label class="form-label">Welcome Tagline / Subtitle</label>
+                <textarea v-model="cms.home.welcome_text" class="form-control" rows="2" placeholder="Church of Excellence with Pastor Joseph Atibi-Brown..."></textarea>
+              </div>
+              <div class="col-md-4" v-if="cms.home.hero_secondary">
+                <label class="form-label">Secondary Action Button</label>
+                <div class="form-check form-switch mt-2">
+                  <input class="form-check-input" type="checkbox" v-model="cms.home.hero_secondary.show" :true-value="1" :false-value="0" id="secBtnSwitch">
+                  <label class="form-check-label ms-2" for="secBtnSwitch">Show Secondary CTA</label>
+                </div>
+              </div>
+              <div class="col-md-4" v-if="cms.home.hero_secondary && cms.home.hero_secondary.show">
+                <label class="form-label">Button Label</label>
+                <input type="text" v-model="cms.home.hero_secondary.text" class="form-control" placeholder="Watch Live Stream">
+              </div>
+              <div class="col-md-4" v-if="cms.home.hero_secondary && cms.home.hero_secondary.show">
+                <label class="form-label">Button URL</label>
+                <input type="text" v-model="cms.home.hero_secondary.url" class="form-control" placeholder="#/live">
+              </div>
+            </div>
+          </div>
+
+          <!-- 4 Experience Cards (Feature Banners) -->
+          <div class="admin-card">
+            <div class="card-title-lg">
+              <span>Homepage Experience Cards (4 Feature Banners)</span>
+            </div>
+            <p class="text-muted small">These 4 cards appear directly below the hero carousel on the homepage, guiding visitors to core portals.</p>
+            <div v-for="(banner, index) in cms.home.feature_banners" :key="index" class="item-row">
+              <img :src="imgUrl(banner.image_url)" class="item-thumb" alt="Banner">
+              <div class="flex-grow-1 px-3">
+                <div class="fw-bold">{{ banner.title }}</div>
+                <div class="text-muted small">{{ banner.text }} • Link: <span class="text-warning">{{ banner.href }}</span></div>
+              </div>
+              <button class="btn btn-sm btn-outline-light" @click="editFeatureBanner(index)" title="Edit Card"><i class="fa-solid fa-pen"></i></button>
+            </div>
+          </div>
+
+          <!-- Feature Banner Edit Drawer -->
+          <div v-if="editingFeatureBanner !== null" class="admin-card border-warning">
+            <h5 class="fw-bold mb-3"><i class="fa-solid fa-pen-to-square text-warning me-2"></i> Edit Experience Card: {{ cms.home.feature_banners[editingFeatureBanner].title }}</h5>
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label">Card Title</label>
+                <input type="text" v-model="cms.home.feature_banners[editingFeatureBanner].title" class="form-control">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Card Subtitle / Description</label>
+                <input type="text" v-model="cms.home.feature_banners[editingFeatureBanner].text" class="form-control">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Destination Link URL</label>
+                <input type="text" v-model="cms.home.feature_banners[editingFeatureBanner].href" class="form-control" placeholder="#/locations, #/events, #/give, #/live">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Button Text</label>
+                <input type="text" v-model="cms.home.feature_banners[editingFeatureBanner].link_text" class="form-control" placeholder="Explore">
+              </div>
+
+              <!-- DUAL IMAGE UPLOADER -->
+              <div class="col-12">
+                <label class="form-label">Card Cover Image (Upload from PC or enter Link)</label>
+                <div class="image-uploader-box">
+                  <img :src="imgUrl(cms.home.feature_banners[editingFeatureBanner].image_url)" class="preview-box" alt="Card Preview">
+                  <div class="flex-grow-1">
+                    <div class="input-group">
+                      <input type="text" v-model="cms.home.feature_banners[editingFeatureBanner].image_url" class="form-control" placeholder="Image link or upload from PC ->">
+                      <label class="btn btn-gold mb-0 d-flex align-items-center gap-2" style="cursor: pointer;">
+                        <i class="fa-solid" :class="uploading ? 'fa-spinner fa-spin' : 'fa-cloud-arrow-up'"></i>
+                        <span>Upload from PC</span>
+                        <input type="file" accept="image/*" class="d-none" @change="uploadImage($event, cms.home.feature_banners[editingFeatureBanner], 'image_url')">
+                      </label>
+                    </div>
+                    <div class="text-muted small mt-1">Select an image from your computer OR enter an image URL.</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-12 text-end">
+                <button class="btn btn-secondary me-2" @click="editingFeatureBanner = null">Close</button>
+                <button class="btn-gold" @click="editingFeatureBanner = null">Done</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Mosaic / About Section on Homepage -->
+          <div class="admin-card" v-if="cms.home.about_section">
+            <div class="card-title-lg">Homepage Mosaic & Identity Section</div>
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label">Section Eyebrow</label>
+                <input type="text" v-model="cms.home.about_section.eyebrow" class="form-control">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Headline Title</label>
+                <input type="text" v-model="cms.home.about_section.title" class="form-control">
+              </div>
+              <div class="col-12">
+                <label class="form-label">Subtitle / Welcoming Paragraph</label>
+                <textarea v-model="cms.home.about_section.subtitle" class="form-control" rows="3"></textarea>
+              </div>
+              <div class="col-12">
+                <label class="form-label">Extended Description</label>
+                <textarea v-model="cms.home.about_section.body" class="form-control" rows="2"></textarea>
+              </div>
+              <div class="col-12">
+                <label class="form-label">Featured Identity Image (Upload from PC or enter Link)</label>
+                <div class="image-uploader-box">
+                  <img :src="imgUrl(cms.home.about_section.hero_image)" class="preview-box" alt="Mosaic Preview">
+                  <div class="flex-grow-1">
+                    <div class="input-group">
+                      <input type="text" v-model="cms.home.about_section.hero_image" class="form-control" placeholder="Image link or upload from PC ->">
+                      <label class="btn btn-gold mb-0 d-flex align-items-center gap-2" style="cursor: pointer;">
+                        <i class="fa-solid" :class="uploading ? 'fa-spinner fa-spin' : 'fa-cloud-arrow-up'"></i>
+                        <span>Upload from PC</span>
+                        <input type="file" accept="image/*" class="d-none" @change="uploadImage($event, cms.home.about_section, 'hero_image')">
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
         <!-- TAB: SERMONS -->
         <section v-if="tab==='sermons'">
           <div class="admin-card">
@@ -982,10 +1126,85 @@
           </div>
         </section>
 
-        <!-- TAB: CHURCH INFO, PASTOR & CONTACT -->
-        <section v-if="tab==='settings'">
+        <!-- TAB: ABOUT US & LEADERSHIP VISION -->
+        <section v-if="tab==='about'">
+          <!-- About Page Header -->
           <div class="admin-card">
-            <div class="card-title-lg">Pastor & Leadership Profile</div>
+            <div class="card-title-lg">About Us Page Header</div>
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label">Page Title</label>
+                <input type="text" v-model="cms.pages.about.title" class="form-control" placeholder="About Christ Embassy New Benin">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Page Subtitle</label>
+                <input type="text" v-model="cms.pages.about.subtitle" class="form-control" placeholder="Church of Excellence — Led by Pastor Joseph Atibi-Brown">
+              </div>
+              <div class="col-12">
+                <label class="form-label">Introductory Paragraph</label>
+                <textarea v-model="cms.pages.about.intro" class="form-control" rows="2"></textarea>
+              </div>
+
+              <!-- Hero Banner Image -->
+              <div class="col-12">
+                <label class="form-label">Header Banner Image (Upload from PC or enter Link)</label>
+                <div class="image-uploader-box">
+                  <img :src="imgUrl(cms.pages.about.hero_image)" class="preview-box" alt="Header Preview">
+                  <div class="flex-grow-1">
+                    <div class="input-group">
+                      <input type="text" v-model="cms.pages.about.hero_image" class="form-control" placeholder="Image link or upload from PC ->">
+                      <label class="btn btn-gold mb-0 d-flex align-items-center gap-2" style="cursor: pointer;">
+                        <i class="fa-solid" :class="uploading ? 'fa-spinner fa-spin' : 'fa-cloud-arrow-up'"></i>
+                        <span>Upload from PC</span>
+                        <input type="file" accept="image/*" class="d-none" @change="uploadImage($event, cms.pages.about, 'hero_image')">
+                      </label>
+                    </div>
+                    <div class="text-muted small mt-1">Select header banner image from your computer OR enter an online link.</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Global Vision Mandate -->
+          <div class="admin-card">
+            <div class="card-title-lg">Global Vision Mandate (Unaltered)</div>
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label">Vision Section Title</label>
+                <input type="text" v-model="cms.pages.about.global_vision_title" class="form-control">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Global Leadership Authority</label>
+                <input type="text" v-model="cms.pages.about.global_leadership" class="form-control" readonly>
+                <small class="text-muted">Strictly: Rev. Dr. Chris Oyakhilome D.Sc., D.D. — President, Christ Embassy</small>
+              </div>
+              <div class="col-12">
+                <label class="form-label">Unaltered Global Vision Statement</label>
+                <textarea v-model="cms.pages.about.global_vision_statement" class="form-control" rows="2" readonly></textarea>
+                <small class="text-muted">"To take the divine presence of God to the nations and peoples of the world; and to demonstrate the character of the Spirit."</small>
+              </div>
+            </div>
+          </div>
+
+          <!-- Local Expression -->
+          <div class="admin-card">
+            <div class="card-title-lg">Our Local Expression</div>
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label">Section Title</label>
+                <input type="text" v-model="cms.pages.about.local_expression_title" class="form-control" placeholder="Our Local Expression">
+              </div>
+              <div class="col-12">
+                <label class="form-label">Local Expression Description</label>
+                <textarea v-model="cms.pages.about.local_expression_body" class="form-control" rows="4"></textarea>
+              </div>
+            </div>
+          </div>
+
+          <!-- Pastor Joseph Atibi-Brown Profile -->
+          <div class="admin-card">
+            <div class="card-title-lg">Pastor Profile & Ministry Leadership</div>
             <div class="row g-3">
               <div class="col-md-6">
                 <label class="form-label">Pastor Name</label>
@@ -1018,7 +1237,119 @@
 
               <div class="col-12">
                 <label class="form-label">Pastor Biography</label>
-                <textarea v-model="cms.pages.about.pastor_bio" class="form-control" rows="3"></textarea>
+                <textarea v-model="cms.pages.about.pastor_bio" class="form-control" rows="4"></textarea>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- TAB: PLAN A VISIT PAGE -->
+        <section v-if="tab==='visit'">
+          <div class="admin-card">
+            <div class="card-title-lg">Plan Your Visit Page Overview</div>
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label">Page Title</label>
+                <input type="text" v-model="cms.pages.visit.title" class="form-control">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Page Subtitle</label>
+                <input type="text" v-model="cms.pages.visit.subtitle" class="form-control">
+              </div>
+              <div class="col-12">
+                <label class="form-label">"What to Expect" Welcoming Message</label>
+                <textarea v-model="cms.pages.visit.what_to_expect" class="form-control" rows="3"></textarea>
+              </div>
+            </div>
+          </div>
+
+          <!-- Weekly Services Schedule -->
+          <div class="admin-card">
+            <div class="card-title-lg">
+              <span>Weekly Services & Schedule</span>
+              <button class="btn-gold btn-sm" @click="addVisitService"><i class="fa-solid fa-plus"></i> Add Service</button>
+            </div>
+            <div v-for="(srv, index) in (cms.pages.visit.services || [])" :key="index" class="item-row">
+              <div class="flex-grow-1">
+                <div class="fw-bold">{{ srv.name }} <span class="badge bg-secondary ms-2">{{ srv.time }}</span></div>
+                <div class="text-muted small">{{ srv.description }}</div>
+              </div>
+              <div class="d-flex gap-2">
+                <button class="btn btn-sm btn-outline-light" @click="editVisitService(index)" title="Edit"><i class="fa-solid fa-pen"></i></button>
+                <button class="btn btn-sm btn-outline-danger" @click="cms.pages.visit.services.splice(index, 1)" title="Delete"><i class="fa-solid fa-trash"></i></button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Service Edit Modal -->
+          <div v-if="editingVisitService !== null" class="admin-card border-warning">
+            <h5 class="fw-bold mb-3"><i class="fa-solid fa-pen-to-square text-warning me-2"></i> Edit Service Schedule</h5>
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label">Service Name</label>
+                <input type="text" v-model="cms.pages.visit.services[editingVisitService].name" class="form-control" placeholder="e.g. Sunday Service of Excellence">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Day & Time</label>
+                <input type="text" v-model="cms.pages.visit.services[editingVisitService].time" class="form-control" placeholder="e.g. Every Sunday Morning">
+              </div>
+              <div class="col-12">
+                <label class="form-label">Description / Summary</label>
+                <input type="text" v-model="cms.pages.visit.services[editingVisitService].description" class="form-control" placeholder="Celebration, worship, and prophetic Word.">
+              </div>
+              <div class="col-12 text-end">
+                <button class="btn btn-secondary me-2" @click="editingVisitService = null">Close</button>
+                <button class="btn-gold" @click="editingVisitService = null">Done</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Location and Contacts -->
+          <div class="admin-card">
+            <div class="card-title-lg">Sanctuary Address & Visiting Assistance</div>
+            <div class="row g-3">
+              <div class="col-md-12">
+                <label class="form-label">Sanctuary Street Address</label>
+                <input type="text" v-model="cms.pages.visit.address" class="form-control">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Visiting Helpline / Phone</label>
+                <input type="text" v-model="cms.pages.visit.phone" class="form-control">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Inquiry Email</label>
+                <input type="email" v-model="cms.pages.visit.email" class="form-control">
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- TAB: CHURCH INFO & LOGO -->
+        <section v-if="tab==='settings'">
+          <div class="admin-card">
+            <div class="card-title-lg">Official Church Branding & Logo</div>
+            <div class="row g-3">
+              <div class="col-md-12">
+                <label class="form-label">Official Church Name</label>
+                <input type="text" v-model="cms.site.name" class="form-control">
+              </div>
+              <!-- Church Logo Uploader -->
+              <div class="col-12">
+                <label class="form-label">Church Logo (Upload from PC or enter Link)</label>
+                <div class="image-uploader-box">
+                  <img :src="imgUrl(cms.site.logo)" class="preview-box" alt="Logo Preview">
+                  <div class="flex-grow-1">
+                    <div class="input-group">
+                      <input type="text" v-model="cms.site.logo" class="form-control" placeholder="Logo link or upload from PC ->">
+                      <label class="btn btn-gold mb-0 d-flex align-items-center gap-2" style="cursor: pointer;">
+                        <i class="fa-solid" :class="uploading ? 'fa-spinner fa-spin' : 'fa-cloud-arrow-up'"></i>
+                        <span>Upload from PC</span>
+                        <input type="file" accept="image/*" class="d-none" @change="uploadImage($event, cms.site, 'logo')">
+                      </label>
+                    </div>
+                    <div class="text-muted small mt-1">Select official church logo from your PC or enter online link.</div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -1031,16 +1362,46 @@
                 <input type="text" v-model="cms.site.phone" class="form-control" placeholder="+234 ...">
               </div>
               <div class="col-md-6">
+                <label class="form-label">Support Helpline</label>
+                <input type="text" v-model="cms.site.support_phone" class="form-control" placeholder="+234 ...">
+              </div>
+              <div class="col-md-6">
                 <label class="form-label">Email Address</label>
                 <input type="email" v-model="cms.site.email" class="form-control" placeholder="info@...">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Office & Service Hours</label>
+                <input type="text" v-model="cms.site.office_hours" class="form-control">
               </div>
               <div class="col-md-12">
                 <label class="form-label">Physical Street Address</label>
                 <input type="text" v-model="cms.site.address" class="form-control">
               </div>
+            </div>
+          </div>
+
+          <div class="admin-card">
+            <div class="card-title-lg">Official Social Media Links</div>
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label"><i class="fa-brands fa-youtube text-danger me-1"></i> YouTube Channel</label>
+                <input type="text" v-model="cms.site.youtube" class="form-control">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label"><i class="fa-brands fa-facebook text-primary me-1"></i> Facebook Page</label>
+                <input type="text" v-model="cms.site.facebook" class="form-control">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label"><i class="fa-brands fa-instagram text-warning me-1"></i> Instagram</label>
+                <input type="text" v-model="cms.site.instagram" class="form-control">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label"><i class="fa-brands fa-x-twitter me-1"></i> Twitter / X</label>
+                <input type="text" v-model="cms.site.twitter" class="form-control">
+              </div>
               <div class="col-md-12">
-                <label class="form-label">Office & Service Hours</label>
-                <input type="text" v-model="cms.site.office_hours" class="form-control">
+                <label class="form-label">KingsChat URL</label>
+                <input type="text" v-model="cms.site.kingchat" class="form-control">
               </div>
             </div>
           </div>
@@ -1098,11 +1459,14 @@ createApp({
         announcements: 'Announcements & Alert Notices',
         giving: 'Online Giving & Bank Accounts',
         slides: 'Hero Carousel & Slides',
+        homepage: 'Experience Cards & Homepage',
         sermons: 'Sermons & Video Library',
         events: 'Events & Church Calendar',
         ministries: 'Church Departments & Ministries',
         stories: 'Testimonies & Stories',
-        settings: 'Pastor Profile & Church Contact',
+        about: 'About Us & Leadership Vision',
+        visit: 'Plan a Visit Page & Services',
+        settings: 'Church Info & Logo',
         attendance: 'Live Attendance Records'
       },
       saving: false,
@@ -1110,6 +1474,8 @@ createApp({
       toastMessage: '',
       newCategoryInput: '',
       editingSlide: null,
+      editingFeatureBanner: null,
+      editingVisitService: null,
       editingSermon: null,
       editingEvent: null,
       editingMinistry: null,
@@ -1400,6 +1766,24 @@ createApp({
     deleteStory(index) {
       this.cms.home.stories.splice(index, 1);
       if (this.editingStory === index) this.editingStory = null;
+    },
+    // Experience Cards (Feature Banners)
+    editFeatureBanner(index) {
+      this.editingFeatureBanner = index;
+    },
+    // Visit Services Schedule
+    addVisitService() {
+      if (!this.cms.pages.visit) this.cms.pages.visit = {};
+      if (!Array.isArray(this.cms.pages.visit.services)) this.cms.pages.visit.services = [];
+      this.cms.pages.visit.services.push({
+        name: 'Weekly Prayer Service',
+        time: 'Friday Evening 5:00 PM',
+        description: 'An hour with God in prayer, worship, and intercession.'
+      });
+      this.editingVisitService = this.cms.pages.visit.services.length - 1;
+    },
+    editVisitService(index) {
+      this.editingVisitService = index;
     }
   },
   mounted() {

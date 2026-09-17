@@ -311,7 +311,7 @@ createApp({
     },
     async loadCms(){
       try{
-        const response = await fetch(API_URL, {cache:'no-store'});
+        const response = await fetch(API_URL + '?t=' + Date.now(), {cache:'no-store'});
         const data = await response.json();
         Object.assign(this.cms, data);
         if(data.site && data.site.name){ document.title = data.site.name + ' Mobile'; }
@@ -580,6 +580,8 @@ createApp({
     this.syncRoute();
     this.loadCms();
     window.addEventListener('hashchange', this.syncRoute);
+    window.addEventListener('focus', () => this.loadCms());
+    this.cmsRefreshTimer = setInterval(() => this.loadCms(), 20000);
     this.chatTimer=setInterval(()=>{ if(this.member){ this.loadChat(); } }, 5000);
     this.statusTimer=setInterval(()=>{ if(this.route === 'live'){ this.loadStatus(); } }, 30000);
     this.noticeTimer=setInterval(()=>{ if(this.member){ this.loadLiveNotice(); } }, 8000);

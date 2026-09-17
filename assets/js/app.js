@@ -912,56 +912,116 @@ const VisitPage = {
     pageCms(){ return (this.cms && this.cms.pages && this.cms.pages.visit) ? this.cms.pages.visit : {}; },
     heroStyle(){ return this.pageCms.hero ? {backgroundImage:'url('+this.pageCms.hero+')'} : {}; },
     site(){ return this.cms && this.cms.site ? this.cms.site : {}; },
-    locations(){ return this.cms && this.cms.home && Array.isArray(this.cms.home.locations) ? this.cms.home.locations.slice(0, 3) : []; }
+    services(){ return (this.pageCms && Array.isArray(this.pageCms.services) && this.pageCms.services.length) ? this.pageCms.services : [
+      {name:'Sunday Service of Excellence', time:this.site.office_hours || '[— To Be Supplied]', description:'Celebration, worship, and prophetic insight.'},
+      {name:'Mid-Week Service & Bible Study', time:'Wednesday Evening [— To Be Supplied]', description:'In-depth revelatory study into God\'s Word.'}
+    ]; }
   },
   template:`
   <div>
-    <section class="sub-hero" :style="heroStyle"><div class="container-wide reveal"><div class="eyebrow">{{pageCms.eyebrow || 'Plan a Visit'}}</div><h1 class="title-serif">{{pageCms.title || 'Plan a Visit'}}</h1><p v-if="pageCms.subtitle" class="text-lg cms-subtitle">{{pageCms.subtitle}}</p></div></section>
+    <section class="sub-hero" :style="heroStyle"><div class="container-wide reveal"><div class="eyebrow">{{pageCms.eyebrow || 'Plan a Visit'}}</div><h1 class="title-serif">{{pageCms.title || 'Plan Your Visit'}}</h1><p v-if="pageCms.subtitle" class="text-lg cms-subtitle">{{pageCms.subtitle}}</p></div></section>
     <section class="section visit-page-section"><div class="container-wide">
       <div class="visit-layout">
         <div>
-          <div class="eyebrow">Welcome</div>
-          <h2 class="title-mid">We would love to see you.</h2>
-          <div v-if="pageCms.body" class="cms-body" v-html="pageCms.body"></div>
-          <p v-else class="text-lg">Join us for service, worship with us, and connect with a community where you can grow.</p>
+          <div class="eyebrow">Welcome to Church of Excellence</div>
+          <h2 class="title-mid">We would love to welcome you.</h2>
+          <p class="text-lg mb-4">{{pageCms.what_to_expect || 'From the moment you step through our doors, you will experience a warm family welcome, inspiring worship, engaging programs, and transformative teaching from Pastor Joseph Atibi-Brown.'}}</p>
+          
+          <h3 class="fw-bold mt-4 mb-3">Weekly Services Schedule</h3>
+          <div class="row g-3">
+            <div v-for="(srv, i) in services" :key="i" class="col-md-12">
+              <div class="p-3 rounded" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);">
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                  <h5 class="fw-bold m-0 text-warning">{{srv.name}}</h5>
+                  <span class="badge bg-secondary">{{srv.time}}</span>
+                </div>
+                <p class="text-muted m-0 small">{{srv.description}}</p>
+              </div>
+            </div>
+          </div>
         </div>
         <div class="visit-info-panel">
-          <h3>Service Info</h3>
-          <p v-if="site.address"><b>Address</b><br>{{site.address}}</p>
-          <p v-if="site.office_hours"><b>Office / Service Hours</b><br>{{site.office_hours}}</p>
-          <p v-if="site.phone || site.email"><b>Contact</b><br><span v-if="site.phone">{{site.phone}}<br></span><span v-if="site.email">{{site.email}}</span></p>
-          <a href="#/locations" class="btn-brand w-100">View Locations</a>
+          <h3>Location & Contact</h3>
+          <p v-if="site.address"><b>Sanctuary Address</b><br>{{site.address}}</p>
+          <p v-if="site.office_hours"><b>Service & Office Hours</b><br>{{site.office_hours}}</p>
+          <p v-if="site.phone || site.email"><b>Telephone & Email</b><br><span v-if="site.phone">{{site.phone}}<br></span><span v-if="site.email">{{site.email}}</span></p>
+          <a href="#/live" class="btn-brand w-100 mt-3 text-center"><i class="fa-solid fa-video me-1"></i> Watch Live Stream</a>
         </div>
-      </div>
-      <div v-if="locations.length" class="content-card-grid mt-5">
-        <article v-for="item in locations" class="content-list-card">
-          <img v-if="item.image_url" :src="item.image_url" :alt="item.title">
-          <div class="content-list-body"><span class="tag">{{item.eyebrow || 'Location'}}</span><h3>{{item.title}}</h3><p v-if="item.subtitle">{{item.subtitle}}</p><div v-if="item.meta_text" class="content-list-meta">{{item.meta_text}}</div></div>
-        </article>
       </div>
     </div></section>
   </div>`
 };
+
 const AboutPage = {
   inject:['cms'],
   computed:{
     pageCms(){ return (this.cms && this.cms.pages && this.cms.pages.about) ? this.cms.pages.about : {}; },
     heroStyle(){ return this.pageCms.hero ? {backgroundImage:'url('+this.pageCms.hero+')'} : {}; },
-    ministries(){ return this.cms && this.cms.home && Array.isArray(this.cms.home.ministries) ? this.cms.home.ministries.slice(0, 3) : []; }
+    pastorImage(){ return this.pageCms.pastor_image || 'assets/uploaded_media/WhatsApp_Image_2026-09-17_at_4.27.50_PM.jpeg'; },
+    ministries(){ return this.cms && this.cms.home && Array.isArray(this.cms.home.ministries) ? this.cms.home.ministries.slice(0, 4) : []; }
   },
   template:`
   <div>
-    <section class="sub-hero" :style="heroStyle"><div class="container-wide reveal"><div class="eyebrow">{{pageCms.eyebrow || 'About Us'}}</div><h1 class="title-serif">{{pageCms.title || 'About Us'}}</h1><p v-if="pageCms.subtitle" class="text-lg cms-subtitle">{{pageCms.subtitle}}</p></div></section>
+    <section class="sub-hero" :style="heroStyle"><div class="container-wide reveal"><div class="eyebrow">{{pageCms.eyebrow || 'About Us'}}</div><h1 class="title-serif">{{pageCms.title || 'About Christ Embassy New Benin'}}</h1><p v-if="pageCms.subtitle" class="text-lg cms-subtitle">{{pageCms.subtitle}}</p></div></section>
+    
     <section class="section about-page-section"><div class="container-wide">
-      <div class="split-heading"><div><div class="eyebrow">Our Church</div><h2 class="title-mid">{{pageCms.title || 'A people of worship, word, prayer, community, and mission.'}}</h2></div><div class="text-lg-end"><a href="#/visit" class="btn-outline-darkbrand">Plan a Visit</a></div></div>
-      <div v-if="pageCms.body" class="cms-body about-body" v-html="pageCms.body"></div>
-      <p v-else class="text-lg">We are a family church inspiring people to follow Jesus, discover purpose, and transform their world.</p>
-      <div v-if="ministries.length" class="content-card-grid mt-5">
-        <a v-for="item in ministries" :href="'#/ministries/' + item.id" class="content-list-card">
-          <img v-if="item.image_url" :src="item.image_url" :alt="item.title">
-          <div class="content-list-body"><span class="tag">{{item.eyebrow || 'Ministry'}}</span><h3>{{item.title}}</h3><p v-if="item.subtitle">{{item.subtitle}}</p><b>View Ministry -></b></div>
-        </a>
+      
+      <!-- Pastor Profile Card -->
+      <div class="row g-5 align-items-center mb-5 p-4 rounded" style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.08);">
+        <div class="col-lg-4 text-center">
+          <img :src="pastorImage" class="img-fluid rounded shadow-lg" alt="Pastor Joseph Atibi-Brown" style="max-height: 420px; width: 100%; object-fit: cover;">
+        </div>
+        <div class="col-lg-8">
+          <span class="badge mb-2" style="background: rgba(230,167,25,0.2); color: #ffcb45; border: 1px solid rgba(230,167,25,0.3); font-size: 0.85rem;"><i class="fa-solid fa-church me-1"></i> Leadership</span>
+          <h2 class="title-serif mb-1" style="font-size: 2.4rem;">{{pageCms.pastor_name || 'Pastor Joseph Atibi-Brown'}}</h2>
+          <div class="text-warning fw-bold mb-3">{{pageCms.pastor_title || 'Pastor, Christ Embassy New Benin'}}</div>
+          <p class="text-lg" style="line-height: 1.8; color: #d0d7de;">{{pageCms.pastor_bio || "Pastor Joseph Atibi-Brown is a passionate minister of the gospel whose dynamic teaching of God's Word brings clarity, faith, and supernatural results. Under his spiritual leadership, Christ Embassy New Benin continues to flourish as a beacon of light, excellence, and salvation."}}</p>
+        </div>
       </div>
+
+      <!-- Global Vision & Local Expression Grid -->
+      <div class="row g-4 mb-5">
+        <div class="col-md-6">
+          <div class="p-4 rounded h-100" style="background: rgba(18,55,116,0.25); border: 1px solid rgba(255,255,255,0.1);">
+            <div class="eyebrow text-warning"><i class="fa-solid fa-earth-americas me-1"></i> {{pageCms.global_vision_title || 'Our Global Vision'}}</div>
+            <h3 class="fw-bold mb-3" style="font-size: 1.5rem;">To Take the Divine Presence of God to the Nations</h3>
+            <blockquote class="text-lg fst-italic" style="color: #fff; line-height: 1.7; border-left: 3px solid var(--accent); padding-left: 16px;">
+              "{{pageCms.global_vision_statement || 'To take the divine presence of God to the nations and peoples of the world; and to demonstrate the character of the Spirit.'}}"
+            </blockquote>
+            <p class="small text-muted mt-3 mb-0">{{pageCms.global_leadership || 'Christ Embassy is a worldwide ministry founded and presided over by Rev. Dr. Chris Oyakhilome D.Sc., D.D.'}}</p>
+          </div>
+        </div>
+
+        <div class="col-md-6">
+          <div class="p-4 rounded h-100" style="background: rgba(230,167,25,0.08); border: 1px solid rgba(230,167,25,0.25);">
+            <div class="eyebrow text-warning"><i class="fa-solid fa-fire me-1"></i> {{pageCms.local_expression_title || 'Our Local Expression'}}</div>
+            <h3 class="fw-bold mb-3" style="font-size: 1.5rem;">Church of Excellence in Action</h3>
+            <p class="text-lg" style="color: #e2e8f0; line-height: 1.8;">
+              {{pageCms.local_expression_body || 'At Christ Embassy New Benin (Church of Excellence), under the leadership of Pastor Joseph Atibi-Brown, we actively translate this divine mandate into vibrant local action. We demonstrate the character of the Holy Spirit across Benin City and beyond through life-transforming services, discipleship, and community outreach.'}}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Departments / Ministries Section -->
+      <div v-if="ministries.length">
+        <div class="split-heading mb-4">
+          <div><div class="eyebrow">Departments</div><h2 class="title-mid">Our Active Ministries</h2></div>
+          <div class="text-lg-end"><a href="#/ministries" class="btn-outline-darkbrand">View All Ministries</a></div>
+        </div>
+        <div class="content-card-grid">
+          <a v-for="item in ministries" :key="item.id" :href="'#/ministries/' + item.id" class="content-list-card">
+            <img v-if="item.image_url" :src="item.image_url" :alt="item.title">
+            <div class="content-list-body">
+              <span class="tag">{{item.eyebrow || 'Ministry'}}</span>
+              <h3>{{item.title}}</h3>
+              <p v-if="item.summary">{{item.summary}}</p>
+              <b>Explore Ministry -></b>
+            </div>
+          </a>
+        </div>
+      </div>
+
     </div></section>
   </div>`
 };
@@ -1325,7 +1385,25 @@ createApp({
     closeFloatingLive(){
       this.liveFloatClosed=true;
       this.stopFloatingLive();
+    },
+    loadContent(){
+      fetch(OLD.content + '?t=' + Date.now(), {cache:'no-store'})
+        .then(r=>r.json())
+        .then(data=>{
+          Object.assign(this.cms, data);
+          if(data.site && data.site.name){ document.title=data.site.name; }
+        })
+        .catch(()=>{})
+        .finally(()=>{this.ready=true;});
     }
   },
-  mounted(){try{this.member=JSON.parse(localStorage.getItem('kh_member')||'null')}catch(e){} fetch(OLD.content,{cache:'no-store'}).then(r=>r.json()).then(data=>{ Object.assign(this.cms,data); if(data.site && data.site.name){ document.title=data.site.name; } }).catch(()=>{}).finally(()=>{this.ready=true;}); this.syncRoute(); window.addEventListener('hashchange',this.syncRoute); window.addEventListener('scroll',()=>this.scrolled=window.scrollY>40)}
+  mounted(){
+    try{this.member=JSON.parse(localStorage.getItem('kh_member')||'null')}catch(e){}
+    this.loadContent();
+    this.syncRoute();
+    window.addEventListener('hashchange',this.syncRoute);
+    window.addEventListener('scroll',()=>this.scrolled=window.scrollY>40);
+    window.addEventListener('focus', ()=>this.loadContent());
+    setInterval(()=>this.loadContent(), 20000);
+  }
 }).mount('#app');
