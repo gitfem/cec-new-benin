@@ -99,7 +99,7 @@
       color: #000;
       font-weight: 700;
       border: 0;
-      padding: 9px 20px;
+      padding: 9px 18px;
       border-radius: 8px;
       transition: 0.2s;
       cursor: pointer;
@@ -160,7 +160,32 @@
       border-radius: 8px;
       margin-bottom: 10px;
     }
-    .item-thumb { width: 54px; height: 54px; border-radius: 6px; object-fit: cover; background: #000; }
+    .item-thumb { width: 54px; height: 54px; border-radius: 6px; object-fit: cover; background: #000; flex-shrink: 0; }
+
+    /* Image upload box */
+    .image-uploader-box {
+      background: rgba(255,255,255,0.02);
+      border: 1px dashed rgba(255,255,255,0.15);
+      border-radius: 10px;
+      padding: 14px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      transition: 0.2s;
+    }
+    .image-uploader-box:hover {
+      border-color: var(--accent);
+      background: rgba(255,255,255,0.04);
+    }
+    .preview-box {
+      width: 72px;
+      height: 72px;
+      border-radius: 8px;
+      object-fit: cover;
+      background: #000;
+      border: 1px solid rgba(255,255,255,0.1);
+      flex-shrink: 0;
+    }
 
     /* Toast */
     .toast-popup {
@@ -209,7 +234,7 @@
   <!-- Login Gate -->
   <div v-if="!authenticated" class="login-overlay">
     <div class="login-box">
-      <img :src="cms.site.logo || '../assets/uploaded_media/christ_embassy_official_logo.png'" alt="Logo" style="width: 64px; height: 64px; object-fit: contain; margin-bottom: 16px;">
+      <img :src="imgUrl(cms.site.logo)" alt="Logo" style="width: 64px; height: 64px; object-fit: contain; margin-bottom: 16px;">
       <h3 style="font-weight: 700; margin-bottom: 4px;">Church Admin Portal</h3>
       <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 24px;">Christ Embassy New Benin</p>
       <div class="mb-3 text-start">
@@ -227,7 +252,7 @@
     <!-- Sidebar -->
     <aside class="admin-sidebar">
       <div class="admin-brand">
-        <img :src="cms.site.logo || '../assets/uploaded_media/christ_embassy_official_logo.png'" alt="Logo">
+        <img :src="imgUrl(cms.site.logo)" alt="Logo">
         <div class="admin-brand-title">
           {{ cms.site.name || 'Christ Embassy New Benin' }}
           <span>Admin Portal</span>
@@ -390,21 +415,21 @@
               <button class="btn-gold btn-sm" @click="addSlide"><i class="fa-solid fa-plus"></i> Add Slide</button>
             </div>
             <div v-for="(slide, index) in cms.home.slides" :key="index" class="item-row">
-              <img :src="slide.image" class="item-thumb" alt="Slide">
+              <img :src="imgUrl(slide.image)" class="item-thumb" alt="Slide">
               <div class="flex-grow-1 px-3">
                 <div class="fw-bold">{{ slide.title || 'Untitled Slide' }}</div>
                 <div class="text-muted small">{{ slide.subtitle }}</div>
               </div>
               <div class="d-flex gap-2">
-                <button class="btn btn-sm btn-outline-light" @click="editSlide(index)"><i class="fa-solid fa-pen"></i></button>
-                <button class="btn btn-sm btn-outline-danger" @click="deleteSlide(index)"><i class="fa-solid fa-trash"></i></button>
+                <button class="btn btn-sm btn-outline-light" @click="editSlide(index)" title="Edit Slide"><i class="fa-solid fa-pen"></i></button>
+                <button class="btn btn-sm btn-outline-danger" @click="deleteSlide(index)" title="Delete Slide"><i class="fa-solid fa-trash"></i></button>
               </div>
             </div>
           </div>
 
           <!-- Slide Edit Modal / Drawer -->
           <div v-if="editingSlide !== null" class="admin-card border-warning">
-            <h5 class="fw-bold mb-3">Edit Slide #{{ editingSlide + 1 }}</h5>
+            <h5 class="fw-bold mb-3"><i class="fa-solid fa-pen-to-square text-warning me-2"></i> Edit Slide #{{ editingSlide + 1 }}</h5>
             <div class="row g-3">
               <div class="col-md-6">
                 <label class="form-label">Slide Title</label>
@@ -414,13 +439,33 @@
                 <label class="form-label">Slide Subtitle</label>
                 <input type="text" v-model="cms.home.slides[editingSlide].subtitle" class="form-control">
               </div>
-              <div class="col-md-6">
-                <label class="form-label">Image Path / URL</label>
-                <input type="text" v-model="cms.home.slides[editingSlide].image" class="form-control">
+
+              <!-- DUAL IMAGE UPLOADER: PC or URL -->
+              <div class="col-12">
+                <label class="form-label">Slide Background Image (Upload from PC or enter Link)</label>
+                <div class="image-uploader-box">
+                  <img :src="imgUrl(cms.home.slides[editingSlide].image)" class="preview-box" alt="Preview">
+                  <div class="flex-grow-1">
+                    <div class="input-group">
+                      <input type="text" v-model="cms.home.slides[editingSlide].image" class="form-control" placeholder="Image link/path or upload from PC ->">
+                      <label class="btn btn-gold mb-0 d-flex align-items-center gap-2" style="cursor: pointer;">
+                        <i class="fa-solid" :class="uploading ? 'fa-spinner fa-spin' : 'fa-cloud-arrow-up'"></i>
+                        <span>Upload from PC</span>
+                        <input type="file" accept="image/*" class="d-none" @change="uploadImage($event, cms.home.slides[editingSlide], 'image')">
+                      </label>
+                    </div>
+                    <div class="text-muted small mt-1">Select an image from your computer OR type/paste any image path or URL.</div>
+                  </div>
+                </div>
               </div>
+
               <div class="col-md-6">
                 <label class="form-label">Button Link URL</label>
                 <input type="text" v-model="cms.home.slides[editingSlide].link_url" class="form-control">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Button Label Text</label>
+                <input type="text" v-model="cms.home.slides[editingSlide].link_text" class="form-control" placeholder="Plan a Visit">
               </div>
               <div class="col-12 text-end">
                 <button class="btn btn-secondary me-2" @click="editingSlide = null">Close</button>
@@ -438,13 +483,65 @@
               <button class="btn-gold btn-sm" @click="addSermon"><i class="fa-solid fa-plus"></i> Add Sermon</button>
             </div>
             <div v-for="(sermon, index) in cms.home.sermons" :key="index" class="item-row">
-              <img :src="sermon.poster_url" class="item-thumb" alt="Sermon">
+              <img :src="imgUrl(sermon.poster_url)" class="item-thumb" alt="Sermon">
               <div class="flex-grow-1 px-3">
                 <div class="fw-bold">{{ sermon.title }}</div>
                 <div class="text-muted small">{{ sermon.speaker }} • {{ sermon.date }}</div>
               </div>
               <div class="d-flex gap-2">
-                <button class="btn btn-sm btn-outline-danger" @click="cms.home.sermons.splice(index, 1)"><i class="fa-solid fa-trash"></i></button>
+                <button class="btn btn-sm btn-outline-light" @click="editSermon(index)" title="Edit Sermon"><i class="fa-solid fa-pen"></i></button>
+                <button class="btn btn-sm btn-outline-danger" @click="deleteSermon(index)" title="Delete Sermon"><i class="fa-solid fa-trash"></i></button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Sermon Edit Modal -->
+          <div v-if="editingSermon !== null" class="admin-card border-warning">
+            <h5 class="fw-bold mb-3"><i class="fa-solid fa-pen-to-square text-warning me-2"></i> Edit Sermon</h5>
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label">Sermon Title</label>
+                <input type="text" v-model="cms.home.sermons[editingSermon].title" class="form-control">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Speaker</label>
+                <input type="text" v-model="cms.home.sermons[editingSermon].speaker" class="form-control">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Date</label>
+                <input type="text" v-model="cms.home.sermons[editingSermon].date" class="form-control">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Video / Stream URL</label>
+                <input type="text" v-model="cms.home.sermons[editingSermon].media_url" class="form-control">
+              </div>
+
+              <!-- DUAL IMAGE UPLOADER: PC or URL -->
+              <div class="col-12">
+                <label class="form-label">Sermon Poster Image (Upload from PC or enter Link)</label>
+                <div class="image-uploader-box">
+                  <img :src="imgUrl(cms.home.sermons[editingSermon].poster_url)" class="preview-box" alt="Preview">
+                  <div class="flex-grow-1">
+                    <div class="input-group">
+                      <input type="text" v-model="cms.home.sermons[editingSermon].poster_url" class="form-control" placeholder="Image link or upload from PC ->">
+                      <label class="btn btn-gold mb-0 d-flex align-items-center gap-2" style="cursor: pointer;">
+                        <i class="fa-solid" :class="uploading ? 'fa-spinner fa-spin' : 'fa-cloud-arrow-up'"></i>
+                        <span>Upload from PC</span>
+                        <input type="file" accept="image/*" class="d-none" @change="uploadImage($event, cms.home.sermons[editingSermon], 'poster_url')">
+                      </label>
+                    </div>
+                    <div class="text-muted small mt-1">Select an image from your PC OR paste an online image link.</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-12">
+                <label class="form-label">Summary</label>
+                <textarea v-model="cms.home.sermons[editingSermon].summary" class="form-control" rows="2"></textarea>
+              </div>
+              <div class="col-12 text-end">
+                <button class="btn btn-secondary me-2" @click="editingSermon = null">Close</button>
+                <button class="btn-gold" @click="editingSermon = null">Done</button>
               </div>
             </div>
           </div>
@@ -458,13 +555,73 @@
               <button class="btn-gold btn-sm" @click="addEvent"><i class="fa-solid fa-plus"></i> Add Event</button>
             </div>
             <div v-for="(event, index) in cms.home.events" :key="index" class="item-row">
-              <img :src="event.image_url" class="item-thumb" alt="Event">
+              <img :src="imgUrl(event.image_url)" class="item-thumb" alt="Event">
               <div class="flex-grow-1 px-3">
                 <div class="fw-bold">{{ event.title }}</div>
                 <div class="text-muted small">{{ event.date_text }} • {{ event.time_text }}</div>
               </div>
               <div class="d-flex gap-2">
-                <button class="btn btn-sm btn-outline-danger" @click="cms.home.events.splice(index, 1)"><i class="fa-solid fa-trash"></i></button>
+                <button class="btn btn-sm btn-outline-light" @click="editEvent(index)" title="Edit Event"><i class="fa-solid fa-pen"></i></button>
+                <button class="btn btn-sm btn-outline-danger" @click="deleteEvent(index)" title="Delete Event"><i class="fa-solid fa-trash"></i></button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Event Edit Modal -->
+          <div v-if="editingEvent !== null" class="admin-card border-warning">
+            <h5 class="fw-bold mb-3"><i class="fa-solid fa-pen-to-square text-warning me-2"></i> Edit Event</h5>
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label">Event Title</label>
+                <input type="text" v-model="cms.home.events[editingEvent].title" class="form-control">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Eyebrow / Tag</label>
+                <input type="text" v-model="cms.home.events[editingEvent].eyebrow" class="form-control">
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Date Badge (e.g. EVERY SUN)</label>
+                <input type="text" v-model="cms.home.events[editingEvent].date_badge" class="form-control">
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Date Text</label>
+                <input type="text" v-model="cms.home.events[editingEvent].date_text" class="form-control">
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Time Text</label>
+                <input type="text" v-model="cms.home.events[editingEvent].time_text" class="form-control">
+              </div>
+              <div class="col-md-12">
+                <label class="form-label">Location / Venue</label>
+                <input type="text" v-model="cms.home.events[editingEvent].location" class="form-control">
+              </div>
+
+              <!-- DUAL IMAGE UPLOADER: PC or URL -->
+              <div class="col-12">
+                <label class="form-label">Event Flyer / Image (Upload from PC or enter Link)</label>
+                <div class="image-uploader-box">
+                  <img :src="imgUrl(cms.home.events[editingEvent].image_url)" class="preview-box" alt="Preview">
+                  <div class="flex-grow-1">
+                    <div class="input-group">
+                      <input type="text" v-model="cms.home.events[editingEvent].image_url" class="form-control" placeholder="Image link or upload from PC ->">
+                      <label class="btn btn-gold mb-0 d-flex align-items-center gap-2" style="cursor: pointer;">
+                        <i class="fa-solid" :class="uploading ? 'fa-spinner fa-spin' : 'fa-cloud-arrow-up'"></i>
+                        <span>Upload from PC</span>
+                        <input type="file" accept="image/*" class="d-none" @change="uploadImage($event, cms.home.events[editingEvent], 'image_url')">
+                      </label>
+                    </div>
+                    <div class="text-muted small mt-1">Select a flyer from your computer OR paste an image link.</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-12">
+                <label class="form-label">Event Description</label>
+                <textarea v-model="cms.home.events[editingEvent].summary" class="form-control" rows="2"></textarea>
+              </div>
+              <div class="col-12 text-end">
+                <button class="btn btn-secondary me-2" @click="editingEvent = null">Close</button>
+                <button class="btn-gold" @click="editingEvent = null">Done</button>
               </div>
             </div>
           </div>
@@ -475,28 +632,142 @@
           <div class="admin-card">
             <div class="card-title-lg">
               <span>Church Departments & Ministries</span>
+              <button class="btn-gold btn-sm" @click="addMinistry"><i class="fa-solid fa-plus"></i> Add Ministry</button>
             </div>
             <div v-for="(min, index) in cms.home.ministries" :key="index" class="item-row">
-              <img :src="min.image_url" class="item-thumb" alt="Ministry">
+              <img :src="imgUrl(min.image_url)" class="item-thumb" alt="Ministry">
               <div class="flex-grow-1 px-3">
-                <div class="fw-bold">{{ min.title }}</div>
+                <div class="fw-bold">{{ min.title }} <span class="badge bg-secondary ms-2 small">{{ min.eyebrow }}</span></div>
                 <div class="text-muted small">{{ min.summary }}</div>
+              </div>
+              <div class="d-flex gap-2">
+                <button class="btn btn-sm btn-outline-light" @click="editMinistry(index)" title="Edit Ministry"><i class="fa-solid fa-pen"></i></button>
+                <button class="btn btn-sm btn-outline-danger" @click="deleteMinistry(index)" title="Delete Ministry"><i class="fa-solid fa-trash"></i></button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Ministry Edit Modal / Drawer -->
+          <div v-if="editingMinistry !== null" class="admin-card border-warning">
+            <h5 class="fw-bold mb-3"><i class="fa-solid fa-pen-to-square text-warning me-2"></i> Edit Ministry Department</h5>
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label">Ministry Title</label>
+                <input type="text" v-model="cms.home.ministries[editingMinistry].title" class="form-control" placeholder="e.g. Choir & Worship Ministry">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Eyebrow / Department Tag</label>
+                <input type="text" v-model="cms.home.ministries[editingMinistry].eyebrow" class="form-control" placeholder="e.g. Excellence in Worship">
+              </div>
+
+              <!-- DUAL IMAGE UPLOADER: PC or URL -->
+              <div class="col-12">
+                <label class="form-label">Ministry Cover Image (Upload from PC or enter Link)</label>
+                <div class="image-uploader-box">
+                  <img :src="imgUrl(cms.home.ministries[editingMinistry].image_url)" class="preview-box" alt="Preview">
+                  <div class="flex-grow-1">
+                    <div class="input-group">
+                      <input type="text" v-model="cms.home.ministries[editingMinistry].image_url" class="form-control" placeholder="Image link or upload from PC ->">
+                      <label class="btn btn-gold mb-0 d-flex align-items-center gap-2" style="cursor: pointer;">
+                        <i class="fa-solid" :class="uploading ? 'fa-spinner fa-spin' : 'fa-cloud-arrow-up'"></i>
+                        <span>Upload from PC</span>
+                        <input type="file" accept="image/*" class="d-none" @change="uploadImage($event, cms.home.ministries[editingMinistry], 'image_url')">
+                      </label>
+                    </div>
+                    <div class="text-muted small mt-1">Upload a photo from your computer OR paste an image link.</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-12">
+                <label class="form-label">Detail Link URL</label>
+                <input type="text" v-model="cms.home.ministries[editingMinistry].link_url" class="form-control" placeholder="#/ministries/...">
+              </div>
+              <div class="col-12">
+                <label class="form-label">Summary Description</label>
+                <textarea v-model="cms.home.ministries[editingMinistry].summary" class="form-control" rows="3" placeholder="Brief description of the ministry purpose and activities..."></textarea>
+              </div>
+              <div class="col-12 text-end">
+                <button class="btn btn-secondary me-2" @click="editingMinistry = null">Close</button>
+                <button class="btn-gold" @click="editingMinistry = null">Done</button>
               </div>
             </div>
           </div>
         </section>
 
-        <!-- TAB: TESTIMONIES -->
+        <!-- TAB: TESTIMONIES & STORIES -->
         <section v-if="tab==='stories'">
           <div class="admin-card">
             <div class="card-title-lg">
-              <span>Member Testimonies</span>
+              <span>Member Testimonies & Stories</span>
+              <button class="btn-gold btn-sm" @click="addStory"><i class="fa-solid fa-plus"></i> Add Testimony</button>
             </div>
             <div v-for="(story, index) in cms.home.stories" :key="index" class="item-row">
-              <img :src="story.thumb_url" class="item-thumb" alt="Story">
+              <img :src="imgUrl(story.thumb_url)" class="item-thumb" alt="Story">
               <div class="flex-grow-1 px-3">
-                <div class="fw-bold">{{ story.title }}</div>
+                <div class="fw-bold">
+                  {{ story.title }}
+                  <span v-if="story.is_featured === '1'" class="badge bg-warning text-dark ms-2 small"><i class="fa-solid fa-star"></i> Featured</span>
+                </div>
                 <div class="text-muted small">{{ story.subtitle }}</div>
+              </div>
+              <div class="d-flex gap-2">
+                <button class="btn btn-sm btn-outline-light" @click="editStory(index)" title="Edit Testimony"><i class="fa-solid fa-pen"></i></button>
+                <button class="btn btn-sm btn-outline-danger" @click="deleteStory(index)" title="Delete Testimony"><i class="fa-solid fa-trash"></i></button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Story Edit Modal / Drawer -->
+          <div v-if="editingStory !== null" class="admin-card border-warning">
+            <h5 class="fw-bold mb-3"><i class="fa-solid fa-pen-to-square text-warning me-2"></i> Edit Member Testimony</h5>
+            <div class="row g-3">
+              <div class="col-md-8">
+                <label class="form-label">Testimony Title</label>
+                <input type="text" v-model="cms.home.stories[editingStory].title" class="form-control" placeholder="e.g. Supernatural Breakthrough & Divine Healing">
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Category / Eyebrow</label>
+                <input type="text" v-model="cms.home.stories[editingStory].eyebrow" class="form-control" placeholder="e.g. Testimony">
+              </div>
+              <div class="col-12">
+                <label class="form-label">Subtitle / Key Highlight Quote</label>
+                <input type="text" v-model="cms.home.stories[editingStory].subtitle" class="form-control" placeholder="Short quote summarizing the miracle...">
+              </div>
+              <div class="col-12">
+                <label class="form-label">Full Testimony Narrative / Body</label>
+                <textarea v-model="cms.home.stories[editingStory].body" class="form-control" rows="4" placeholder="Detailed account of what God did through the Word and ministry..."></textarea>
+              </div>
+
+              <!-- DUAL IMAGE UPLOADER: PC or URL -->
+              <div class="col-12">
+                <label class="form-label">Member Photo / Thumbnail (Upload from PC or enter Link)</label>
+                <div class="image-uploader-box">
+                  <img :src="imgUrl(cms.home.stories[editingStory].thumb_url)" class="preview-box" alt="Preview">
+                  <div class="flex-grow-1">
+                    <div class="input-group">
+                      <input type="text" v-model="cms.home.stories[editingStory].thumb_url" class="form-control" placeholder="Image link or upload from PC ->">
+                      <label class="btn btn-gold mb-0 d-flex align-items-center gap-2" style="cursor: pointer;">
+                        <i class="fa-solid" :class="uploading ? 'fa-spinner fa-spin' : 'fa-cloud-arrow-up'"></i>
+                        <span>Upload from PC</span>
+                        <input type="file" accept="image/*" class="d-none" @change="uploadImage($event, cms.home.stories[editingStory], 'thumb_url')">
+                      </label>
+                    </div>
+                    <div class="text-muted small mt-1">Upload member photo from computer OR paste image URL.</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-md-12">
+                <label class="form-label">Featured on Homepage</label>
+                <select v-model="cms.home.stories[editingStory].is_featured" class="form-select">
+                  <option value="1">Yes (Featured Headline Story)</option>
+                  <option value="0">No (Regular Story)</option>
+                </select>
+              </div>
+              <div class="col-12 text-end">
+                <button class="btn btn-secondary me-2" @click="editingStory = null">Close</button>
+                <button class="btn-gold" @click="editingStory = null">Done</button>
               </div>
             </div>
           </div>
@@ -516,6 +787,26 @@
                 <input type="text" v-model="cms.pages.about.pastor_title" class="form-control" readonly>
                 <small class="text-muted">Strictly: Pastor, Christ Embassy New Benin</small>
               </div>
+
+              <!-- DUAL IMAGE UPLOADER: PC or URL -->
+              <div class="col-12">
+                <label class="form-label">Pastor Portrait Photo (Upload from PC or enter Link)</label>
+                <div class="image-uploader-box">
+                  <img :src="imgUrl(cms.pages.about.pastor_image)" class="preview-box" alt="Pastor Preview">
+                  <div class="flex-grow-1">
+                    <div class="input-group">
+                      <input type="text" v-model="cms.pages.about.pastor_image" class="form-control" placeholder="Photo link or upload from PC ->">
+                      <label class="btn btn-gold mb-0 d-flex align-items-center gap-2" style="cursor: pointer;">
+                        <i class="fa-solid" :class="uploading ? 'fa-spinner fa-spin' : 'fa-cloud-arrow-up'"></i>
+                        <span>Upload from PC</span>
+                        <input type="file" accept="image/*" class="d-none" @change="uploadImage($event, cms.pages.about, 'pastor_image')">
+                      </label>
+                    </div>
+                    <div class="text-muted small mt-1">Select portrait from computer OR enter online link.</div>
+                  </div>
+                </div>
+              </div>
+
               <div class="col-12">
                 <label class="form-label">Pastor Biography</label>
                 <textarea v-model="cms.pages.about.pastor_bio" class="form-control" rows="3"></textarea>
@@ -604,8 +895,13 @@ createApp({
         attendance: 'Live Attendance Records'
       },
       saving: false,
+      uploading: false,
       toastMessage: '',
       editingSlide: null,
+      editingSermon: null,
+      editingEvent: null,
+      editingMinistry: null,
+      editingStory: null,
       isLiveNow: true,
       attendanceRecords: [],
       cms: {
@@ -621,6 +917,12 @@ createApp({
     };
   },
   methods: {
+    imgUrl(src) {
+      if (!src) return '../assets/uploaded_media/christ_embassy_official_logo.png';
+      if (/^https?:\/\//i.test(src) || /^data:/i.test(src) || src.startsWith('/')) return src;
+      if (src.startsWith('../')) return src;
+      return '../' + src.replace(/^\/+/, '');
+    },
     login() {
       if (this.pinInput === '7777' || this.pinInput === 'admin') {
         this.authenticated = true;
@@ -641,6 +943,8 @@ createApp({
         .then(r => r.json())
         .then(data => {
           Object.assign(this.cms, data);
+          if (!Array.isArray(this.cms.home.ministries)) this.cms.home.ministries = [];
+          if (!Array.isArray(this.cms.home.stories)) this.cms.home.stories = [];
         })
         .catch(() => {
           this.showToast('Using local cached data.');
@@ -655,6 +959,57 @@ createApp({
         .catch(() => {
           this.attendanceRecords = [];
         });
+    },
+    uploadImage(event, targetObj, keyName) {
+      const file = event.target.files && event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const dataUrl = e.target.result;
+        targetObj[keyName] = dataUrl; // Immediate visual preview
+
+        this.uploading = true;
+        this.showToast('Uploading ' + file.name + ' from PC...');
+
+        fetch('/api/upload', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ filename: file.name, data: dataUrl })
+        })
+        .then(r => r.json())
+        .then(res => {
+          if (res.ok && res.url) {
+            targetObj[keyName] = res.url;
+            this.showToast('Image uploaded successfully: ' + res.url);
+          } else {
+            this.showToast('Loaded image preview successfully.');
+          }
+        })
+        .catch(() => {
+          // Fallback to PHP upload endpoint or data URL
+          fetch('../api/upload.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ filename: file.name, data: dataUrl })
+          })
+          .then(r => r.json())
+          .then(res => {
+            if (res.ok && res.url) {
+              targetObj[keyName] = res.url;
+              this.showToast('Image uploaded: ' + res.url);
+            }
+          })
+          .catch(() => {
+            this.showToast('Image loaded. Remember to click Save Changes.');
+          });
+        })
+        .finally(() => {
+          this.uploading = false;
+          event.target.value = '';
+        });
+      };
+      reader.readAsDataURL(file);
     },
     saveToServer() {
       this.saving = true;
@@ -672,9 +1027,20 @@ createApp({
         }
       })
       .catch(() => {
-        // Fallback for static hosting
-        localStorage.setItem('cec_cms_content', JSON.stringify(this.cms));
-        this.showToast('Saved to browser storage! You can download JSON to commit.');
+        // Fallback for PHP or static hosting
+        fetch('../api/save_content.php', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(this.cms)
+        })
+        .then(r => r.json())
+        .then(res => {
+          if (res.ok) this.showToast('Changes saved to server!');
+        })
+        .catch(() => {
+          localStorage.setItem('cec_cms_content', JSON.stringify(this.cms));
+          this.showToast('Saved to browser storage! You can download JSON to commit.');
+        });
       })
       .finally(() => {
         this.saving = false;
@@ -690,6 +1056,7 @@ createApp({
       URL.revokeObjectURL(url);
       this.showToast('content.json downloaded successfully!');
     },
+    // Slides
     addSlide() {
       this.cms.home.slides.push({
         id: String(Date.now()),
@@ -708,6 +1075,7 @@ createApp({
       this.cms.home.slides.splice(index, 1);
       if (this.editingSlide === index) this.editingSlide = null;
     },
+    // Sermons
     addSermon() {
       this.cms.home.sermons.push({
         id: String(Date.now()),
@@ -720,7 +1088,16 @@ createApp({
         href: '#/watch',
         summary: 'A revelatory message on living the higher life in Christ.'
       });
+      this.editingSermon = this.cms.home.sermons.length - 1;
     },
+    editSermon(index) {
+      this.editingSermon = index;
+    },
+    deleteSermon(index) {
+      this.cms.home.sermons.splice(index, 1);
+      if (this.editingSermon === index) this.editingSermon = null;
+    },
+    // Events
     addEvent() {
       this.cms.home.events.push({
         id: String(Date.now()),
@@ -734,6 +1111,57 @@ createApp({
         image_url: 'assets/uploaded_media/WhatsApp_Image_2026-09-17_at_4.30.14_PM_(1).jpeg',
         link_url: '#/events'
       });
+      this.editingEvent = this.cms.home.events.length - 1;
+    },
+    editEvent(index) {
+      this.editingEvent = index;
+    },
+    deleteEvent(index) {
+      this.cms.home.events.splice(index, 1);
+      if (this.editingEvent === index) this.editingEvent = null;
+    },
+    // Ministries
+    addMinistry() {
+      if (!Array.isArray(this.cms.home.ministries)) this.cms.home.ministries = [];
+      this.cms.home.ministries.push({
+        id: String(Date.now()),
+        title: 'New Church Ministry',
+        eyebrow: 'Department',
+        summary: 'Dedicated to serving the Lord and empowering believers in their spiritual walk.',
+        image_url: 'assets/uploaded_media/WhatsApp_Image_2026-09-17_at_4.36.29_PM.jpeg',
+        link_url: '#/ministries'
+      });
+      this.editingMinistry = this.cms.home.ministries.length - 1;
+    },
+    editMinistry(index) {
+      this.editingMinistry = index;
+    },
+    deleteMinistry(index) {
+      this.cms.home.ministries.splice(index, 1);
+      if (this.editingMinistry === index) this.editingMinistry = null;
+    },
+    // Stories / Testimonies
+    addStory() {
+      if (!Array.isArray(this.cms.home.stories)) this.cms.home.stories = [];
+      this.cms.home.stories.push({
+        id: String(Date.now()),
+        title: 'Miraculous Healing & Restoration',
+        eyebrow: 'Testimony',
+        subtitle: 'God took away the pain and restored my health completely!',
+        body: 'During our Sunday service at Christ Embassy New Benin with Pastor Joseph Atibi-Brown, God touched my body and healed me miraculously. All glory to Jesus!',
+        thumb_url: 'assets/uploaded_media/WhatsApp_Image_2026-09-17_at_4.32.27_PM.jpeg',
+        media_type: 'image',
+        media_url: 'assets/uploaded_media/WhatsApp_Image_2026-09-17_at_4.32.27_PM.jpeg',
+        is_featured: '0'
+      });
+      this.editingStory = this.cms.home.stories.length - 1;
+    },
+    editStory(index) {
+      this.editingStory = index;
+    },
+    deleteStory(index) {
+      this.cms.home.stories.splice(index, 1);
+      if (this.editingStory === index) this.editingStory = null;
     }
   },
   mounted() {

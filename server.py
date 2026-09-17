@@ -3,6 +3,9 @@ import socketserver
 import json
 import os
 import urllib.parse
+import re
+import time
+import base64
 
 PORT = 8080
 DIRECTORY = os.path.dirname(os.path.abspath(__file__))
@@ -15,7 +18,47 @@ class ChurchPortalHandler(http.server.SimpleHTTPRequestHandler):
         url_parts = urllib.parse.urlparse(self.path)
         path = url_parts.path
 
-        # 1. Admin Save Content API
+        # 1. Image Upload API
+        if path == '/api/upload':
+            length = int(self.headers.get('Content-Length', 0))
+            body = self.rfile.read(length)
+            try:
+                payload = json.loads(body.decode('utf-8'))
+                raw_data = payload.get('data', '')
+                filename = payload.get('filename', f'upload_{int(time.time())}.jpg')
+                
+                # Sanitize filename
+                clean_name = re.sub(r'[^a-zA-Z0-9_.-]', '_', filename)
+                clean_name = f"{int(time.time())}_{clean_name}"
+                
+                if ',' in raw_data:
+                    _, b64_str = raw_data.split(',', 1)
+                else:
+                    b64_str = raw_data
+                
+                file_bytes = base64.b64decode(b64_str)
+                save_dir = os.path.join(DIRECTORY, 'assets', 'uploaded_media')
+                os.makedirs(save_dir, exist_ok=True)
+                target_path = os.path.join(save_dir, clean_name)
+                
+                with open(target_path, 'wb') as f:
+                    f.write(file_bytes)
+                
+                rel_url = f'assets/uploaded_media/{clean_name}'
+                self.send_response(200)
+                self.send_header('Content-Type', 'application/json')
+                self.send_header('Access-Control-Allow-Origin', '*')
+                self.end_headers()
+                self.wfile.write(json.dumps({'ok': True, 'url': rel_url}).encode('utf-8'))
+                return
+            except Exception as e:
+                self.send_response(500)
+                self.send_header('Content-Type', 'application/json')
+                self.end_headers()
+                self.wfile.write(json.dumps({'ok': False, 'error': str(e)}).encode('utf-8'))
+                return
+
+        # 2. Admin Save Content API
         if path == '/api/save' or path == '/api/save_content':
             length = int(self.headers.get('Content-Length', 0))
             body = self.rfile.read(length)
@@ -46,7 +89,7 @@ class ChurchPortalHandler(http.server.SimpleHTTPRequestHandler):
                 self.wfile.write(json.dumps({'ok': False, 'error': str(e)}).encode('utf-8'))
                 return
 
-        # 2. Live Chat Post API
+        # 3. Live Chat Post API
         if path == '/oldwebsite/shoutbox.php' or path == '/api/chat':
             length = int(self.headers.get('Content-Length', 0))
             body = self.rfile.read(length).decode('utf-8')
@@ -81,7 +124,7 @@ class ChurchPortalHandler(http.server.SimpleHTTPRequestHandler):
             self.wfile.write(json.dumps({'ok': True, 'message': new_msg}).encode('utf-8'))
             return
 
-        # 3. Live Attendance Login API
+        # 4. Live Attendance Login API
         if path == '/bridge_live_login.php' or path == '/api/attendance':
             length = int(self.headers.get('Content-Length', 0))
             body = self.rfile.read(length).decode('utf-8')
