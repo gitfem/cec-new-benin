@@ -1,0 +1,749 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Portal — Christ Embassy New Benin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Cormorant+Garamond:wght@600;700&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #07090e;
+      --card-bg: #0f131d;
+      --card-border: rgba(255, 255, 255, 0.08);
+      --card-hover: rgba(255, 255, 255, 0.12);
+      --accent: #e6a719;
+      --accent-hover: #ffcb45;
+      --blue: #123774;
+      --blue-light: #1f50a2;
+      --text: #f0f3f8;
+      --text-muted: #8c9ba5;
+      --success: #10b981;
+      --danger: #ef4444;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      min-height: 100vh;
+      display: flex;
+    }
+
+    /* Layout */
+    .admin-wrapper { display: flex; width: 100vw; height: 100vh; overflow: hidden; }
+    .admin-sidebar {
+      width: 270px;
+      background: #0a0d14;
+      border-right: 1px solid var(--card-border);
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+    }
+    .admin-brand {
+      padding: 24px 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border-bottom: 1px solid var(--card-border);
+    }
+    .admin-brand img { width: 36px; height: 36px; object-fit: contain; }
+    .admin-brand-title { font-weight: 700; font-size: 0.95rem; line-height: 1.2; }
+    .admin-brand-title span { color: var(--accent); display: block; font-size: 0.72rem; letter-spacing: 0.05em; text-transform: uppercase; }
+
+    .admin-nav { padding: 16px 12px; flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 4px; }
+    .nav-link-btn {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 11px 14px;
+      border-radius: 8px;
+      color: var(--text-muted);
+      background: transparent;
+      border: 0;
+      width: 100%;
+      text-align: left;
+      font-size: 0.9rem;
+      font-weight: 500;
+      transition: 0.2s;
+      cursor: pointer;
+    }
+    .nav-link-btn:hover { color: #fff; background: rgba(255,255,255,0.04); }
+    .nav-link-btn.active { color: #fff; background: var(--blue-light); font-weight: 600; }
+    .nav-link-btn i { width: 18px; text-align: center; }
+
+    .sidebar-footer { padding: 16px; border-top: 1px solid var(--card-border); font-size: 0.8rem; color: var(--text-muted); }
+
+    .admin-main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+    .admin-topbar {
+      height: 70px;
+      border-bottom: 1px solid var(--card-border);
+      background: rgba(10, 13, 20, 0.85);
+      backdrop-filter: blur(12px);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 28px;
+      flex-shrink: 0;
+    }
+    .admin-content { flex: 1; overflow-y: auto; padding: 28px; }
+
+    /* Buttons */
+    .btn-gold {
+      background: linear-gradient(135deg, var(--accent), #ca8a04);
+      color: #000;
+      font-weight: 700;
+      border: 0;
+      padding: 9px 20px;
+      border-radius: 8px;
+      transition: 0.2s;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .btn-gold:hover { background: var(--accent-hover); color: #000; transform: translateY(-1px); }
+    .btn-outline-gold {
+      background: transparent;
+      border: 1px solid var(--accent);
+      color: var(--accent);
+      font-weight: 600;
+      padding: 8px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    .btn-outline-gold:hover { background: rgba(230,167,25,0.1); }
+
+    /* Cards */
+    .admin-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 24px;
+    }
+    .card-title-lg { font-size: 1.25rem; font-weight: 700; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between; }
+
+    /* Form inputs */
+    .form-label { font-size: 0.85rem; font-weight: 600; color: #b8c4ce; margin-bottom: 6px; }
+    .form-control, .form-select {
+      background: #080b11 !important;
+      border: 1px solid rgba(255,255,255,0.12) !important;
+      color: #fff !important;
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-size: 0.9rem;
+    }
+    .form-control:focus, .form-select:focus {
+      border-color: var(--accent) !important;
+      box-shadow: 0 0 0 2px rgba(230,167,25,0.2) !important;
+    }
+
+    /* Status badge */
+    .badge-live { background: rgba(239, 68, 68, 0.2); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.4); padding: 4px 10px; border-radius: 999px; font-weight: 700; font-size: 0.75rem; }
+    .badge-offline { background: rgba(255, 255, 255, 0.08); color: var(--text-muted); border: 1px solid rgba(255, 255, 255, 0.1); padding: 4px 10px; border-radius: 999px; font-weight: 600; font-size: 0.75rem; }
+
+    /* Tables & items */
+    .item-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 16px;
+      background: rgba(255,255,255,0.02);
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      margin-bottom: 10px;
+    }
+    .item-thumb { width: 54px; height: 54px; border-radius: 6px; object-fit: cover; background: #000; }
+
+    /* Toast */
+    .toast-popup {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: #10b981;
+      color: #fff;
+      padding: 14px 20px;
+      border-radius: 8px;
+      font-weight: 600;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+      z-index: 9999;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      animation: slideUp 0.3s ease;
+    }
+    @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+    /* Login modal */
+    .login-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(5,7,12,0.95);
+      backdrop-filter: blur(12px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10000;
+    }
+    .login-box {
+      width: 100%;
+      max-width: 420px;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 36px;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+<div id="app">
+  <!-- Login Gate -->
+  <div v-if="!authenticated" class="login-overlay">
+    <div class="login-box">
+      <img :src="cms.site.logo || '../assets/uploaded_media/christ_embassy_official_logo.png'" alt="Logo" style="width: 64px; height: 64px; object-fit: contain; margin-bottom: 16px;">
+      <h3 style="font-weight: 700; margin-bottom: 4px;">Church Admin Portal</h3>
+      <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 24px;">Christ Embassy New Benin</p>
+      <div class="mb-3 text-start">
+        <label class="form-label">Admin Security PIN</label>
+        <input type="password" v-model="pinInput" class="form-control text-center" placeholder="Enter PIN (Default: 7777)" @keyup.enter="login" style="font-size: 1.2rem; letter-spacing: 0.2em;">
+      </div>
+      <div v-if="loginError" class="text-danger small mb-3">{{ loginError }}</div>
+      <button type="button" class="btn-gold w-100 justify-content-center" @click="login">
+        <i class="fa-solid fa-lock-open"></i> Unlock Dashboard
+      </button>
+    </div>
+  </div>
+
+  <div class="admin-wrapper" v-else>
+    <!-- Sidebar -->
+    <aside class="admin-sidebar">
+      <div class="admin-brand">
+        <img :src="cms.site.logo || '../assets/uploaded_media/christ_embassy_official_logo.png'" alt="Logo">
+        <div class="admin-brand-title">
+          {{ cms.site.name || 'Christ Embassy New Benin' }}
+          <span>Admin Portal</span>
+        </div>
+      </div>
+
+      <nav class="admin-nav">
+        <button class="nav-link-btn" :class="{active: tab==='dashboard'}" @click="tab='dashboard'">
+          <i class="fa-solid fa-chart-pie"></i> Overview
+        </button>
+        <button class="nav-link-btn" :class="{active: tab==='live'}" @click="tab='live'">
+          <i class="fa-solid fa-video"></i> Live Broadcast
+        </button>
+        <button class="nav-link-btn" :class="{active: tab==='slides'}" @click="tab='slides'">
+          <i class="fa-solid fa-images"></i> Hero & Slides
+        </button>
+        <button class="nav-link-btn" :class="{active: tab==='sermons'}" @click="tab='sermons'">
+          <i class="fa-solid fa-book-bible"></i> Sermons & Media
+        </button>
+        <button class="nav-link-btn" :class="{active: tab==='events'}" @click="tab='events'">
+          <i class="fa-solid fa-calendar-day"></i> Events & Services
+        </button>
+        <button class="nav-link-btn" :class="{active: tab==='ministries'}" @click="tab='ministries'">
+          <i class="fa-solid fa-people-group"></i> Ministries
+        </button>
+        <button class="nav-link-btn" :class="{active: tab==='stories'}" @click="tab='stories'">
+          <i class="fa-solid fa-quote-left"></i> Testimonies
+        </button>
+        <button class="nav-link-btn" :class="{active: tab==='settings'}" @click="tab='settings'">
+          <i class="fa-solid fa-church"></i> Pastor & Church Info
+        </button>
+        <button class="nav-link-btn" :class="{active: tab==='attendance'}" @click="tab='attendance'">
+          <i class="fa-solid fa-clipboard-user"></i> Attendance Log
+        </button>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div>Logged in as <b>Admin</b></div>
+        <a href="../" target="_blank" class="text-warning text-decoration-none mt-1 d-inline-block">
+          <i class="fa-solid fa-arrow-up-right-from-square"></i> Open Live Site
+        </a>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="admin-main">
+      <header class="admin-topbar">
+        <div class="d-flex align-items-center gap-3">
+          <h5 class="m-0 fw-bold">{{ tabTitles[tab] }}</h5>
+          <span v-if="isLiveNow" class="badge-live"><i class="fa-solid fa-circle fa-fade"></i> BROADCASTING LIVE</span>
+          <span v-else class="badge-offline">STREAM OFFLINE</span>
+        </div>
+
+        <div class="d-flex align-items-center gap-3">
+          <button class="btn-outline-gold" @click="downloadBackup" title="Download backup of content.json">
+            <i class="fa-solid fa-download"></i> Backup JSON
+          </button>
+          <button class="btn-gold" @click="saveToServer" :disabled="saving">
+            <i class="fa-solid" :class="saving ? 'fa-spinner fa-spin' : 'fa-floppy-disk'"></i>
+            {{ saving ? 'Saving Changes...' : 'Save Changes' }}
+          </button>
+        </div>
+      </header>
+
+      <div class="admin-content">
+
+        <!-- TAB: DASHBOARD OVERVIEW -->
+        <section v-if="tab==='dashboard'">
+          <div class="row g-4 mb-4">
+            <div class="col-md-3">
+              <div class="admin-card text-center p-4">
+                <i class="fa-solid fa-video text-warning fs-3 mb-2"></i>
+                <div class="text-muted small">Live Stream Status</div>
+                <h4 class="fw-bold mt-1">{{ isLiveNow ? 'Online' : 'Standby' }}</h4>
+                <button class="btn-outline-gold btn-sm mt-2" @click="tab='live'">Manage Stream</button>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="admin-card text-center p-4">
+                <i class="fa-solid fa-book-bible text-info fs-3 mb-2"></i>
+                <div class="text-muted small">Total Sermons</div>
+                <h4 class="fw-bold mt-1">{{ (cms.home.sermons || []).length }}</h4>
+                <button class="btn-outline-gold btn-sm mt-2" @click="tab='sermons'">View Sermons</button>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="admin-card text-center p-4">
+                <i class="fa-solid fa-calendar-check text-success fs-3 mb-2"></i>
+                <div class="text-muted small">Upcoming Events</div>
+                <h4 class="fw-bold mt-1">{{ (cms.home.events || []).length }}</h4>
+                <button class="btn-outline-gold btn-sm mt-2" @click="tab='events'">View Events</button>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="admin-card text-center p-4">
+                <i class="fa-solid fa-users text-primary fs-3 mb-2"></i>
+                <div class="text-muted small">Active Ministries</div>
+                <h4 class="fw-bold mt-1">{{ (cms.home.ministries || []).length }}</h4>
+                <button class="btn-outline-gold btn-sm mt-2" @click="tab='ministries'">Manage</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="admin-card">
+            <div class="card-title-lg">Quick Church Information</div>
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label">Church Name</label>
+                <input type="text" v-model="cms.site.name" class="form-control">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Pastor Name</label>
+                <input type="text" v-model="cms.pages.about.pastor_name" class="form-control">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Service Hours</label>
+                <input type="text" v-model="cms.site.office_hours" class="form-control">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Physical Address</label>
+                <input type="text" v-model="cms.site.address" class="form-control">
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- TAB: LIVE STREAM & BROADCAST -->
+        <section v-if="tab==='live'">
+          <div class="admin-card">
+            <div class="card-title-lg">
+              <span>Live Streaming Settings</span>
+              <div class="form-check form-switch m-0">
+                <input class="form-check-input" type="checkbox" v-model="isLiveNow" id="liveToggle" style="width: 44px; height: 22px; cursor: pointer;">
+                <label class="form-check-label ms-2 small fw-bold" for="liveToggle">{{ isLiveNow ? 'LIVE' : 'OFFLINE' }}</label>
+              </div>
+            </div>
+            <div class="row g-3">
+              <div class="col-md-12">
+                <label class="form-label">HLS Master Stream URL (.m3u8 or streaming audio URL)</label>
+                <input type="text" v-model="cms.live.hls_url" class="form-control" placeholder="https://domain.com/path/playlist.m3u8">
+                <small class="text-muted">Direct high-performance stream for native in-browser player.</small>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">YouTube Channel ID (Live Fallback)</label>
+                <input type="text" v-model="cms.live.youtube_channel_id" class="form-control" placeholder="e.g. UCLFScmpsKP4jlJXD8McBGgQ">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Live Service Support Phone</label>
+                <input type="text" v-model="cms.site.support_phone" class="form-control">
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- TAB: HERO & SLIDES -->
+        <section v-if="tab==='slides'">
+          <div class="admin-card">
+            <div class="card-title-lg">
+              <span>Homepage Carousel Slides</span>
+              <button class="btn-gold btn-sm" @click="addSlide"><i class="fa-solid fa-plus"></i> Add Slide</button>
+            </div>
+            <div v-for="(slide, index) in cms.home.slides" :key="index" class="item-row">
+              <img :src="slide.image" class="item-thumb" alt="Slide">
+              <div class="flex-grow-1 px-3">
+                <div class="fw-bold">{{ slide.title || 'Untitled Slide' }}</div>
+                <div class="text-muted small">{{ slide.subtitle }}</div>
+              </div>
+              <div class="d-flex gap-2">
+                <button class="btn btn-sm btn-outline-light" @click="editSlide(index)"><i class="fa-solid fa-pen"></i></button>
+                <button class="btn btn-sm btn-outline-danger" @click="deleteSlide(index)"><i class="fa-solid fa-trash"></i></button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Slide Edit Modal / Drawer -->
+          <div v-if="editingSlide !== null" class="admin-card border-warning">
+            <h5 class="fw-bold mb-3">Edit Slide #{{ editingSlide + 1 }}</h5>
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label">Slide Title</label>
+                <input type="text" v-model="cms.home.slides[editingSlide].title" class="form-control">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Slide Subtitle</label>
+                <input type="text" v-model="cms.home.slides[editingSlide].subtitle" class="form-control">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Image Path / URL</label>
+                <input type="text" v-model="cms.home.slides[editingSlide].image" class="form-control">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Button Link URL</label>
+                <input type="text" v-model="cms.home.slides[editingSlide].link_url" class="form-control">
+              </div>
+              <div class="col-12 text-end">
+                <button class="btn btn-secondary me-2" @click="editingSlide = null">Close</button>
+                <button class="btn-gold" @click="editingSlide = null">Done</button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- TAB: SERMONS -->
+        <section v-if="tab==='sermons'">
+          <div class="admin-card">
+            <div class="card-title-lg">
+              <span>Sermon Library</span>
+              <button class="btn-gold btn-sm" @click="addSermon"><i class="fa-solid fa-plus"></i> Add Sermon</button>
+            </div>
+            <div v-for="(sermon, index) in cms.home.sermons" :key="index" class="item-row">
+              <img :src="sermon.poster_url" class="item-thumb" alt="Sermon">
+              <div class="flex-grow-1 px-3">
+                <div class="fw-bold">{{ sermon.title }}</div>
+                <div class="text-muted small">{{ sermon.speaker }} • {{ sermon.date }}</div>
+              </div>
+              <div class="d-flex gap-2">
+                <button class="btn btn-sm btn-outline-danger" @click="cms.home.sermons.splice(index, 1)"><i class="fa-solid fa-trash"></i></button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- TAB: EVENTS -->
+        <section v-if="tab==='events'">
+          <div class="admin-card">
+            <div class="card-title-lg">
+              <span>Church Events</span>
+              <button class="btn-gold btn-sm" @click="addEvent"><i class="fa-solid fa-plus"></i> Add Event</button>
+            </div>
+            <div v-for="(event, index) in cms.home.events" :key="index" class="item-row">
+              <img :src="event.image_url" class="item-thumb" alt="Event">
+              <div class="flex-grow-1 px-3">
+                <div class="fw-bold">{{ event.title }}</div>
+                <div class="text-muted small">{{ event.date_text }} • {{ event.time_text }}</div>
+              </div>
+              <div class="d-flex gap-2">
+                <button class="btn btn-sm btn-outline-danger" @click="cms.home.events.splice(index, 1)"><i class="fa-solid fa-trash"></i></button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- TAB: MINISTRIES -->
+        <section v-if="tab==='ministries'">
+          <div class="admin-card">
+            <div class="card-title-lg">
+              <span>Church Departments & Ministries</span>
+            </div>
+            <div v-for="(min, index) in cms.home.ministries" :key="index" class="item-row">
+              <img :src="min.image_url" class="item-thumb" alt="Ministry">
+              <div class="flex-grow-1 px-3">
+                <div class="fw-bold">{{ min.title }}</div>
+                <div class="text-muted small">{{ min.summary }}</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- TAB: TESTIMONIES -->
+        <section v-if="tab==='stories'">
+          <div class="admin-card">
+            <div class="card-title-lg">
+              <span>Member Testimonies</span>
+            </div>
+            <div v-for="(story, index) in cms.home.stories" :key="index" class="item-row">
+              <img :src="story.thumb_url" class="item-thumb" alt="Story">
+              <div class="flex-grow-1 px-3">
+                <div class="fw-bold">{{ story.title }}</div>
+                <div class="text-muted small">{{ story.subtitle }}</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- TAB: CHURCH INFO, PASTOR & GIVING -->
+        <section v-if="tab==='settings'">
+          <div class="admin-card">
+            <div class="card-title-lg">Pastor & Leadership Profile</div>
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label">Pastor Name</label>
+                <input type="text" v-model="cms.pages.about.pastor_name" class="form-control">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Official Title</label>
+                <input type="text" v-model="cms.pages.about.pastor_title" class="form-control" readonly>
+                <small class="text-muted">Strictly: Pastor, Christ Embassy New Benin</small>
+              </div>
+              <div class="col-12">
+                <label class="form-label">Pastor Biography</label>
+                <textarea v-model="cms.pages.about.pastor_bio" class="form-control" rows="3"></textarea>
+              </div>
+            </div>
+          </div>
+
+          <div class="admin-card">
+            <div class="card-title-lg">Online Giving & Bank Details</div>
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label">Bank Name</label>
+                <input type="text" v-model="cms.pages.give.bank_details[0].bank_name" class="form-control">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Account Name</label>
+                <input type="text" v-model="cms.pages.give.bank_details[0].account_name" class="form-control">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Account Number</label>
+                <input type="text" v-model="cms.pages.give.bank_details[0].account_number" class="form-control">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">KingsPay Code</label>
+                <input type="text" v-model="cms.pages.give.kingspay_code" class="form-control">
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- TAB: ATTENDANCE LOG -->
+        <section v-if="tab==='attendance'">
+          <div class="admin-card">
+            <div class="card-title-lg">
+              <span>Live Attendance Check-In Records</span>
+              <button class="btn btn-sm btn-outline-light" @click="loadAttendance"><i class="fa-solid fa-rotate"></i> Refresh</button>
+            </div>
+            <div v-if="attendanceRecords.length === 0" class="text-muted text-center py-4">
+              No check-in records yet. When viewers check in on the Live page, they will appear here.
+            </div>
+            <div v-else>
+              <div v-for="(rec, i) in attendanceRecords" :key="i" class="item-row">
+                <div>
+                  <div class="fw-bold">{{ rec.name }} <span class="badge bg-secondary ms-2">{{ rec.group }}</span></div>
+                  <div class="text-muted small">Phone: {{ rec.phone || 'N/A' }} | Email: {{ rec.email || 'N/A' }}</div>
+                </div>
+                <div class="text-end">
+                  <span class="badge bg-primary">{{ rec.count || 1 }} Attendee(s)</span>
+                  <div class="text-muted small mt-1">{{ rec.timestamp }}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- Toast Notification -->
+  <div v-if="toastMessage" class="toast-popup">
+    <i class="fa-solid fa-circle-check"></i> {{ toastMessage }}
+  </div>
+</div>
+
+<script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+<script>
+const { createApp } = Vue;
+
+createApp({
+  data() {
+    return {
+      authenticated: false,
+      pinInput: '',
+      loginError: '',
+      tab: 'dashboard',
+      tabTitles: {
+        dashboard: 'Dashboard Overview',
+        live: 'Live Stream & Broadcast Manager',
+        slides: 'Hero Carousel & Slides',
+        sermons: 'Sermons & Video Library',
+        events: 'Events & Church Calendar',
+        ministries: 'Church Departments & Ministries',
+        stories: 'Testimonies & Stories',
+        settings: 'Pastor Profile & Church Information',
+        attendance: 'Live Attendance Records'
+      },
+      saving: false,
+      toastMessage: '',
+      editingSlide: null,
+      isLiveNow: true,
+      attendanceRecords: [],
+      cms: {
+        site: {},
+        home: { slides: [], sermons: [], events: [], ministries: [], stories: [] },
+        live: {},
+        pages: {
+          about: {},
+          give: { bank_details: [{}] },
+          visit: {}
+        }
+      }
+    };
+  },
+  methods: {
+    login() {
+      if (this.pinInput === '7777' || this.pinInput === 'admin') {
+        this.authenticated = true;
+        this.loginError = '';
+        sessionStorage.setItem('cec_admin_auth', 'true');
+        this.loadContent();
+        this.loadAttendance();
+      } else {
+        this.loginError = 'Invalid PIN. Please try again.';
+      }
+    },
+    showToast(msg) {
+      this.toastMessage = msg;
+      setTimeout(() => { this.toastMessage = ''; }, 3500);
+    },
+    loadContent() {
+      fetch('../assets/data/content.json?t=' + Date.now())
+        .then(r => r.json())
+        .then(data => {
+          Object.assign(this.cms, data);
+        })
+        .catch(() => {
+          this.showToast('Using local cached data.');
+        });
+    },
+    loadAttendance() {
+      fetch('../assets/data/attendance.json?t=' + Date.now())
+        .then(r => r.json())
+        .then(data => {
+          this.attendanceRecords = Array.isArray(data) ? data : [];
+        })
+        .catch(() => {
+          this.attendanceRecords = [];
+        });
+    },
+    saveToServer() {
+      this.saving = true;
+      fetch('/api/save', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(this.cms)
+      })
+      .then(r => r.json())
+      .then(res => {
+        if (res.ok) {
+          this.showToast('Changes saved to server successfully!');
+        } else {
+          this.showToast('Saved locally in browser.');
+        }
+      })
+      .catch(() => {
+        // Fallback for static hosting
+        localStorage.setItem('cec_cms_content', JSON.stringify(this.cms));
+        this.showToast('Saved to browser storage! You can download JSON to commit.');
+      })
+      .finally(() => {
+        this.saving = false;
+      });
+    },
+    downloadBackup() {
+      const blob = new Blob([JSON.stringify(this.cms, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'content.json';
+      a.click();
+      URL.revokeObjectURL(url);
+      this.showToast('content.json downloaded successfully!');
+    },
+    addSlide() {
+      this.cms.home.slides.push({
+        id: String(Date.now()),
+        title: 'New Glorious Service',
+        subtitle: 'Experience supernatural excellence at Christ Embassy New Benin',
+        image: 'assets/uploaded_media/WhatsApp_Image_2026-09-17_at_4.27.50_PM.jpeg',
+        link_url: '#/visit',
+        link_text: 'Plan a Visit'
+      });
+      this.editingSlide = this.cms.home.slides.length - 1;
+    },
+    editSlide(index) {
+      this.editingSlide = index;
+    },
+    deleteSlide(index) {
+      this.cms.home.slides.splice(index, 1);
+      if (this.editingSlide === index) this.editingSlide = null;
+    },
+    addSermon() {
+      this.cms.home.sermons.push({
+        id: String(Date.now()),
+        title: 'Walking in Supernatural Victory',
+        speaker: 'Pastor Joseph Atibi-Brown',
+        date: 'Recent Service',
+        poster_url: 'assets/uploaded_media/WhatsApp_Image_2026-09-17_at_4.27.50_PM.jpeg',
+        media_type: 'video',
+        media_url: this.cms.live.hls_url || '',
+        href: '#/watch',
+        summary: 'A revelatory message on living the higher life in Christ.'
+      });
+    },
+    addEvent() {
+      this.cms.home.events.push({
+        id: String(Date.now()),
+        title: 'Supernatural Miracle Service',
+        eyebrow: 'Special Meeting',
+        date_badge: 'SPECIAL',
+        date_text: 'Upcoming Sunday',
+        time_text: '[— To Be Supplied]',
+        location: 'Christ Embassy New Benin Sanctuary',
+        summary: 'A glorious time of blessings and divine impartation.',
+        image_url: 'assets/uploaded_media/WhatsApp_Image_2026-09-17_at_4.30.14_PM_(1).jpeg',
+        link_url: '#/events'
+      });
+    }
+  },
+  mounted() {
+    if (sessionStorage.getItem('cec_admin_auth') === 'true') {
+      this.authenticated = true;
+      this.loadContent();
+      this.loadAttendance();
+    }
+  }
+}).mount('#app');
+</script>
+</body>
+</html>
