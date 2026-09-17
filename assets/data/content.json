@@ -39,10 +39,6 @@
     "bank_transfer_details": "Bank: [— To Be Supplied]\nAccount Name: Christ Embassy New Benin\nAccount Number: [— To Be Supplied]",
     "help": "[— To Be Supplied]"
   },
-  "live": {
-    "hls_url": "https://vcpout-sf01-altnetro.internetmultimediaonline.org/vcp/ahjbkam8asu49/playlist.m3u8",
-    "youtube_channel_id": "UCLFScmpsKP4jlJXD8McBGgQ"
-  },
   "home": {
     "welcome_header": "Welcome to Christ Embassy New Benin",
     "welcome_text": "Church of Excellence with Pastor Joseph Atibi-Brown. A family of faith demonstrating the supernatural character of the Spirit.",
@@ -355,53 +351,15 @@
       }
     ]
   },
-  "nav": [
-    {
-      "label": "Home",
-      "href": "#/",
-      "placement": "both"
-    },
-    {
-      "label": "Live Stream",
-      "href": "#/live",
-      "placement": "both"
-    },
-    {
-      "label": "Watch",
-      "href": "#/watch",
-      "placement": "both"
-    },
-    {
-      "label": "About Us",
-      "href": "#/about",
-      "placement": "both"
-    },
-    {
-      "label": "Ministries",
-      "href": "#/ministries",
-      "placement": "both"
-    },
-    {
-      "label": "Events",
-      "href": "#/events",
-      "placement": "both"
-    },
-    {
-      "label": "Stories",
-      "href": "#/stories",
-      "placement": "both"
-    },
-    {
-      "label": "Plan a Visit",
-      "href": "#/visit",
-      "placement": "both"
-    },
-    {
-      "label": "Give Online",
-      "href": "#/give",
-      "placement": "both"
-    }
-  ],
+  "live": {
+    "hls_url": "https://vcpout-sf01-altnetro.internetmultimediaonline.org/vcp/ahjbkam8asu49/playlist.m3u8",
+    "youtube_channel_id": "UCLFScmpsKP4jlJXD8McBGgQ",
+    "title": "Sunday Service of Excellence",
+    "description": "Welcome to our live service from Christ Embassy New Benin Sanctuary with Pastor Joseph Atibi-Brown. Receive divine transformation through the Word.",
+    "minister": "Pastor Joseph Atibi-Brown",
+    "theme": "Walking in Divine Excellence | 1 Peter 2:9",
+    "is_live": true
+  },
   "pages": {
     "about": {
       "title": "About Christ Embassy New Benin",
@@ -479,7 +437,8 @@
           "currency": "NGN"
         }
       ],
-      "kingspay_code": "[— To Be Supplied]"
+      "kingspay_code": "[— To Be Supplied]",
+      "paypal_email": "[— To Be Supplied]"
     },
     "events": {
       "eyebrow": "Events",
@@ -495,5 +454,58 @@
       "body": "<p>Featured resources will appear here when they are published.</p>",
       "hero": ""
     }
+  },
+  "nav": [
+    {
+      "label": "Home",
+      "href": "#/",
+      "placement": "both"
+    },
+    {
+      "label": "Live Stream",
+      "href": "#/live",
+      "placement": "both"
+    },
+    {
+      "label": "Watch",
+      "href": "#/watch",
+      "placement": "both"
+    },
+    {
+      "label": "About Us",
+      "href": "#/about",
+      "placement": "both"
+    },
+    {
+      "label": "Ministries",
+      "href": "#/ministries",
+      "placement": "both"
+    },
+    {
+      "label": "Events",
+      "href": "#/events",
+      "placement": "both"
+    },
+    {
+      "label": "Stories",
+      "href": "#/stories",
+      "placement": "both"
+    },
+    {
+      "label": "Plan a Visit",
+      "href": "#/visit",
+      "placement": "both"
+    },
+    {
+      "label": "Give Online",
+      "href": "#/give",
+      "placement": "both"
+    }
+  ],
+  "live_notice": {
+    "enabled": false,
+    "id": "1",
+    "title": "Live Service Alert",
+    "message": "Welcome to Church of Excellence Live! Get your communion elements ready."
   }
 }

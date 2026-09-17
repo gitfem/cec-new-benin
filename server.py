@@ -76,6 +76,21 @@ class ChurchPortalHandler(http.server.SimpleHTTPRequestHandler):
                 with open(bridge_path, 'w', encoding='utf-8') as f:
                     json.dump(data, f, indent=2, ensure_ascii=False)
 
+                # Write live notice to bridge_live_notices.php
+                if 'live_notice' in data:
+                    notice_data = data.get('live_notice', {})
+                    notice_path = os.path.join(DIRECTORY, 'bridge_live_notices.php')
+                    notice_obj = {
+                        'ok': True,
+                        'notice': {
+                            'id': str(notice_data.get('id', '1')),
+                            'title': notice_data.get('title', 'Message from Admin'),
+                            'message': notice_data.get('message', '')
+                        } if notice_data.get('enabled', False) and notice_data.get('message') else None
+                    }
+                    with open(notice_path, 'w', encoding='utf-8') as f:
+                        json.dump(notice_obj, f, indent=2, ensure_ascii=False)
+
                 self.send_response(200)
                 self.send_header('Content-Type', 'application/json')
                 self.send_header('Access-Control-Allow-Origin', '*')

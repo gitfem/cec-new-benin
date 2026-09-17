@@ -61,14 +61,14 @@
       display: flex;
       align-items: center;
       gap: 12px;
-      padding: 11px 14px;
+      padding: 10px 14px;
       border-radius: 8px;
       color: var(--text-muted);
       background: transparent;
       border: 0;
       width: 100%;
       text-align: left;
-      font-size: 0.9rem;
+      font-size: 0.88rem;
       font-weight: 500;
       transition: 0.2s;
       cursor: pointer;
@@ -187,6 +187,21 @@
       flex-shrink: 0;
     }
 
+    /* Category pills */
+    .cat-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(230,167,25,0.12);
+      color: #ffcb45;
+      border: 1px solid rgba(230,167,25,0.3);
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+    .cat-pill button { background: transparent; border: 0; color: #ffcb45; cursor: pointer; padding: 0; font-size: 0.9rem; }
+
     /* Toast */
     .toast-popup {
       position: fixed;
@@ -266,6 +281,12 @@
         <button class="nav-link-btn" :class="{active: tab==='live'}" @click="tab='live'">
           <i class="fa-solid fa-video"></i> Live Broadcast
         </button>
+        <button class="nav-link-btn" :class="{active: tab==='announcements'}" @click="tab='announcements'">
+          <i class="fa-solid fa-bullhorn"></i> Announcements & Alerts
+        </button>
+        <button class="nav-link-btn" :class="{active: tab==='giving'}" @click="tab='giving'">
+          <i class="fa-solid fa-hand-holding-dollar"></i> Giving & Offering
+        </button>
         <button class="nav-link-btn" :class="{active: tab==='slides'}" @click="tab='slides'">
           <i class="fa-solid fa-images"></i> Hero & Slides
         </button>
@@ -302,7 +323,7 @@
       <header class="admin-topbar">
         <div class="d-flex align-items-center gap-3">
           <h5 class="m-0 fw-bold">{{ tabTitles[tab] }}</h5>
-          <span v-if="isLiveNow" class="badge-live"><i class="fa-solid fa-circle fa-fade"></i> BROADCASTING LIVE</span>
+          <span v-if="cms.live.is_live" class="badge-live"><i class="fa-solid fa-circle fa-fade"></i> BROADCASTING LIVE</span>
           <span v-else class="badge-offline">STREAM OFFLINE</span>
         </div>
 
@@ -326,8 +347,24 @@
               <div class="admin-card text-center p-4">
                 <i class="fa-solid fa-video text-warning fs-3 mb-2"></i>
                 <div class="text-muted small">Live Stream Status</div>
-                <h4 class="fw-bold mt-1">{{ isLiveNow ? 'Online' : 'Standby' }}</h4>
+                <h4 class="fw-bold mt-1">{{ cms.live.is_live ? 'Online' : 'Standby' }}</h4>
                 <button class="btn-outline-gold btn-sm mt-2" @click="tab='live'">Manage Stream</button>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="admin-card text-center p-4">
+                <i class="fa-solid fa-bullhorn text-warning fs-3 mb-2"></i>
+                <div class="text-muted small">Announcements</div>
+                <h4 class="fw-bold mt-1">{{ (cms.home.member_announcements || []).length }} Active</h4>
+                <button class="btn-outline-gold btn-sm mt-2" @click="tab='announcements'">Manage</button>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="admin-card text-center p-4">
+                <i class="fa-solid fa-hand-holding-dollar text-success fs-3 mb-2"></i>
+                <div class="text-muted small">Giving Accounts</div>
+                <h4 class="fw-bold mt-1">{{ (cms.pages.give.bank_details || []).length }} Banks</h4>
+                <button class="btn-outline-gold btn-sm mt-2" @click="tab='giving'">Manage Giving</button>
               </div>
             </div>
             <div class="col-md-3">
@@ -338,44 +375,17 @@
                 <button class="btn-outline-gold btn-sm mt-2" @click="tab='sermons'">View Sermons</button>
               </div>
             </div>
-            <div class="col-md-3">
-              <div class="admin-card text-center p-4">
-                <i class="fa-solid fa-calendar-check text-success fs-3 mb-2"></i>
-                <div class="text-muted small">Upcoming Events</div>
-                <h4 class="fw-bold mt-1">{{ (cms.home.events || []).length }}</h4>
-                <button class="btn-outline-gold btn-sm mt-2" @click="tab='events'">View Events</button>
-              </div>
-            </div>
-            <div class="col-md-3">
-              <div class="admin-card text-center p-4">
-                <i class="fa-solid fa-users text-primary fs-3 mb-2"></i>
-                <div class="text-muted small">Active Ministries</div>
-                <h4 class="fw-bold mt-1">{{ (cms.home.ministries || []).length }}</h4>
-                <button class="btn-outline-gold btn-sm mt-2" @click="tab='ministries'">Manage</button>
-              </div>
-            </div>
           </div>
 
           <div class="admin-card">
-            <div class="card-title-lg">Quick Church Information</div>
-            <div class="row g-3">
-              <div class="col-md-6">
-                <label class="form-label">Church Name</label>
-                <input type="text" v-model="cms.site.name" class="form-control">
-              </div>
-              <div class="col-md-6">
-                <label class="form-label">Pastor Name</label>
-                <input type="text" v-model="cms.pages.about.pastor_name" class="form-control">
-              </div>
-              <div class="col-md-6">
-                <label class="form-label">Service Hours</label>
-                <input type="text" v-model="cms.site.office_hours" class="form-control">
-              </div>
-              <div class="col-md-6">
-                <label class="form-label">Physical Address</label>
-                <input type="text" v-model="cms.site.address" class="form-control">
-              </div>
+            <div class="card-title-lg">Current Broadcast Snapshot</div>
+            <div class="p-3 rounded mb-3" style="background: rgba(255,255,255,0.03); border: 1px solid var(--card-border);">
+              <span class="badge bg-warning text-dark mb-2">{{ cms.live.theme || 'Church of Excellence' }}</span>
+              <h4 class="fw-bold">{{ cms.live.title || 'Live Service of Excellence' }}</h4>
+              <p class="text-muted mb-2">{{ cms.live.description }}</p>
+              <div class="small text-muted"><i class="fa-solid fa-user-tie me-1"></i> Preacher: <b>{{ cms.live.minister || 'Pastor Joseph Atibi-Brown' }}</b></div>
             </div>
+            <button class="btn-gold btn-sm" @click="tab='live'"><i class="fa-solid fa-pen"></i> Edit Broadcast Details</button>
           </div>
         </section>
 
@@ -383,25 +393,224 @@
         <section v-if="tab==='live'">
           <div class="admin-card">
             <div class="card-title-lg">
-              <span>Live Streaming Settings</span>
+              <span>Live Broadcast Details & Metadata</span>
               <div class="form-check form-switch m-0">
-                <input class="form-check-input" type="checkbox" v-model="isLiveNow" id="liveToggle" style="width: 44px; height: 22px; cursor: pointer;">
-                <label class="form-check-label ms-2 small fw-bold" for="liveToggle">{{ isLiveNow ? 'LIVE' : 'OFFLINE' }}</label>
+                <input class="form-check-input" type="checkbox" v-model="cms.live.is_live" id="liveToggle" style="width: 44px; height: 22px; cursor: pointer;">
+                <label class="form-check-label ms-2 small fw-bold" for="liveToggle">{{ cms.live.is_live ? 'BROADCASTING LIVE' : 'STREAM OFFLINE' }}</label>
               </div>
             </div>
+
             <div class="row g-3">
+              <div class="col-md-8">
+                <label class="form-label">Live Broadcast Service Title</label>
+                <input type="text" v-model="cms.live.title" class="form-control" placeholder="e.g. Sunday Service of Excellence with Pastor Joseph Atibi-Brown">
+                <small class="text-muted">Displayed prominently above the live stream player.</small>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Service Scripture Theme</label>
+                <input type="text" v-model="cms.live.theme" class="form-control" placeholder="e.g. Walking in Divine Excellence | 1 Peter 2:9">
+              </div>
+
+              <div class="col-12">
+                <label class="form-label">Live Service Description / Subtitle</label>
+                <textarea v-model="cms.live.description" class="form-control" rows="3" placeholder="Welcome to our live service from Christ Embassy New Benin Sanctuary with Pastor Joseph Atibi-Brown. Receive divine transformation through the Word."></textarea>
+                <small class="text-muted">Displayed directly under the service video player to welcome viewers.</small>
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label">Preacher / Minister Name</label>
+                <input type="text" v-model="cms.live.minister" class="form-control" placeholder="Pastor Joseph Atibi-Brown">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Live Support Helpline Phone</label>
+                <input type="text" v-model="cms.site.support_phone" class="form-control" placeholder="+234 ...">
+              </div>
+
+              <hr class="my-3" style="border-color: var(--card-border);">
+
+              <h5 class="fw-bold mb-2">Streaming Feeds & Fallbacks</h5>
               <div class="col-md-12">
-                <label class="form-label">HLS Master Stream URL (.m3u8 or streaming audio URL)</label>
+                <label class="form-label">HLS Master Stream URL (.m3u8 or live audio URL)</label>
                 <input type="text" v-model="cms.live.hls_url" class="form-control" placeholder="https://domain.com/path/playlist.m3u8">
                 <small class="text-muted">Direct high-performance stream for native in-browser player.</small>
               </div>
-              <div class="col-md-6">
-                <label class="form-label">YouTube Channel ID (Live Fallback)</label>
+
+              <div class="col-md-12">
+                <label class="form-label">YouTube Channel ID (Live Fallback Switcher)</label>
                 <input type="text" v-model="cms.live.youtube_channel_id" class="form-control" placeholder="e.g. UCLFScmpsKP4jlJXD8McBGgQ">
+                <small class="text-muted">Allows viewers to switch between native player and YouTube Live stream in 1 click.</small>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- TAB: ANNOUNCEMENTS & ALERTS -->
+        <section v-if="tab==='announcements'">
+          <!-- 1. Live Pop-Up Alert Notice -->
+          <div class="admin-card border-warning">
+            <div class="card-title-lg">
+              <span><i class="fa-solid fa-bell text-warning me-2"></i> Live Stream Pop-Up Alert Notice</span>
+              <div class="form-check form-switch m-0">
+                <input class="form-check-input" type="checkbox" v-model="liveNotice.enabled" id="alertToggle" style="width: 44px; height: 22px; cursor: pointer;">
+                <label class="form-check-label ms-2 small fw-bold" for="alertToggle">{{ liveNotice.enabled ? 'ACTIVE ON LIVE' : 'DISABLED' }}</label>
+              </div>
+            </div>
+            <p class="text-muted small">When active, this modal alert automatically pops up for all live stream viewers with an urgent notice or instruction.</p>
+
+            <div class="row g-3">
+              <div class="col-md-8">
+                <label class="form-label">Alert Title</label>
+                <input type="text" v-model="liveNotice.title" class="form-control" placeholder="e.g. Special Communion Service Alert">
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Alert ID (change to re-show to past viewers)</label>
+                <input type="text" v-model="liveNotice.id" class="form-control">
+              </div>
+              <div class="col-12">
+                <label class="form-label">Alert Message</label>
+                <textarea v-model="liveNotice.message" class="form-control" rows="3" placeholder="Welcome to Church of Excellence Live Service! Please have your communion elements ready as we partake together with Pastor Joseph."></textarea>
+              </div>
+            </div>
+          </div>
+
+          <!-- 2. Church Member Announcements List -->
+          <div class="admin-card">
+            <div class="card-title-lg">
+              <span>Church Member Bulletins & Weekly Announcements</span>
+              <button class="btn-gold btn-sm" @click="addAnnouncement"><i class="fa-solid fa-plus"></i> Add Announcement</button>
+            </div>
+            <p class="text-muted small">These announcements appear in the expandable Announcement section right below the live player and in church bulletins.</p>
+
+            <div v-for="(ann, index) in cms.home.member_announcements" :key="index" class="item-row">
+              <div class="flex-grow-1 pe-3">
+                <div class="fw-bold">{{ ann.title || 'Church Bulletin' }}</div>
+                <div class="text-muted small" v-html="ann.announcement.replace(/<[^>]*>?/gm, '').slice(0, 120) + '...'"></div>
+              </div>
+              <div class="d-flex gap-2">
+                <button class="btn btn-sm btn-outline-light" @click="editAnnouncement(index)" title="Edit"><i class="fa-solid fa-pen"></i></button>
+                <button class="btn btn-sm btn-outline-danger" @click="deleteAnnouncement(index)" title="Delete"><i class="fa-solid fa-trash"></i></button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Announcement Edit Modal -->
+          <div v-if="editingAnnouncement !== null" class="admin-card border-warning">
+            <h5 class="fw-bold mb-3"><i class="fa-solid fa-pen-to-square text-warning me-2"></i> Edit Announcement Bulletin</h5>
+            <div class="row g-3">
+              <div class="col-12">
+                <label class="form-label">Announcement Title / Header</label>
+                <input type="text" v-model="cms.home.member_announcements[editingAnnouncement].title" class="form-control" placeholder="e.g. Unending Praise & Foundation School Classes">
+              </div>
+              <div class="col-12">
+                <label class="form-label">Announcement Details (HTML or Plain Text)</label>
+                <textarea v-model="cms.home.member_announcements[editingAnnouncement].announcement" class="form-control" rows="6" placeholder="<p>1. Foundation school classes hold immediately after service...</p>"></textarea>
+              </div>
+              <div class="col-12 text-end">
+                <button class="btn btn-secondary me-2" @click="editingAnnouncement = null">Close</button>
+                <button class="btn-gold" @click="editingAnnouncement = null">Done</button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- TAB: GIVING & OFFERING -->
+        <section v-if="tab==='giving'">
+          <!-- Giving Page Information -->
+          <div class="admin-card">
+            <div class="card-title-lg">Giving Page Information & Scripture Message</div>
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label">Page Title</label>
+                <input type="text" v-model="cms.pages.give.title" class="form-control">
               </div>
               <div class="col-md-6">
-                <label class="form-label">Live Service Support Phone</label>
-                <input type="text" v-model="cms.site.support_phone" class="form-control">
+                <label class="form-label">Subtitle</label>
+                <input type="text" v-model="cms.pages.give.subtitle" class="form-control">
+              </div>
+              <div class="col-12">
+                <label class="form-label">Giving Overview / Encouragement Message</label>
+                <textarea v-model="cms.pages.give.body" class="form-control" rows="3"></textarea>
+              </div>
+            </div>
+          </div>
+
+          <!-- Giving Categories / Funds -->
+          <div class="admin-card">
+            <div class="card-title-lg">Giving Categories & Funds</div>
+            <p class="text-muted small">Categories members can choose when making a contribution (Tithe, Partnership, Seeds, etc.).</p>
+            <div class="d-flex flex-wrap gap-2 mb-3">
+              <div v-for="(cat, idx) in cms.pages.give.categories" :key="idx" class="cat-pill">
+                <span>{{ cat }}</span>
+                <button type="button" @click="cms.pages.give.categories.splice(idx, 1)" title="Remove Category"><i class="fa-solid fa-xmark"></i></button>
+              </div>
+            </div>
+            <div class="input-group" style="max-width: 450px;">
+              <input type="text" v-model="newCategoryInput" class="form-control" placeholder="New category name (e.g. Healing School Seed)" @keyup.enter="addCategory">
+              <button class="btn btn-gold" type="button" @click="addCategory"><i class="fa-solid fa-plus"></i> Add Category</button>
+            </div>
+          </div>
+
+          <!-- Bank Transfer Accounts -->
+          <div class="admin-card">
+            <div class="card-title-lg">
+              <span>Local & International Bank Accounts</span>
+              <button class="btn-gold btn-sm" @click="addBankAccount"><i class="fa-solid fa-plus"></i> Add Bank Account</button>
+            </div>
+            <div v-for="(bank, index) in cms.pages.give.bank_details" :key="index" class="item-row">
+              <div>
+                <div class="fw-bold">{{ bank.bank_name || 'Bank Name' }} <span class="badge bg-primary ms-2">{{ bank.currency || 'NGN' }}</span></div>
+                <div class="text-muted small">Account Name: <b>{{ bank.account_name }}</b> | Account Number: <b class="text-warning">{{ bank.account_number }}</b></div>
+              </div>
+              <div class="d-flex gap-2">
+                <button class="btn btn-sm btn-outline-light" @click="editBankAccount(index)" title="Edit"><i class="fa-solid fa-pen"></i></button>
+                <button class="btn btn-sm btn-outline-danger" @click="cms.pages.give.bank_details.splice(index, 1)" title="Delete"><i class="fa-solid fa-trash"></i></button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Bank Edit Modal -->
+          <div v-if="editingBank !== null" class="admin-card border-warning">
+            <h5 class="fw-bold mb-3"><i class="fa-solid fa-pen-to-square text-warning me-2"></i> Edit Bank Account Details</h5>
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label">Bank Name</label>
+                <input type="text" v-model="cms.pages.give.bank_details[editingBank].bank_name" class="form-control" placeholder="e.g. Zenith Bank">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Account Name</label>
+                <input type="text" v-model="cms.pages.give.bank_details[editingBank].account_name" class="form-control" placeholder="e.g. Christ Embassy New Benin">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Account Number</label>
+                <input type="text" v-model="cms.pages.give.bank_details[editingBank].account_number" class="form-control" placeholder="e.g. 1012345678">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Currency</label>
+                <select v-model="cms.pages.give.bank_details[editingBank].currency" class="form-select">
+                  <option value="NGN">NGN (Nigerian Naira)</option>
+                  <option value="USD">USD (US Dollars)</option>
+                  <option value="GBP">GBP (British Pounds)</option>
+                  <option value="EUR">EUR (Euros)</option>
+                </select>
+              </div>
+              <div class="col-12 text-end">
+                <button class="btn btn-secondary me-2" @click="editingBank = null">Close</button>
+                <button class="btn-gold" @click="editingBank = null">Done</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Digital & Online Payment Options -->
+          <div class="admin-card">
+            <div class="card-title-lg">KingsPay & Digital Payment Gateways</div>
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label">KingsPay Merchant Code</label>
+                <input type="text" v-model="cms.pages.give.kingspay_code" class="form-control" placeholder="e.g. CENB01">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">PayPal.Me or Payment Gateway Link</label>
+                <input type="text" v-model="cms.site.paypal_email" class="form-control" placeholder="https://paypal.me/...">
               </div>
             </div>
           </div>
@@ -773,7 +982,7 @@
           </div>
         </section>
 
-        <!-- TAB: CHURCH INFO, PASTOR & GIVING -->
+        <!-- TAB: CHURCH INFO, PASTOR & CONTACT -->
         <section v-if="tab==='settings'">
           <div class="admin-card">
             <div class="card-title-lg">Pastor & Leadership Profile</div>
@@ -815,23 +1024,23 @@
           </div>
 
           <div class="admin-card">
-            <div class="card-title-lg">Online Giving & Bank Details</div>
+            <div class="card-title-lg">Church Location & Contact Settings</div>
             <div class="row g-3">
               <div class="col-md-6">
-                <label class="form-label">Bank Name</label>
-                <input type="text" v-model="cms.pages.give.bank_details[0].bank_name" class="form-control">
+                <label class="form-label">Phone Line</label>
+                <input type="text" v-model="cms.site.phone" class="form-control" placeholder="+234 ...">
               </div>
               <div class="col-md-6">
-                <label class="form-label">Account Name</label>
-                <input type="text" v-model="cms.pages.give.bank_details[0].account_name" class="form-control">
+                <label class="form-label">Email Address</label>
+                <input type="email" v-model="cms.site.email" class="form-control" placeholder="info@...">
               </div>
-              <div class="col-md-6">
-                <label class="form-label">Account Number</label>
-                <input type="text" v-model="cms.pages.give.bank_details[0].account_number" class="form-control">
+              <div class="col-md-12">
+                <label class="form-label">Physical Street Address</label>
+                <input type="text" v-model="cms.site.address" class="form-control">
               </div>
-              <div class="col-md-6">
-                <label class="form-label">KingsPay Code</label>
-                <input type="text" v-model="cms.pages.give.kingspay_code" class="form-control">
+              <div class="col-md-12">
+                <label class="form-label">Office & Service Hours</label>
+                <input type="text" v-model="cms.site.office_hours" class="form-control">
               </div>
             </div>
           </div>
@@ -886,31 +1095,41 @@ createApp({
       tabTitles: {
         dashboard: 'Dashboard Overview',
         live: 'Live Stream & Broadcast Manager',
+        announcements: 'Announcements & Alert Notices',
+        giving: 'Online Giving & Bank Accounts',
         slides: 'Hero Carousel & Slides',
         sermons: 'Sermons & Video Library',
         events: 'Events & Church Calendar',
         ministries: 'Church Departments & Ministries',
         stories: 'Testimonies & Stories',
-        settings: 'Pastor Profile & Church Information',
+        settings: 'Pastor Profile & Church Contact',
         attendance: 'Live Attendance Records'
       },
       saving: false,
       uploading: false,
       toastMessage: '',
+      newCategoryInput: '',
       editingSlide: null,
       editingSermon: null,
       editingEvent: null,
       editingMinistry: null,
       editingStory: null,
-      isLiveNow: true,
+      editingAnnouncement: null,
+      editingBank: null,
+      liveNotice: {
+        enabled: false,
+        id: '1',
+        title: 'Special Communion Service Alert',
+        message: 'Welcome to Church of Excellence Live Service! Please have your communion elements ready.'
+      },
       attendanceRecords: [],
       cms: {
         site: {},
-        home: { slides: [], sermons: [], events: [], ministries: [], stories: [] },
-        live: {},
+        home: { slides: [], sermons: [], events: [], ministries: [], stories: [], member_announcements: [] },
+        live: { is_live: true, title: '', description: '', minister: '', theme: '', hls_url: '', youtube_channel_id: '' },
         pages: {
           about: {},
-          give: { bank_details: [{}] },
+          give: { categories: [], bank_details: [] },
           visit: {}
         }
       }
@@ -943,8 +1162,13 @@ createApp({
         .then(r => r.json())
         .then(data => {
           Object.assign(this.cms, data);
+          if (data.live_notice) Object.assign(this.liveNotice, data.live_notice);
           if (!Array.isArray(this.cms.home.ministries)) this.cms.home.ministries = [];
           if (!Array.isArray(this.cms.home.stories)) this.cms.home.stories = [];
+          if (!Array.isArray(this.cms.home.member_announcements)) this.cms.home.member_announcements = [];
+          if (!this.cms.pages.give) this.cms.pages.give = {};
+          if (!Array.isArray(this.cms.pages.give.categories)) this.cms.pages.give.categories = ['Tithe', 'Partnership', 'Building Fund', 'General Offering'];
+          if (!Array.isArray(this.cms.pages.give.bank_details)) this.cms.pages.give.bank_details = [];
         })
         .catch(() => {
           this.showToast('Using local cached data.');
@@ -967,7 +1191,7 @@ createApp({
       const reader = new FileReader();
       reader.onload = (e) => {
         const dataUrl = e.target.result;
-        targetObj[keyName] = dataUrl; // Immediate visual preview
+        targetObj[keyName] = dataUrl;
 
         this.uploading = true;
         this.showToast('Uploading ' + file.name + ' from PC...');
@@ -982,27 +1206,10 @@ createApp({
           if (res.ok && res.url) {
             targetObj[keyName] = res.url;
             this.showToast('Image uploaded successfully: ' + res.url);
-          } else {
-            this.showToast('Loaded image preview successfully.');
           }
         })
         .catch(() => {
-          // Fallback to PHP upload endpoint or data URL
-          fetch('../api/upload.php', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ filename: file.name, data: dataUrl })
-          })
-          .then(r => r.json())
-          .then(res => {
-            if (res.ok && res.url) {
-              targetObj[keyName] = res.url;
-              this.showToast('Image uploaded: ' + res.url);
-            }
-          })
-          .catch(() => {
-            this.showToast('Image loaded. Remember to click Save Changes.');
-          });
+          this.showToast('Image preview loaded.');
         })
         .finally(() => {
           this.uploading = false;
@@ -1013,41 +1220,31 @@ createApp({
     },
     saveToServer() {
       this.saving = true;
+      const payload = Object.assign({}, this.cms, { live_notice: this.liveNotice });
       fetch('/api/save', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(this.cms)
+        body: JSON.stringify(payload)
       })
       .then(r => r.json())
       .then(res => {
         if (res.ok) {
-          this.showToast('Changes saved to server successfully!');
+          this.showToast('All changes saved to server successfully!');
         } else {
           this.showToast('Saved locally in browser.');
         }
       })
       .catch(() => {
-        // Fallback for PHP or static hosting
-        fetch('../api/save_content.php', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(this.cms)
-        })
-        .then(r => r.json())
-        .then(res => {
-          if (res.ok) this.showToast('Changes saved to server!');
-        })
-        .catch(() => {
-          localStorage.setItem('cec_cms_content', JSON.stringify(this.cms));
-          this.showToast('Saved to browser storage! You can download JSON to commit.');
-        });
+        localStorage.setItem('cec_cms_content', JSON.stringify(payload));
+        this.showToast('Saved to browser storage! You can download JSON to commit.');
       })
       .finally(() => {
         this.saving = false;
       });
     },
     downloadBackup() {
-      const blob = new Blob([JSON.stringify(this.cms, null, 2)], { type: 'application/json' });
+      const payload = Object.assign({}, this.cms, { live_notice: this.liveNotice });
+      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
@@ -1055,6 +1252,47 @@ createApp({
       a.click();
       URL.revokeObjectURL(url);
       this.showToast('content.json downloaded successfully!');
+    },
+    // Announcements
+    addAnnouncement() {
+      if (!Array.isArray(this.cms.home.member_announcements)) this.cms.home.member_announcements = [];
+      this.cms.home.member_announcements.push({
+        id: String(Date.now()),
+        title: 'New Church Announcement',
+        announcement: '<p>Special announcement text goes here. Join us this week for fellowship and prayers.</p>',
+        sort_order: '10'
+      });
+      this.editingAnnouncement = this.cms.home.member_announcements.length - 1;
+    },
+    editAnnouncement(index) {
+      this.editingAnnouncement = index;
+    },
+    deleteAnnouncement(index) {
+      this.cms.home.member_announcements.splice(index, 1);
+      if (this.editingAnnouncement === index) this.editingAnnouncement = null;
+    },
+    // Giving Categories & Banks
+    addCategory() {
+      const name = this.newCategoryInput.trim();
+      if (!name) return;
+      if (!Array.isArray(this.cms.pages.give.categories)) this.cms.pages.give.categories = [];
+      if (!this.cms.pages.give.categories.includes(name)) {
+        this.cms.pages.give.categories.push(name);
+      }
+      this.newCategoryInput = '';
+    },
+    addBankAccount() {
+      if (!Array.isArray(this.cms.pages.give.bank_details)) this.cms.pages.give.bank_details = [];
+      this.cms.pages.give.bank_details.push({
+        bank_name: 'Zenith Bank',
+        account_name: 'Christ Embassy New Benin',
+        account_number: '',
+        currency: 'NGN'
+      });
+      this.editingBank = this.cms.pages.give.bank_details.length - 1;
+    },
+    editBankAccount(index) {
+      this.editingBank = index;
     },
     // Slides
     addSlide() {

@@ -550,7 +550,19 @@ const LivePage = {
             <div class="youtube-actions"><div><b>YouTube Live</b><span>Uses the selected YouTube channel ID.</span></div><a :href="youtubePage" target="_blank" rel="noopener" class="btn-brand">Open YouTube Page</a></div>
           </div>
 
-          <div v-if="announcementHtml" class="announcement-box" :class="{collapsed:!announcementOpen}">
+          <div class="live-service-info mt-3 p-3 rounded" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);">
+            <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
+              <div>
+                <span v-if="liveSettings.theme" class="badge mb-2" style="background: rgba(230,167,25,0.18); color: #ffcb45; border: 1px solid rgba(230,167,25,0.3); font-size: 0.8rem;"><i class="fa-solid fa-scroll me-1"></i> {{liveSettings.theme}}</span>
+                <h3 class="fw-bold mb-2" style="font-size: 1.45rem;">{{liveSettings.title || 'Live Service of Excellence'}}</h3>
+                <p class="text-muted m-0" style="font-size: 0.95rem; line-height: 1.6;">{{liveSettings.description || 'Welcome to our live service with Pastor Joseph Atibi-Brown. Experience the supernatural power of God through worship and the ministered Word.'}}</p>
+                <div v-if="liveSettings.minister" class="text-warning small mt-2"><i class="fa-solid fa-user-tie me-1"></i> Minister: <b>{{liveSettings.minister}}</b></div>
+              </div>
+              <a href="#/give" class="btn-brand flex-shrink-0"><i class="fa-solid fa-heart me-1"></i> Give Online</a>
+            </div>
+          </div>
+
+          <div v-if="announcementHtml" class="announcement-box mt-3" :class="{collapsed:!announcementOpen}">
             <button class="announcement-head" type="button" @click="announcementOpen=!announcementOpen">Announcement <i :class="announcementOpen ? 'fa-solid fa-chevron-up' : 'fa-solid fa-chevron-down'"></i></button>
             <div v-show="announcementOpen" class="announcement-content" v-html="announcementHtml"></div>
           </div>
@@ -815,6 +827,9 @@ const GivePage = {
         return (this.cms && this.cms.site && this.cms.site.bank_transfer_details) ? this.cms.site.bank_transfer_details : 'Bank transfer details have not been added yet.';
       }
       return 'Payments are completed securely on PayPal in USD.';
+    },
+    giveCategories(){
+      return (this.pageCms && Array.isArray(this.pageCms.categories) && this.pageCms.categories.length) ? this.pageCms.categories : ['General Offering','Tithe','Building Fund','Missions','First Fruits','Partnership'];
     }
   },
   methods:{
@@ -855,7 +870,7 @@ const GivePage = {
           <label class="give-label">Custom Amount (USD)</label>
           <input v-model="customAmount" type="number" min="1" step="0.01" placeholder="Enter amount">
           <div class="give-form-row">
-            <div><label class="give-label">Give Towards</label><select v-model="giveTowards"><option>General Offering</option><option>Tithe</option><option>Building Fund</option><option>Missions</option><option>First Fruits</option><option>Partnership</option></select></div>
+            <div><label class="give-label">Give Towards</label><select v-model="giveTowards"><option v-for="cat in giveCategories" :key="cat">{{cat}}</option></select></div>
             <div><label class="give-label">Frequency</label><select v-model="frequency"><option>One Time</option><option>Weekly</option><option>Monthly</option></select></div>
           </div>
           <div class="give-form-row">
