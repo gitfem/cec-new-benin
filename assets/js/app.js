@@ -436,17 +436,20 @@ const LivePage = {
         const tryResume = () => {
           if(!this._userManuallyPaused && this.activeStream === 'player'){
             if(v.buffered && v.buffered.length > 0){
-              const end = v.buffered.end(v.buffered.length - 1);
-              if(v.currentTime < end - 0.2){
-                v.currentTime = Math.min(v.currentTime + 0.3, end - 0.05);
-              } else {
-                const edge = (this.hls && Number.isFinite(this.hls.liveSyncPosition))
-                  ? this.hls.liveSyncPosition
-                  : (v.seekable && v.seekable.length ? v.seekable.end(v.seekable.length - 1) - 1 : 0);
-                if(edge > 0 && Math.abs(edge - v.currentTime) > 10){
-                  try { v.currentTime = Math.max(0, edge - 2); } catch(e){}
+              for(let i = 0; i < v.buffered.length; i++){
+                const bStart = v.buffered.start(i);
+                const bEnd = v.buffered.end(i);
+                if(v.currentTime >= bStart && v.currentTime < bEnd - 0.25){
+                  v.currentTime = Math.min(v.currentTime + 0.2, bEnd - 0.05);
+                  break;
+                } else if(v.currentTime < bStart && bStart - v.currentTime < 1.0){
+                  v.currentTime = bStart + 0.05;
+                  break;
                 }
               }
+            }
+            if(this.hls){
+              this.hls.startLoad();
             }
             if(v.paused){
               v.play().catch(()=>{});
@@ -456,11 +459,11 @@ const LivePage = {
 
         v.addEventListener('waiting', () => {
           clearTimeout(stallTimer);
-          stallTimer = setTimeout(tryResume, 1200);
+          stallTimer = setTimeout(tryResume, 1000);
         });
         v.addEventListener('stalled', () => {
           clearTimeout(stallTimer);
-          stallTimer = setTimeout(tryResume, 1500);
+          stallTimer = setTimeout(tryResume, 1200);
         });
         v.addEventListener('pause', () => {
           if(this.isPlaying && !this._userManuallyPaused){
@@ -468,12 +471,30 @@ const LivePage = {
               if(this.isPlaying && !this._userManuallyPaused && v.paused){
                 v.play().catch(()=>{});
               }
-            }, 600);
+            }, 400);
           }
         });
         v.addEventListener('playing', () => {
           clearTimeout(stallTimer);
           this.acquireWakeLock();
+        });
+        v.addEventListener('seeking', () => {
+          if (v.buffered && v.buffered.length > 0) {
+            const bStart = v.buffered.start(0);
+            const bEnd = v.buffered.end(v.buffered.length - 1);
+            if (v.currentTime > bEnd || v.currentTime < bStart) {
+              v.currentTime = Math.max(bStart, bEnd - 1.5);
+            }
+          }
+        });
+        v.addEventListener('timeupdate', () => {
+          if (v.buffered && v.buffered.length > 0) {
+            const bStart = v.buffered.start(0);
+            const bEnd = v.buffered.end(v.buffered.length - 1);
+            if (v.currentTime > bEnd) {
+              v.currentTime = Math.max(bStart, bEnd - 1.5);
+            }
+          }
         });
         v.addEventListener('ended', () => {
           if(this.isPlaying && !this._userManuallyPaused){
@@ -487,10 +508,10 @@ const LivePage = {
         const hls=new Hls({
           enableWorker:true,
           lowLatencyMode:false,
-          maxBufferLength:45,
-          maxMaxBufferLength:90,
-          liveSyncDurationCount:4,
-          liveMaxLatencyDurationCount:12,
+          maxBufferLength:20,
+          maxMaxBufferLength:30,
+          liveSyncDurationCount:3,
+          liveMaxLatencyDurationCount:6,
           maxLiveSyncPlaybackRate:1.15,
           maxBufferHole:0.5,
           maxFragLookUpTolerance:0.25,
@@ -502,10 +523,26 @@ const LivePage = {
           fragLoadingTimeOut:30000,
           fragLoadingMaxRetry:10,
           startFragPrefetch:true,
-          backBufferLength:30,
-          nudgeOffset:0.3,
-          nudgeMaxRetry:10
+          backBufferLength:10,
+          nudgeOffset:0.2,
+          nudgeMaxRetry:8
         });
+
+        Object.defineProperty(hls, 'liveSyncPosition', {
+          get: function() {
+            if (v.buffered && v.buffered.length > 0) {
+              const bEnd = v.buffered.end(v.buffered.length - 1);
+              const bStart = v.buffered.start(0);
+              if (v.currentTime >= bStart && v.currentTime <= bEnd) {
+                return v.currentTime;
+              }
+              return Math.max(bStart, bEnd - 1.5);
+            }
+            return 0;
+          },
+          configurable: true
+        });
+
         hls.loadSource(this.hlsUrl);
         hls.attachMedia(v);
         hls.on(Hls.Events.ERROR, (event, data) => {
@@ -513,15 +550,20 @@ const LivePage = {
             if(data.details === Hls.ErrorDetails.BUFFER_STALLED_ERROR || data.details === Hls.ErrorDetails.BUFFER_NUDGE_ON_STALL){
               if(v && !this._userManuallyPaused){
                 if(v.buffered && v.buffered.length > 0){
-                  const bEnd = v.buffered.end(v.buffered.length - 1);
-                  if(v.currentTime < bEnd - 0.2){
-                    v.currentTime = Math.min(v.currentTime + 0.3, bEnd - 0.05);
-                  } else {
-                    const edge = Number.isFinite(hls.liveSyncPosition) ? hls.liveSyncPosition : (v.seekable && v.seekable.length ? v.seekable.end(v.seekable.length - 1) - 1 : 0);
-                    if(edge > 0 && Math.abs(edge - v.currentTime) > 10){
-                      try { v.currentTime = Math.max(0, edge - 2); } catch(e){}
+                  for(let i = 0; i < v.buffered.length; i++){
+                    const bStart = v.buffered.start(i);
+                    const bEnd = v.buffered.end(i);
+                    if(v.currentTime >= bStart && v.currentTime < bEnd - 0.25){
+                      v.currentTime = Math.min(v.currentTime + 0.2, bEnd - 0.05);
+                      break;
+                    } else if(v.currentTime < bStart && bStart - v.currentTime < 1.0){
+                      v.currentTime = bStart + 0.05;
+                      break;
                     }
                   }
+                }
+                if(hls){
+                  hls.startLoad();
                 }
                 if(v.paused && !this._userManuallyPaused){
                   v.play().catch(()=>{});
