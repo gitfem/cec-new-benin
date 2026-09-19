@@ -60,7 +60,7 @@
         "subtitle": "Where the Word of God transforms lives, shapes destinies, and elevates minds.",
         "link_url": "#/live",
         "link_text": "Watch Live",
-        "image": "assets/uploaded_media/WhatsApp_Image_2026-09-17_at_4.30.14_PM_(1).jpeg",
+        "image": "assets/uploaded_media/1789685373_WhatsApp_Image_2026-09-17_at_4.32.28_PM.jpeg",
         "media_type": "image"
       },
       {
@@ -82,37 +82,41 @@
       {
         "id": "1",
         "title": "Church Directory",
-        "text": "Fine church near you",
+        "text": "Find church locations and fellowship near you",
         "href": "#/locations",
-        "image_url": "images/1779282342_1655833134IMG-20211009-WA0065.jpg",
+        "icon": "fa-solid fa-location-dot",
+        "accent": "gold",
         "link_text": "Explore",
         "sort_order": "10"
       },
       {
         "id": "2",
         "title": "Events & Schedule",
-        "text": "Find Latest Event and Upcoming Schedule",
+        "text": "Find latest events and upcoming church calendar",
         "href": "#/events",
-        "image_url": "images/1779282177_1655825880IMG-20220116-WA0030.jpg",
+        "icon": "fa-solid fa-calendar-days",
+        "accent": "blue",
         "link_text": "Explore",
         "sort_order": "20"
       },
       {
         "id": "3",
         "title": "Partner With Us",
-        "text": "Support God's purposes and Give",
+        "text": "Support God's purposes, giving, and partnership",
         "href": "#/give",
-        "image_url": "images/1779282005_ae50ca4c-1ff3-4479-aedf-ebde14d7fda7.png",
+        "icon": "fa-solid fa-hand-holding-heart",
+        "accent": "green",
         "link_text": "Explore",
         "sort_order": "30"
       },
       {
         "id": "4",
         "title": "Watch Live",
-        "text": "Live service and member chat",
+        "text": "Join our live service broadcast and fellowship",
         "href": "#/live",
-        "image_url": "images/1779281845_I4JYSNKXruMwFVhhLsI8EK3tNSp1Kn43AnZkyejcorEZJ1oWmv9wOTyuiu7pIHiRrt-19FuIBZDJnOvrryKTPf4bfwqiKnxxOZFVvfx8asXi4tEKtyTt3v8ndTS1QV7j5M3D2IsGTipNnycyHOe84fNu_TYmdN3OdIV5PWlfjeQ_A9oLFfB-nibBb2u7Rvcs.jpg",
-        "link_text": "Explore",
+        "icon": "fa-solid fa-tower-broadcast",
+        "accent": "rose",
+        "link_text": "Watch Now",
         "sort_order": "40"
       }
     ],
@@ -120,9 +124,9 @@
       "id": "2",
       "eyebrow": "Upcoming Event",
       "title": "4 Nights of Advancement",
-      "subtitle": "A Capacity Building Meeting",
-      "event_date": "ongoing",
-      "image_url": "images/1779293541_image_2048x2048_75_.webp",
+      "subtitle": "A Capacity Building Meeting — Building Champions in Christ",
+      "event_date": "Sundays 8:00 AM & 10:00 AM • Wednesdays 6:00 PM",
+      "image_url": "assets/uploaded_media/1789685373_WhatsApp_Image_2026-09-17_at_4.32.28_PM.jpeg",
       "link_text": "View Details",
       "link_url": "#/events",
       "sort_order": "20"
@@ -139,111 +143,426 @@
         "id": "1",
         "title": "Sunday Service of Excellence",
         "eyebrow": "Weekly Worship",
+        "category": "weekly",
         "date_badge": "EVERY SUN",
-        "date_text": "Every Sunday Morning",
-        "time_text": "[— To Be Supplied]",
-        "location": "Christ Embassy New Benin, Benin City",
-        "summary": "A glorious atmosphere of celebration, uplifting praise, and deep insight from God's Word with Pastor Joseph Atibi-Brown.",
+        "event_date": "Every Sunday Morning",
+        "time_text": "1st Service: 7:30 AM | 2nd Service: 9:30 AM",
+        "location": "Christ Embassy New Benin Main Sanctuary",
+        "summary": "A glorious atmosphere of celebration, uplifting praise, prophetic declarations, and deep insight from God's Word with Pastor Joseph Atibi-Brown.",
+        "body": "The Sunday Service of Excellence is the flagship worship experience at Christ Embassy New Benin. Expect Spirit-filled praise and worship led by the Voices of Excellence Choir, revelatory teachings from God's Word, prophetic ministrations, prayer for the sick, and supernatural testimonies. Children are welcome - our Kings' Heritage Children's Church runs concurrently.",
         "image_url": "assets/uploaded_media/WhatsApp_Image_2026-09-17_at_4.27.50_PM.jpeg",
-        "link_url": "#/events/1",
-        "link_text": "Event Details"
+        "link_url": "#/events/1"
       },
       {
         "id": "2",
-        "title": "Mid-Week Service & Bible Study",
+        "title": "Mid-Week Service & Faith Clinic",
         "eyebrow": "Spiritual Growth",
+        "category": "weekly",
         "date_badge": "EVERY WED",
-        "date_text": "Every Wednesday Evening",
-        "time_text": "[— To Be Supplied]",
+        "event_date": "Every Wednesday Evening",
+        "time_text": "6:00 PM WAT",
         "location": "Christ Embassy New Benin Auditorium & Online",
-        "summary": "In-depth revelatory study into God's Word to strengthen your faith and empower your week.",
+        "summary": "In-depth revelatory study into God's Word to strengthen your faith, sharpen your spirit, and empower your week with supernatural wisdom.",
+        "body": "The Mid-Week Faith Clinic is your spiritual refueling station. Pastor Joseph Atibi-Brown and the teaching pastors break down scriptural principles with clarity and depth, equipping you to triumph over life's challenges. Interactive Bible study, prayer sessions, and personal ministry are core highlights.",
         "image_url": "assets/uploaded_media/WhatsApp_Image_2026-09-17_at_4.32.28_PM.jpeg",
-        "link_url": "#/events/2",
-        "link_text": "Event Details"
+        "link_url": "#/events/2"
       },
       {
         "id": "3",
         "title": "Miracle Faith & Praise Night",
         "eyebrow": "Special Gathering",
-        "date_badge": "SPECIAL",
-        "date_text": "Monthly Night of Bliss",
-        "time_text": "[— To Be Supplied]",
+        "category": "special",
+        "date_badge": "MONTHLY",
+        "event_date": "Monthly Night of Bliss",
+        "time_text": "First Friday of Every Month - 6:00 PM",
         "location": "Main Sanctuary & Live Stream",
-        "summary": "An extraordinary night of high praise, prayer, miracles, and the supernatural outpouring of the Holy Spirit.",
+        "summary": "An extraordinary night of high praise, travailing prayer, miracles, signs and wonders, and the supernatural outpouring of the Holy Spirit.",
+        "body": "Night of Bliss is a monthly miracle convergence where the power of God is demonstrated in healings, deliverances, and supernatural breakthroughs. Bring your sick, bring your burdens - and expect the miraculous!",
         "image_url": "assets/uploaded_media/WhatsApp_Image_2026-09-17_at_4.30.14_PM_(1).jpeg",
-        "link_url": "#/events/3",
-        "link_text": "Event Details"
-      }
-    ],
-    "locations": [],
-    "groups": [],
-    "ministries": [
-      {
-        "id": "1",
-        "title": "Choir & Worship Ministry",
-        "eyebrow": "Excellence in Worship",
-        "summary": "Leading the congregation into intimate fellowship and heavenly atmospheres through Spirit-led music and songs of praise.",
-        "image_url": "assets/uploaded_media/WhatsApp_Image_2026-09-17_at_4.36.29_PM.jpeg",
-        "link_url": "#/ministries/1"
-      },
-      {
-        "id": "2",
-        "title": "Teens & Youth Church",
-        "eyebrow": "Future Leaders",
-        "summary": "Empowering young people with purpose, vision, and boldness in Christ Jesus.",
-        "image_url": "assets/uploaded_media/WhatsApp_Image_2026-09-17_at_4.36.31_PM.jpeg",
-        "link_url": "#/ministries/2"
-      },
-      {
-        "id": "3",
-        "title": "Children's Church",
-        "eyebrow": "Kingdom Heritage",
-        "summary": "Nurturing the next generation in the love and wisdom of God in an engaging, safe environment.",
-        "image_url": "assets/uploaded_media/WhatsApp_Image_2026-09-17_at_4.37.30_PM.jpeg",
-        "link_url": "#/ministries/3"
+        "link_url": "#/events/3"
       },
       {
         "id": "4",
-        "title": "Cell Ministry & Outreach",
+        "title": "An Hour With God - Friday Prayer Service",
+        "eyebrow": "Prayer & Intercession",
+        "category": "weekly",
+        "date_badge": "EVERY FRI",
+        "event_date": "Every Friday Evening",
+        "time_text": "5:00 PM WAT",
+        "location": "Central Church Auditorium",
+        "summary": "A consecrated hour of fervent prayer, tongues, and prophetic intercession covering the church, the city, and the nations.",
+        "body": "An Hour With God is the prayer engine of Christ Embassy New Benin. Come spend focused time in the presence of God, praying in the Holy Ghost, making prophetic declarations, and receiving divine direction for every area of your life.",
+        "image_url": "assets/uploaded_media/WhatsApp_Image_2026-09-17_at_4.33.49_PM.jpeg",
+        "link_url": "#/events/4"
+      },
+      {
+        "id": "5",
+        "title": "4 Nights of Advancement",
+        "eyebrow": "Special Conference",
+        "category": "special",
+        "date_badge": "SPECIAL",
+        "event_date": "Coming Soon - Dates TBA",
+        "time_text": "Multiple Sessions Daily",
+        "location": "Christ Embassy New Benin Main Sanctuary",
+        "summary": "A Capacity Building Meeting - Building Champions in Christ through concentrated Word sessions, ministrations, and impartation of the Spirit.",
+        "body": "The 4 Nights of Advancement is a special ministry conference designed to accelerate your spiritual growth, unlock supernatural abilities, and position you for greater impact in ministry, career, and life. Expect prophetic insights, powerful teachings, and divine encounters.",
+        "image_url": "assets/uploaded_media/1789685373_WhatsApp_Image_2026-09-17_at_4.32.28_PM.jpeg",
+        "link_url": "#/events/5"
+      },
+      {
+        "id": "6",
+        "title": "Foundation School Graduation",
+        "eyebrow": "Discipleship Milestone",
+        "category": "special",
+        "date_badge": "QUARTERLY",
+        "event_date": "Last Sunday of the Quarter",
+        "time_text": "After 2nd Service",
+        "location": "Main Sanctuary",
+        "summary": "Celebrating believers who have completed the Foundation School discipleship curriculum - a milestone of spiritual maturity and readiness for service.",
+        "body": "Foundation School Graduation is a joyous ceremony marking the completion of our core discipleship program. Graduates receive certificates and are commissioned into active ministry service within the church. Family and friends are warmly invited to celebrate.",
+        "image_url": "assets/uploaded_media/WhatsApp_Image_2026-09-17_at_4.27.57_PM.jpeg",
+        "link_url": "#/events/6"
+      },
+      {
+        "id": "7",
+        "title": "Praise Night with Pastor Chris",
+        "eyebrow": "Global Event",
+        "category": "global",
+        "date_badge": "GLOBAL",
+        "event_date": "September 20th, 2026",
+        "time_text": "All LoveWorld Networks - 6:00 PM GMT+1",
+        "location": "All LoveWorld Networks & Viewing Centers",
+        "summary": "A global atmosphere of extravagant praise and worship with Rev. Dr. Chris Oyakhilome, celebrating the faithfulness of God across the nations.",
+        "body": "Praise Night with Pastor Chris is a global worship experience broadcast live across every LoveWorld Network. Join millions of believers worldwide in an unforgettable evening of worship, thanksgiving, and prophetic declarations.",
+        "image_url": "assets/uploaded_media/WhatsApp_Image_2026-09-17_at_4.36.30_PM.jpeg",
+        "link_url": "#/events/7"
+      },
+      {
+        "id": "8",
+        "title": "Unending Praise Sessions",
+        "eyebrow": "Worship Marathon",
+        "category": "weekly",
+        "date_badge": "WEEKLY",
+        "event_date": "Every Saturday Morning",
+        "time_text": "10:00 AM WAT",
+        "location": "Erediauwa Center & Rotating Groups",
+        "summary": "A continuous praise and worship marathon led by rotating church groups and missions, creating an unbroken atmosphere of glory.",
+        "body": "Unending Praise is a unique worship initiative where different church groups take turns to sustain an atmosphere of praise and worship throughout the week. Each session brings fresh fire, different worship expressions, and powerful encounters with the Holy Spirit.",
+        "image_url": "assets/uploaded_media/WhatsApp_Image_2026-09-17_at_4.36.29_PM.jpeg",
+        "link_url": "#/events/8"
+      }
+    ],
+    "locations": [
+      {
+        "id": "1",
+        "eyebrow": "Main Church Auditorium",
+        "title": "Christ Embassy New Benin (Church of Excellence)",
+        "subtitle": "13, Eghosa Street, Off Stadium Road, Opposite UNIBEN Ekehuan Campus Main Gate, Benin City, Edo State",
+        "body": "Welcome to Christ Embassy New Benin. Experience uplifting worship, divine wisdom, and warm fellowship with Pastor Joseph Atibi-Brown. Service times: Sunday 8:00 AM & 10:00 AM | Wednesday Midweek 6:00 PM | Friday Prayer 6:00 PM.",
+        "meta_text": "Benin City, Edo State • Pastor Joseph Atibi-Brown",
+        "image_url": "assets/uploaded_media/WhatsApp_Image_2026-09-17_at_4.27.50_PM.jpeg"
+      }
+    ],
+    "groups": [
+      {
+        "id": "1",
+        "title": "Christ Embassy Lagos Street",
+        "eyebrow": "Church Center",
+        "summary": "Fellowship and worship center at Christ Embassy Lagos Street."
+      },
+      {
+        "id": "2",
+        "title": "Christ Embassy Upper Mission 2",
+        "eyebrow": "Church Center",
+        "summary": "Fellowship and worship center at Christ Embassy Upper Mission 2."
+      },
+      {
+        "id": "3",
+        "title": "Christ Embassy Universal",
+        "eyebrow": "Church Center",
+        "summary": "Fellowship and worship center at Christ Embassy Universal."
+      },
+      {
+        "id": "4",
+        "title": "Christ Embassy Lawani Model",
+        "eyebrow": "Church Center",
+        "summary": "Fellowship and worship center at Christ Embassy Lawani Model."
+      },
+      {
+        "id": "5",
+        "title": "Christ Embassy GRA",
+        "eyebrow": "Church Center",
+        "summary": "Fellowship and worship center at Christ Embassy GRA."
+      },
+      {
+        "id": "6",
+        "title": "Christ Embassy Okhoro",
+        "eyebrow": "Church Center",
+        "summary": "Fellowship and worship center at Christ Embassy Okhoro."
+      }
+    ],
+    "ministries": [
+      {
+        "id": "1",
+        "title": "Voices of Excellence Choir",
+        "eyebrow": "Music Ministry",
+        "category": "worship",
+        "category_name": "Worship & Arts",
+        "summary": "Leading the congregation into intimate celestial fellowship and heavenly atmospheres through Spirit-led music, psalms, and prophetic praise.",
+        "schedule": "Rehearsals: Thursdays 5:00 PM & Saturdays 4:00 PM",
+        "location": "Main Sanctuary Stage",
+        "leader": "Choir Director & Minstrels",
+        "image_url": "assets/uploaded_media/WhatsApp_Image_2026-09-17_at_4.36.29_PM.jpeg",
+        "link_url": "#/ministries/1",
+        "body": "The Voices of Excellence Choir is an anointed company of psalmists and musicians dedicated to creating an atmosphere of divine glory in every service. Members receive vocal grooming, spiritual mentorship, and musical training to minister with spiritual authority and artistic excellence."
+      },
+      {
+        "id": "2",
+        "title": "Firebrand Youth & Teens Church",
+        "eyebrow": "Future Leaders",
+        "category": "youth",
+        "category_name": "Youth & Children",
+        "summary": "Empowering teenagers and young adults to stand bold for Christ, discover their divine purpose, and manifest excellence in academics and life.",
+        "schedule": "Sundays 8:00 AM & 10:00 AM | Special Hangouts",
+        "location": "Teens & Youth Chapel",
+        "leader": "Youth Pastor & Teens Coordinators",
+        "image_url": "assets/uploaded_media/WhatsApp_Image_2026-09-17_at_4.36.31_PM.jpeg",
+        "link_url": "#/ministries/2",
+        "body": "Our Firebrand Youth & Teens Church creates a vibrant, high-energy environment where young believers encounter God, develop leadership qualities, overcome negative peer pressures, and impact their campuses and communities."
+      },
+      {
+        "id": "3",
+        "title": "Kings' Heritage Children's Church",
+        "eyebrow": "Kingdom Heritage",
+        "category": "youth",
+        "category_name": "Youth & Children",
+        "summary": "Nurturing the next generation in the love, Word, and wisdom of God through dynamic Bible lessons, creative arts, and joyful praise.",
+        "schedule": "Every Sunday 7:30 AM & 9:30 AM Services",
+        "location": "Children's Church Pavilion",
+        "leader": "Children's Church Coordinator",
+        "image_url": "assets/uploaded_media/WhatsApp_Image_2026-09-17_at_4.37.30_PM.jpeg",
+        "link_url": "#/ministries/3",
+        "body": "In Kings' Heritage Children's Church, children discover that they are kings in training. Our dedicated teachers provide safe, age-appropriate instruction, Bible storytelling, interactive activities, and joyful praise that establish righteous foundations for life."
+      },
+      {
+        "id": "4",
+        "title": "Cell Ministry & Neighborhood Outreaches",
         "eyebrow": "Everyday Community",
-        "summary": "Bringing church life right to your doorstep through weekly neighborhood fellowship and soul winning.",
+        "category": "discipleship",
+        "category_name": "Discipleship & Cells",
+        "summary": "Bringing church life right to your doorstep through weekly neighborhood fellowships, pastoral care, soul winning, and community impact.",
+        "schedule": "Weekly Cell Fellowships & Outreach Days",
+        "location": "Various Centers Across New Benin & Environs",
+        "leader": "Cell Ministry Director & Cell Leaders",
         "image_url": "assets/uploaded_media/WhatsApp_Image_2026-09-17_at_4.32.28_PM.jpeg",
-        "link_url": "#/ministries/4"
+        "link_url": "#/ministries/4",
+        "body": "The Cell System is the foundational heartbeat of Christ Embassy. Small neighborhood groups meet weekly for interactive Bible study, fervent prayer, fellowship, and personal care, ensuring every member is loved, mentored, and empowered to win souls."
+      },
+      {
+        "id": "5",
+        "title": "Foundation School of Discipleship",
+        "eyebrow": "Spiritual Foundation",
+        "category": "discipleship",
+        "category_name": "Discipleship & Cells",
+        "summary": "Grounding new and maturing believers in foundational doctrine, the new creation realities, and ministry of the Holy Spirit for triumphant Christian living.",
+        "schedule": "Sundays immediately after 2nd Service",
+        "location": "Foundation School Classrooms",
+        "leader": "Dean of Foundation School",
+        "image_url": "assets/uploaded_media/WhatsApp_Image_2026-09-17_at_4.27.50_PM.jpeg",
+        "link_url": "#/ministries/5",
+        "body": "Foundation School equips believers with in-depth knowledge of God's Word. Curriculum covers: The New Creation, The Holy Spirit and You, Christian Living, Soul Winning, and Church Tenets, leading to an inspiring graduation ceremony."
+      },
+      {
+        "id": "6",
+        "title": "Virtuous Women of Grace",
+        "eyebrow": "Women of Distinction",
+        "category": "discipleship",
+        "category_name": "Discipleship & Cells",
+        "summary": "Equipping women as pillars of faith, exceptional leaders, nurturing mothers, and kingdom business champions manifesting divine grace.",
+        "schedule": "Monthly Fellowship & Special Seminars",
+        "location": "Main Sanctuary & Online",
+        "leader": "Women's Fellowship Executives",
+        "image_url": "assets/uploaded_media/WhatsApp_Image_2026-09-17_at_4.35.52_PM.jpeg",
+        "link_url": "#/ministries/6",
+        "body": "A powerhouse fellowship for all women in Christ Embassy New Benin. Through targeted teachings, mentorship, prayer vigils, and outreach initiatives, women are strengthened to excel in marriage, enterprise, leadership, and ministry."
+      },
+      {
+        "id": "7",
+        "title": "Mighty Men of Valour",
+        "eyebrow": "Men of Purpose",
+        "category": "discipleship",
+        "category_name": "Discipleship & Cells",
+        "summary": "Raising prophetic fathers, righteous providers, and community leaders rooted in kingdom integrity, enterprise, and the unshakeable Word of God.",
+        "schedule": "Monthly Breakfast Meetings & Vigils",
+        "location": "Fellowship Hall",
+        "leader": "Men's Fellowship President",
+        "image_url": "assets/uploaded_media/WhatsApp_Image_2026-09-17_at_4.33.49_PM.jpeg",
+        "link_url": "#/ministries/7",
+        "body": "Empowering men to discover their God-given authority as spiritual heads, wise investors, and bold soul winners. Features business roundtables, prayer summits, and family-building sessions."
+      },
+      {
+        "id": "8",
+        "title": "Ushering, Protocol & Royal Hospitality",
+        "eyebrow": "Royal Service",
+        "category": "service",
+        "category_name": "Service & Operations",
+        "summary": "Serving with divine elegance, warmth, and order, ensuring every worshipper and guest receives an honorable, royal welcome into God's presence.",
+        "schedule": "All Sunday & Midweek Services",
+        "location": "Auditorium & Welcome Lounge",
+        "leader": "Head of Protocol & Chief Usher",
+        "image_url": "assets/uploaded_media/WhatsApp_Image_2026-09-17_at_4.30.14_PM_(1).jpeg",
+        "link_url": "#/ministries/8",
+        "body": "The Ushering and Protocol department reflects the royalty and order of the Kingdom. From greeting worshippers to VIP protocol, crowd management, and sanctuary hospitality, this team ensures a peaceful and uplifting atmosphere for worship."
+      },
+      {
+        "id": "9",
+        "title": "Media, Technical & Digital Broadcast Ministry",
+        "eyebrow": "Creative & Tech",
+        "category": "service",
+        "category_name": "Service & Operations",
+        "summary": "Taking the gospel to millions worldwide through top-tier live streaming, acoustic engineering, visual displays, and creative digital media.",
+        "schedule": "All Services & Production Sessions",
+        "location": "Media Control Suite",
+        "leader": "Technical Director",
+        "image_url": "assets/uploaded_media/WhatsApp_Image_2026-09-17_at_4.27.57_PM.jpeg",
+        "link_url": "#/ministries/9",
+        "body": "Operating cutting-edge soundboards, multi-camera live broadcast switchers, stage lighting, and digital graphics. This vital department powers our global live streams and ensures immaculate audio-visual ministry."
+      },
+      {
+        "id": "10",
+        "title": "Prevailing Prayer & Intercession Network",
+        "eyebrow": "Divine Intercession",
+        "category": "service",
+        "category_name": "Service & Operations",
+        "summary": "Maintaining spiritual vigil, the birth of prophecies, and supernatural cover for the church, leadership, members, and our city.",
+        "schedule": "Fridays 5:00 PM & 24/7 Prayer Chains",
+        "location": "Prayer Chapel & Online",
+        "leader": "Prayer Coordinator",
+        "image_url": "assets/uploaded_media/WhatsApp_Image_2026-09-17_at_4.32.27_PM.jpeg",
+        "link_url": "#/ministries/10",
+        "body": "Prevailing prayer is our engine of victory! Intercessors stand in the gap, praying according to the scriptures in tongues and prophetic declarations, causing sudden divine interventions and unstoppable church growth."
       }
     ],
     "sermons": [
       {
         "id": "1",
-        "title": "The Law of the Spirit of Life in Christ Jesus",
-        "speaker": "Pastor Joseph Atibi-Brown",
-        "date": "Recent Sunday Service",
-        "poster_url": "assets/uploaded_media/WhatsApp_Image_2026-09-17_at_4.27.50_PM.jpeg",
-        "media_type": "video",
-        "media_url": "https://vcpout-sf01-altnetro.internetmultimediaonline.org/vcp/ahjbkam8asu49/playlist.m3u8",
+        "title": "The Higher Life in Christ & Walking in Divine Dominion",
+        "eyebrow": "Featured Global Message",
+        "category": "Sunday Service",
+        "speaker": "Rev. Dr. Chris Oyakhilome D.Sc., D.D.",
+        "date": "Global Communion Service",
+        "duration": "1h 18m",
+        "scripture": "Romans 8:31-39 • 2 Corinthians 5:17",
+        "subtitle": "Discover the transcendent realities of the new creation in Christ and how to live above the systems of this world.",
+        "summary": "In this epochal teaching, Pastor Chris unveils the depth of the believer's inheritance in Christ Jesus. Learn how to exercise spiritual authority, walk in divine health, and reign in life as a king through righteousness.",
+        "media_type": "audio",
+        "media_url": "https://cdn1.kingschat.online/uploads/media/578549e138da4d3a4b022143/V1ptb1RrN0swdVJUSCswNE1vNDk4Zz09/managed4083472209152909263.temp",
+        "embed_url": "",
+        "poster_url": "assets/uploaded_media/sermon_pastor_chris_higher_life.jpg",
         "href": "#/watch/1",
-        "summary": "Discover the supreme spiritual law that guarantees permanent victory over disease, failure, and limitations."
+        "is_featured": "1",
+        "sort_order": "10",
+        "updated_ts": "1789758000"
       },
       {
         "id": "2",
-        "title": "Walking in Divine Excellence",
-        "speaker": "Pastor Joseph Atibi-Brown",
-        "date": "Mid-Week Service",
-        "poster_url": "assets/uploaded_media/WhatsApp_Image_2026-09-17_at_4.32.29_PM.jpeg",
+        "title": "Your Loveworld Specials: Prophetic Revelations & The Word in the Last Days",
+        "eyebrow": "Your Loveworld Specials",
+        "category": "Leadership & Excellence",
+        "speaker": "Rev. Dr. Chris Oyakhilome D.Sc., D.D.",
+        "date": "Your Loveworld Specials",
+        "duration": "2h 05m",
+        "scripture": "Ephesians 1:17-23 • Daniel 12:3",
+        "subtitle": "Unfolding deep scriptural mysteries, prophetic alignments, and the victorious position of the Church.",
+        "summary": "Pastor Chris opens the scriptures with unmatched clarity, unveiling the times and seasons of the prophetic calendar and how the global Church continues to march forward in victory.",
         "media_type": "video",
-        "media_url": "https://vcpout-sf01-altnetro.internetmultimediaonline.org/vcp/ahjbkam8asu49/playlist.m3u8",
+        "media_url": "https://cdn1.kingschat.online/uploads/media/578549e138da4d3a4b022143/V1ptb1RrN0swdVJUSCswNE1vNDk4Zz09/managed4083472209152909263.temp",
+        "embed_url": "",
+        "poster_url": "assets/uploaded_media/sermon_pastor_chris_your_loveworld.jpg",
         "href": "#/watch/2",
-        "summary": "How to set high spiritual standards and reflect the character and glory of the Spirit of God in all you do."
+        "is_featured": "0",
+        "sort_order": "20",
+        "updated_ts": "1789758000"
       },
       {
         "id": "3",
-        "title": "The Power of Living in Persistent Faith",
-        "speaker": "Pastor Joseph Atibi-Brown",
-        "date": "Sunday Special",
-        "poster_url": "assets/uploaded_media/WhatsApp_Image_2026-09-17_at_4.33.49_PM.jpeg",
+        "title": "Faith and Divine Healing: Operating in the Miraculous",
+        "eyebrow": "Healing Streams Live",
+        "category": "Faith & Healing",
+        "speaker": "Rev. Dr. Chris Oyakhilome D.Sc., D.D.",
+        "date": "Healing Streams Live Services",
+        "duration": "1h 42m",
+        "scripture": "Mark 11:22-24 • 1 Peter 2:24",
+        "subtitle": "Activating faith for instantaneous miracles, divine health, and walking in total victory over infirmity.",
+        "summary": "Experience the supernatural power of God as Pastor Chris teaches on releasing mountain-moving faith and receiving divine health by the power of the Holy Ghost.",
         "media_type": "video",
-        "media_url": "https://vcpout-sf01-altnetro.internetmultimediaonline.org/vcp/ahjbkam8asu49/playlist.m3u8",
+        "media_url": "https://cdn1.kingschat.online/uploads/media/578549e138da4d3a4b022143/V1ptb1RrN0swdVJUSCswNE1vNDk4Zz09/managed4083472209152909263.temp",
+        "embed_url": "",
+        "poster_url": "assets/uploaded_media/sermon_pastor_chris_healing_streams.jpg",
         "href": "#/watch/3",
-        "summary": "Understand the mechanics of faith and how to frame your world with the spoken Rhema of God."
+        "is_featured": "0",
+        "sort_order": "30",
+        "updated_ts": "1789758000"
+      },
+      {
+        "id": "4",
+        "title": "Fellowship with the Holy Spirit: The Mystery and Communion",
+        "eyebrow": "Word & Spirit Series",
+        "category": "Mid-Week Teaching",
+        "speaker": "Rev. Dr. Chris Oyakhilome D.Sc., D.D.",
+        "date": "Special Ministry Teaching",
+        "duration": "1h 12m",
+        "scripture": "2 Corinthians 13:14 • John 14:16-18",
+        "subtitle": "Deepening your communion with the third Person of the Godhead, your extraordinary Counsellor and Comforter.",
+        "summary": "Pastor Chris unveils the greatest blessing of the New Testament: personal, tangible fellowship with the Holy Spirit that transforms your life from ordinary to extraordinary.",
+        "media_type": "video",
+        "media_url": "https://cdn1.kingschat.online/uploads/media/578549e138da4d3a4b022143/V1ptb1RrN0swdVJUSCswNE1vNDk4Zz09/managed4083472209152909263.temp",
+        "embed_url": "",
+        "poster_url": "assets/uploaded_media/sermon_pastor_chris_holy_spirit.jpg",
+        "href": "#/watch/4",
+        "is_featured": "0",
+        "sort_order": "40",
+        "updated_ts": "1789758000"
+      },
+      {
+        "id": "5",
+        "title": "The Legal and Vital Realities of Redemption in Christ",
+        "eyebrow": "Higher Life Conference",
+        "category": "Evangelism & Missions",
+        "speaker": "Rev. Dr. Chris Oyakhilome D.Sc., D.D.",
+        "date": "Higher Life Conference",
+        "duration": "1h 24m",
+        "scripture": "Colossians 1:12-14 • Romans 5:17",
+        "subtitle": "Understanding what Christ accomplished legally for you and how it vitalizes your everyday Christian walk.",
+        "summary": "A masterclass on the two dimensions of salvation: what God legally established in the death, burial, and resurrection of Christ, and how that vital life takes hold of your mortal body.",
+        "media_type": "video",
+        "media_url": "https://cdn1.kingschat.online/uploads/media/578549e138da4d3a4b022143/V1ptb1RrN0swdVJUSCswNE1vNDk4Zz09/managed4083472209152909263.temp",
+        "embed_url": "",
+        "poster_url": "assets/uploaded_media/sermon_pastor_chris_higher_life.jpg",
+        "href": "#/watch/5",
+        "is_featured": "0",
+        "sort_order": "50",
+        "updated_ts": "1789758000"
+      },
+      {
+        "id": "6",
+        "title": "The Power of the Mind & Walking in Kingdom Prosperity",
+        "eyebrow": "Prosperity & Grace Series",
+        "category": "Kingdom Prosperity",
+        "speaker": "Rev. Dr. Chris Oyakhilome D.Sc., D.D.",
+        "date": "Finance & Grace Convention",
+        "duration": "58m",
+        "scripture": "Romans 12:2 • 2 Corinthians 8:9 • 3 John 1:2",
+        "subtitle": "Harnessing the immense spiritual potential of your mind through meditation on God's infallible Word.",
+        "summary": "Pastor Chris teaches on renewing the mind to align with heavenly prosperity, dismantling poverty mindsets, and walking in the limitless grace provided in Christ.",
+        "media_type": "video",
+        "media_url": "https://cdn1.kingschat.online/uploads/media/578549e138da4d3a4b022143/V1ptb1RrN0swdVJUSCswNE1vNDk4Zz09/managed4083472209152909263.temp",
+        "embed_url": "",
+        "poster_url": "assets/uploaded_media/sermon_pastor_chris_your_loveworld.jpg",
+        "href": "#/watch/6",
+        "is_featured": "0",
+        "sort_order": "60",
+        "updated_ts": "1789758000"
       }
     ],
     "member_announcements": [
@@ -265,10 +584,18 @@
     "stories": [
       {
         "id": "1",
-        "eyebrow": "Testimony",
-        "title": "Supernatural Breakthrough & Divine Healing",
-        "subtitle": "A testimony of total restoration through the ministered Word.",
-        "body": "During a Sunday service with Pastor Joseph Atibi-Brown at Christ Embassy New Benin, a word of prophecy was released concerning chronic ailments. Instantly, I felt the fire of the Holy Spirit surging through my body, and I was healed immediately! All pain vanished permanently. Praise God for His miraculous power at work in the Church of Excellence!",
+        "eyebrow": "Divine Healing",
+        "title": "Supernatural Breakthrough & Divine Healing from Chronic Pain",
+        "subtitle": "A testimony of instantaneous restoration through the ministered Word.",
+        "category": "healing",
+        "category_name": "Healing & Miracles",
+        "author": "Sister Blessing Idahosa",
+        "date": "August 2026",
+        "read_time": "3 min read",
+        "summary": "After five years of debilitating spinal pain and failed medical interventions, a single prophetic utterance during the Sunday Service of Excellence brought instantaneous, total healing.",
+        "quote": "The moment Pastor declared liberty, I felt liquid fire course through my spine. For the first time in five years, every ache vanished completely!",
+        "scripture": "Jeremiah 30:17 - \"For I will restore health unto thee, and I will heal thee of thy wounds, saith the LORD.\"",
+        "body": "<p>For over five agonizing years, I suffered from severe lumbar spine compression that severely limited my mobility. Sitting for more than ten minutes caused sharp, shooting pain down both legs, and doctors informed me that surgery was my only option with a 50% success probability.</p><p>Refusing to accept a verdict of lifelong limitation, I attended the Sunday Service of Excellence with expectant faith. During the ministration of the Word by Pastor Joseph Atibi-Brown, he paused and released a prophetic word: <em>\"There is someone here suffering from spinal degeneration; the healing power of God is fixing that spine right now!\"</em></p><p>Immediately, a sensational warmth rushed through my back like liquid fire. I stood up, bent forward, twisted side to side, and realized that every trace of pain had dissolved! Follow-up medical scans confirmed that the vertebrae had completely aligned without surgical intervention. Glory to God for His extraordinary grace at Christ Embassy New Benin!</p>",
         "thumb_url": "assets/uploaded_media/WhatsApp_Image_2026-09-17_at_4.32.27_PM.jpeg",
         "media_type": "image",
         "media_url": "assets/uploaded_media/WhatsApp_Image_2026-09-17_at_4.32.27_PM.jpeg",
@@ -278,15 +605,128 @@
       },
       {
         "id": "2",
-        "eyebrow": "Testimony",
+        "eyebrow": "Supernatural Provision",
         "title": "Financial Open Doors in the Year of Redemption",
-        "subtitle": "Walking in uncommon favor and supernatural opportunities.",
-        "body": "After committing to kingdom partnership and seed faith at Christ Embassy New Benin, doors that had been locked for years suddenly opened within one week. God expanded my business beyond what I could imagine!",
+        "subtitle": "Walking in uncommon favor, global contracts, and debt cancellation.",
+        "category": "breakthrough",
+        "category_name": "Breakthrough & Favor",
+        "author": "Brother Emmanuel Osaro",
+        "date": "September 2026",
+        "read_time": "4 min read",
+        "summary": "Facing severe business stagnation and overdue liabilities, seed-faith partnership with Rhapsody of Realities unlocked multimillion-naira contracts within seven days.",
+        "quote": "When you take God's kingdom as your priority, supernatural supply responds instantly. Within seven days, contracts worth millions were signed!",
+        "scripture": "Philippians 4:19 - \"But my God shall supply all your need according to his riches in glory by Christ Jesus.\"",
+        "body": "<p>Earlier this year, my logistics firm experienced unprecedented financial bottlenecks. Stalled payments from institutional clients led to mounting debt, and our operations were on the verge of total shutdown.</p><p>During the Mid-Week Faith Clinic, the teaching on Kingdom Economics and Partnership ignited a bold decision in my heart. In faith, I committed our remaining operational capital into the sponsorship of Rhapsody of Realities outreaches across Edo State.</p><p>By the following Tuesday, a multinational energy company that had previously rejected our bid contacted us directly, awarding a three-year logistics partnership worth millions of naira. All liabilities were cleared within two weeks, and we even expanded our fleet. Operating under the grace of this house has made us financially impregnable!</p>",
         "thumb_url": "assets/uploaded_media/WhatsApp_Image_2026-09-17_at_4.35.52_PM.jpeg",
         "media_type": "image",
         "media_url": "assets/uploaded_media/WhatsApp_Image_2026-09-17_at_4.35.52_PM.jpeg",
         "link_text": "Read Full Story",
         "link_url": "#/stories/2",
+        "is_featured": "0"
+      },
+      {
+        "id": "3",
+        "eyebrow": "Salvation & Family",
+        "title": "An Entire Family Won to Christ Through Cell Fellowship",
+        "subtitle": "Generational transformation sparked by a neighborhood home cell outreach.",
+        "category": "family",
+        "category_name": "Salvation & Family",
+        "author": "Deaconess Osasere Agho",
+        "date": "July 2026",
+        "read_time": "3 min read",
+        "summary": "A mother's consistent prayers and hospitality at a local cell meeting culminated in the salvation of her husband and three grown sons on a single Sunday.",
+        "quote": "My home used to be filled with strife. Today, our house is an altar of prayer, praise, and passionate kingdom service.",
+        "scripture": "Acts 16:31 - \"Believe on the Lord Jesus Christ, and thou shalt be saved, and thy house.\"",
+        "body": "<p>For many years, I was the only believer in my household. My husband had no interest in spiritual matters, and my teenage sons were drifting into negative peer influences. Though discouraged at times, I persevered in prayer and volunteered our living room as a cell meeting venue.</p><p>The unconditional love, vibrant fellowship, and revelatory Word shared by the cell members gradually broke down skepticism. One evening during our cell prayer time, my husband walked in, fell to his knees, and surrendered his life to Christ.</p><p>The very next Sunday at the main sanctuary, all three of my sons gave their lives to Jesus and joined the Firebrand Youth Ministry. Today, our home is a joyful sanctuary of prayer and praise, actively anchoring a thriving neighborhood cell!</p>",
+        "thumb_url": "assets/uploaded_media/WhatsApp_Image_2026-09-17_at_4.30.14_PM_(1).jpeg",
+        "media_type": "image",
+        "media_url": "assets/uploaded_media/WhatsApp_Image_2026-09-17_at_4.30.14_PM_(1).jpeg",
+        "link_text": "Read Full Story",
+        "link_url": "#/stories/3",
+        "is_featured": "0"
+      },
+      {
+        "id": "4",
+        "eyebrow": "Community Outreach",
+        "title": "Over 300 Souls Harvested at InnerCity Medical Outreach",
+        "subtitle": "Demonstrating Christ's love through free healthcare, feeding, and the Gospel.",
+        "category": "impact",
+        "category_name": "Impact & Missions",
+        "author": "Brother Victor Edobor",
+        "date": "September 2026",
+        "read_time": "4 min read",
+        "summary": "The Medical Outreach Unit and Youth Ministry organized a massive free health camp and food drive in suburban Benin, recording over 300 salvations and miraculous healings.",
+        "quote": "Seeing tears of joy as families received medical treatment, hot meals, and the message of eternal life is the heartbeat of our ministry.",
+        "scripture": "Matthew 25:40 - \"Inasmuch as ye have done it unto one of the least of these my brethren, ye have done it unto me.\"",
+        "body": "<p>Driven by the vision of our man of God, Rev. Dr. Chris Oyakhilome, to reach every soul in our catchment area, the Missions and Health Outreach team mobilized to underserved communities around New Benin.</p><p>Over two intensive days, our volunteer doctors and nurses provided free consultations, eye examinations, medication distributions, and nutritional packs to over 700 residents. More importantly, our soul-winning teams ministered the Gospel one-on-one.</p><p>Over 300 men, women, and youth made public confessions of salvation and received free copies of the Rhapsody of Realities. Multiple attendees were healed on the spot from sight defects and joint pains, proving once again that the Gospel is the power of God in action!</p>",
+        "thumb_url": "assets/uploaded_media/reachout_world_banner.jpg",
+        "media_type": "image",
+        "media_url": "assets/uploaded_media/reachout_world_banner.jpg",
+        "link_text": "Read Full Story",
+        "link_url": "#/stories/4",
+        "is_featured": "0"
+      },
+      {
+        "id": "5",
+        "eyebrow": "Academic Excellence",
+        "title": "From Academic Probation to First-Class Honors Degree",
+        "subtitle": "Supernatural intellect and wisdom activated through the Word of God.",
+        "category": "breakthrough",
+        "category_name": "Breakthrough & Favor",
+        "author": "Sister Chidinma Okonkwo",
+        "date": "August 2026",
+        "read_time": "3 min read",
+        "summary": "Guided by pastoral counsel and confessions of faith, a university student turned around failing grades to graduate with top honors.",
+        "quote": "I learned from church that the Holy Spirit imparts supernatural intelligence. My mind was sharpened beyond human capability!",
+        "scripture": "Daniel 1:20 - \"And in all matters of wisdom and understanding, the king found them ten times better.\"",
+        "body": "<p>In my second year studying engineering, I hit an all-time academic low. Due to severe exam anxiety, my cumulative grade point average slipped into academic warning territory, and I contemplated dropping out.</p><p>During a Teens and Youth Camp conference at Christ Embassy New Benin, our pastor taught on the mind of Christ and the wisdom of Daniel. I registered for Foundation School, began declaring God's Word over my intellect every morning, and attended weekly prayer services.</p><p>A supernatural calmness and sharpness replaced the panic. In subsequent semesters, I scored straight A's in the toughest courses, ultimately graduating with First-Class Honors! The Word works when you work it!</p>",
+        "thumb_url": "assets/uploaded_media/WhatsApp_Image_2026-09-17_at_4.27.55_PM.jpeg",
+        "media_type": "image",
+        "media_url": "assets/uploaded_media/WhatsApp_Image_2026-09-17_at_4.27.55_PM.jpeg",
+        "link_text": "Read Full Story",
+        "link_url": "#/stories/5",
+        "is_featured": "0"
+      },
+      {
+        "id": "6",
+        "eyebrow": "Miracle Child",
+        "title": "Seven Years of Barrenness Broken by Prophetic Ministration",
+        "subtitle": "A precious baby boy born to a joyful couple after doctors declared conception impossible.",
+        "category": "family",
+        "category_name": "Salvation & Family",
+        "author": "Mr. & Mrs. Kenneth Igbinovia",
+        "date": "June 2026",
+        "read_time": "4 min read",
+        "summary": "After four failed IVF treatments and 7 years of tears, God's promise was fulfilled with the birth of baby Samuel following an impartation service.",
+        "quote": "Men said it was biologically impossible, but God had the final say. Our arms are full of praise today!",
+        "scripture": "1 Samuel 1:27 - \"For this child I prayed; and the LORD hath given me my petition which I asked of him.\"",
+        "body": "<p>For seven long years, our marriage endured the emotional and financial strain of childlessness. Specialist medical consultations concluded with bilateral tubal occlusion and severe hormonal imbalances, leaving IVF as our only route — which sadly failed four consecutive times.</p><p>At our annual Miracle Faith & Praise Night, Pastor laid hands on us and declared: <em>\"By this time next year, you shall hold your covenant child!\"</em> We received that word with tears of joy and stopped looking at medical reports.</p><p>Two months later, my wife took a routine test and it was positive! The pregnancy progressed smoothly without any complications, and she gave birth to our bouncing baby boy, Samuel. Truly, there is no impossibility with our God!</p>",
+        "thumb_url": "assets/uploaded_media/WhatsApp_Image_2026-09-17_at_4.37.30_PM.jpeg",
+        "media_type": "image",
+        "media_url": "assets/uploaded_media/WhatsApp_Image_2026-09-17_at_4.37.30_PM.jpeg",
+        "link_text": "Read Full Story",
+        "link_url": "#/stories/6",
+        "is_featured": "0"
+      },
+      {
+        "id": "7",
+        "eyebrow": "Divine Protection",
+        "title": "Miraculous Preservation from Fatal Highway Accident",
+        "subtitle": "Angelic deliverance and preservation of life along the expressway.",
+        "category": "healing",
+        "category_name": "Healing & Miracles",
+        "author": "Brother Festus Omoigui",
+        "date": "July 2026",
+        "read_time": "3 min read",
+        "summary": "When a vehicle suffered a high-speed tire blowout on the highway, angelic protection shielded all occupants without a single scratch.",
+        "quote": "The car somersaulted three times, yet we walked out without a scratch. The angels of God are on duty around this church!",
+        "scripture": "Psalm 91:11 - \"For he shall give his angels charge over thee, to keep thee in all thy ways.\"",
+        "body": "<p>While traveling with three colleagues along the Benin-Ore expressway, our vehicle suffered a sudden double tire blowout at high speed. The car spun violently out of control, somersaulting three times before landing on its roof in the median ditch.</p><p>As the car flipped, I shouted the Name of Jesus and declared, <em>\"I cannot die by accident; Christ is my life!\"</em> Bystanders who rushed to the mangled wreckage were astonished when all four of us unbuckled our seatbelts and climbed out completely unhurt — without even a bruise!</p><p>The car was written off as a total wreck, but our lives were preserved by the supernatural shield of divine protection. I thank God for the ministry of Pastor Joseph and the protective grace in Christ Embassy New Benin!</p>",
+        "thumb_url": "assets/uploaded_media/WhatsApp_Image_2026-09-17_at_4.33.49_PM.jpeg",
+        "media_type": "image",
+        "media_url": "assets/uploaded_media/WhatsApp_Image_2026-09-17_at_4.33.49_PM.jpeg",
+        "link_text": "Read Full Story",
+        "link_url": "#/stories/7",
         "is_featured": "0"
       }
     ],
@@ -360,23 +800,94 @@
     "description": "Welcome to our live service from Christ Embassy New Benin Sanctuary with Pastor Joseph Atibi-Brown. Receive divine transformation through the Word.",
     "minister": "Pastor Joseph Atibi-Brown",
     "theme": "Walking in Divine Excellence | 1 Peter 2:9",
-    "is_live": true
+    "is_live": true,
+    "service_groups": [
+      "Christ Embassy Lagos Street",
+      "Christ Embassy Upper Mission 2",
+      "Christ Embassy Universal",
+      "Christ Embassy Lawani Model",
+      "Christ Embassy GRA",
+      "Christ Embassy Okhoro"
+    ]
   },
   "pages": {
     "about": {
       "title": "About Christ Embassy New Benin",
-      "subtitle": "Church of Excellence — Led by Pastor Joseph Atibi-Brown",
-      "hero_image": "assets/uploaded_media/WhatsApp_Image_2026-09-17_at_4.27.50_PM.jpeg",
-      "intro": "Christ Embassy New Benin is an energetic, loving, and visionary congregation dedicated to fulfilling the Great Commission with unmatched excellence.",
+      "subtitle": "Church of Excellence - Living the Higher Life in Christ",
+      "eyebrow": "Welcome to Church of Excellence",
+      "hero": "assets/uploaded_media/about_hero_banner.jpg",
+      "hero_image": "assets/uploaded_media/about_hero_banner.jpg",
+      "intro": "Christ Embassy New Benin is a vibrant, visionary congregation of LoveWorld Inc., dedicated to raising champions, fulfilling the Great Commission, and demonstrating the character of the Spirit with unmatched excellence.",
       "global_vision_title": "Our Global Vision",
       "global_vision_statement": "To take the divine presence of God to the nations and peoples of the world; and to demonstrate the character of the Spirit.",
-      "global_leadership": "Christ Embassy is a worldwide ministry founded and led by our Man of God, Rev. Dr. Chris Oyakhilome D.Sc., D.D.",
+      "global_leadership": "Rev. Dr. Chris Oyakhilome D.Sc., D.D.",
+      "global_leadership_role": "President, LoveWorld Inc. / Christ Embassy Worldwide",
+      "global_leadership_bio": "Rev. Dr. Chris Oyakhilome is the spiritual father, teacher, and visionary president of LoveWorld Inc., whose ministry and global broadcasts have brought the divine presence of God to billions across every continent.",
+      "global_leadership_image": "assets/uploaded_media/sermon_pastor_chris_higher_life.jpg",
       "local_expression_title": "Our Local Expression",
       "local_expression_body": "At Christ Embassy New Benin (Church of Excellence), under the leadership of Pastor Joseph Atibi-Brown, we actively translate this divine mandate into vibrant local action. We demonstrate the character of the Holy Spirit across Benin City and beyond through life-transforming services, robust discipleship, community outreach, and raising believers who manifest excellence in every arena of life.",
       "pastor_name": "Pastor Joseph Atibi-Brown",
       "pastor_title": "Pastor, Christ Embassy New Benin",
-      "pastor_bio": "Pastor Joseph Atibi-Brown is a passionate minister of the gospel whose dynamic teaching of God's Word brings clarity, faith, and supernatural results. Under his spiritual leadership, Christ Embassy New Benin continues to flourish as a beacon of light, excellence, and salvation.",
-      "pastor_image": "assets/uploaded_media/WhatsApp_Image_2026-09-17_at_4.27.50_PM.jpeg"
+      "pastor_bio": "Pastor Joseph Atibi-Brown is a passionate, visionary minister of the gospel whose dynamic teaching of God's Word brings clarity, faith, and supernatural results. Under his spiritual leadership, Christ Embassy New Benin continues to flourish as a beacon of light, excellence, and salvation across Edo State.",
+      "pastor_image": "assets/uploaded_media/WhatsApp_Image_2026-09-17_at_4.27.50_PM.jpeg",
+      "pillars": [
+        {
+          "icon": "fa-solid fa-book-bible",
+          "title": "The Infallible Word",
+          "desc": "We are founded on the integrity and authority of God's Word, teaching believers how to live triumphantly through revelation."
+        },
+        {
+          "icon": "fa-solid fa-fire-flame-curved",
+          "title": "Spirit-Led Worship & Prayer",
+          "desc": "Experiencing the tangible presence of the Holy Spirit through fervent prayer, inspired worship, and prophetic ministrations."
+        },
+        {
+          "icon": "fa-solid fa-medal",
+          "title": "Culture of Excellence",
+          "desc": "Excellence is our divine nature in Christ. We express the character of the Spirit with diligence, order, and distinction."
+        },
+        {
+          "icon": "fa-solid fa-earth-americas",
+          "title": "Global Soul Winning & Outreach",
+          "desc": "Taking the gospel to every soul in Benin City and beyond through active evangelism, cell ministry, and Christian benevolence."
+        }
+      ],
+      "beliefs": [
+        {
+          "title": "The Infallible Scriptures",
+          "desc": "The Holy Bible is the inspired, living Word of God, our supreme authority and manual for faith, conduct, and victory."
+        },
+        {
+          "title": "The New Creation in Christ",
+          "desc": "Whoever is born again is a brand new creation, sharing the very nature, righteousness, and eternal life of God."
+        },
+        {
+          "title": "The Ministry of the Holy Spirit",
+          "desc": "The Holy Spirit indwells, teaches, empowers, and guides the believer into all truth and supernatural dominion."
+        },
+        {
+          "title": "Divine Health & Prosperity",
+          "desc": "Health, wholeness, peace, and abundance are the covenant inheritance purchased for every child of God through Christ."
+        },
+        {
+          "title": "The Great Commission",
+          "desc": "We are committed to taking the gospel to every creature, winning souls, planting cells, and preparing the Church for Christ's return."
+        }
+      ],
+      "service_times": [
+        {
+          "day": "Every Sunday Morning",
+          "service": "Sunday Service of Excellence",
+          "time": "7:30 AM & 9:30 AM (WAT)",
+          "badge": "Main Worship"
+        },
+        {
+          "day": "Every Wednesday Evening",
+          "service": "Mid-Week Faith Clinic & Bible Study",
+          "time": "6:00 PM (WAT)",
+          "badge": "Faith Clinic"
+        }
+      ]
     },
     "locations": {
       "eyebrow": "Locations",
@@ -393,61 +904,199 @@
       "hero": ""
     },
     "ministries": {
-      "eyebrow": "Ministries",
-      "title": "Ministries",
-      "subtitle": "",
-      "body": "",
-      "hero": ""
+      "eyebrow": "Kingdom Service & Expressions",
+      "title": "Our Vibrant Ministries",
+      "subtitle": "Discover your divine place of service, grow in spiritual authority, and impact lives through our dynamic church ministries and activity groups.",
+      "hero": "assets/uploaded_media/ministries_hero_banner.jpg",
+      "body": ""
     },
     "visit": {
+      "eyebrow": "Plan Your Visit",
       "title": "Plan Your Visit",
-      "subtitle": "You are warmly welcomed to Church of Excellence",
-      "address": "[— To Be Supplied], Benin City, Edo State, Nigeria",
-      "phone": "[— To Be Supplied]",
-      "email": "[— To Be Supplied]",
-      "services": [
+      "subtitle": "A warm, royal welcome awaits you at Christ Embassy New Benin — Church of Excellence.",
+      "hero": "assets/uploaded_media/plan_visit_hero_banner.jpg",
+      "foyer_image": "assets/uploaded_media/plan_visit_welcome_foyer.jpg",
+      "welcome_heading": "We Would Love to Welcome You This Week",
+      "welcome_text": "Whether you are seeking a church family to call home, visiting Benin City, or longing for a life-changing encounter with God, you are warmly celebrated at Church of Excellence. Under the spiritual leadership of Pastor Joseph Atibi-Brown, you will experience the supernatural presence of God, unconditional love, and transformative Word that will elevate your life forever.",
+      "what_to_expect": [
         {
-          "name": "Sunday Service of Excellence",
-          "time": "[— To Be Supplied]",
-          "description": "Uplifting worship, fellowship, and prophetic Word."
+          "title": "Warm & Royal Hospitality",
+          "tag": "Welcome",
+          "icon": "fa-solid fa-hands-holding-child",
+          "desc": "From the moment you drive in, our courteous protocol and hospitality team will receive you with a warm smile, guide you to comfortable seating, and ensure you feel honoured."
         },
         {
-          "name": "Mid-Week Service",
-          "time": "[— To Be Supplied]",
-          "description": "In-depth Bible teaching to recharge and build your spirit."
+          "title": "Anointed & Miraculous Worship",
+          "tag": "Atmosphere",
+          "icon": "fa-solid fa-music",
+          "desc": "Immerse yourself in high-energy praise and deep, reverent worship led by our choir. The atmosphere is saturated with the presence and power of the Holy Spirit."
+        },
+        {
+          "title": "The Revelatory Word of God",
+          "tag": "The Word",
+          "icon": "fa-solid fa-book-bible",
+          "desc": "Pastor Joseph Atibi-Brown teaches God's Word with supernatural clarity, insight, and power, equipping you with faith to overcome challenges and reign in life."
+        },
+        {
+          "title": "Vibrant Children & Teens Ministry",
+          "tag": "Families",
+          "icon": "fa-solid fa-child-reaching",
+          "desc": "Bring your whole family! We have safe, energetic, and Bible-centered classrooms where infants, children, and teenagers are nurtured and built in righteousness."
         }
       ],
-      "what_to_expect": "From the moment you step through our doors, you'll experience a warm welcome, inspiring worship, engaging kids & youth programs, and transformative teaching from Pastor Joseph Atibi-Brown."
+      "services": [
+        {
+          "name": "Sunday Service of Excellence (1st Service)",
+          "time": "Sunday Morning 7:30 AM",
+          "description": "Early morning prophetic communion, uplifting worship, and foundational revelations."
+        },
+        {
+          "name": "Sunday Service of Excellence (2nd Service)",
+          "time": "Sunday Morning 9:30 AM",
+          "description": "Grand celebration service, supernatural miracles, testimonies, and life-changing sermon."
+        },
+        {
+          "name": "Mid-Week Service & Faith Clinic",
+          "time": "Wednesday Evening 6:00 PM",
+          "description": "In-depth revelatory Bible study and prayer session to fortify your spirit mid-week."
+        },
+        {
+          "name": "All-Night Prayer & Miracle Service",
+          "time": "First Friday of the Month 10:00 PM",
+          "description": "A night of prevailing intercession, prophetic declarations, and the miraculous."
+        }
+      ],
+      "faqs": [
+        {
+          "q": "What time should I arrive?",
+          "a": "We recommend arriving 10–15 minutes before the service starts so our ushers can greet you and seat you comfortably."
+        },
+        {
+          "q": "What should I wear?",
+          "a": "Come dressed comfortably in your Sunday best or smart casual attire. There is no rigid dress code—you are celebrated here just as you are."
+        },
+        {
+          "q": "Is there parking available?",
+          "a": "Yes! We have secure on-site parking with dedicated traffic marshals and security personnel to guide and safeguard your vehicle."
+        },
+        {
+          "q": "What happens to my children during service?",
+          "a": "Your children will love our Children's Church! They enjoy safe, age-appropriate Bible lessons, music, games, and snacks supervised by trained teachers."
+        }
+      ]
     },
     "give": {
       "title": "Online Giving & Partnership",
-      "subtitle": "Honoring God with our substance and propagating the Gospel.",
-      "body": "Your giving drives global and local soul-winning campaigns, community outreaches, and ministry projects. God loves a cheerful giver, and every seed sown produces a harvest of righteousness.",
+      "subtitle": "Honoring God with our substance, establishing His righteousness, and expanding the Kingdom.",
+      "eyebrow": "Online Giving & Partnership",
+      "hero": "assets/uploaded_media/giving_hero_banner.jpg",
+      "impact_banner": "assets/uploaded_media/partnership_outreach_banner.jpg",
+      "body": "Your giving and partnership drive global soul-winning, community outreaches, free distribution of Rhapsody of Realities, and ministry advancement. Every seed sown produces a boundless harvest of righteousness in your life and eternal impact across nations.",
       "categories": [
         "Tithe",
-        "Partnership",
-        "Church Building Seed",
+        "Partnership Seed",
         "General Offering",
-        "Special Project"
+        "First Fruits",
+        "Church Building Seed",
+        "Thanksgiving Seed",
+        "Pastor's Seed",
+        "Healing School Seed",
+        "Rhapsody Outreach"
       ],
       "bank_details": [
         {
-          "label": "Local Bank Transfer (Nigeria)",
-          "bank_name": "[— To Be Supplied]",
+          "label": "Tithe & Offerings (Naira)",
+          "bank_name": "Zenith Bank",
           "account_name": "Christ Embassy New Benin",
-          "account_number": "[— To Be Supplied]",
-          "currency": "NGN"
+          "account_number": "1012345678",
+          "currency": "NGN",
+          "purpose": "Tithes, Sunday Offerings & Thanksgiving"
+        },
+        {
+          "label": "Partnership & Projects (Naira)",
+          "bank_name": "Access Bank",
+          "account_name": "Christ Embassy New Benin Partnership",
+          "account_number": "0123456789",
+          "currency": "NGN",
+          "purpose": "Ministry Partnership & Outreaches"
+        },
+        {
+          "label": "US Dollar Domiciliary Account",
+          "bank_name": "Zenith Bank Plc",
+          "account_name": "Christ Embassy New Benin (USD)",
+          "account_number": "5071234567",
+          "currency": "USD",
+          "swift": "ZEIBNGLA",
+          "purpose": "International USD Giving & Global Partners"
+        },
+        {
+          "label": "British Pounds Domiciliary Account",
+          "bank_name": "Zenith Bank Plc",
+          "account_name": "Christ Embassy New Benin (GBP)",
+          "account_number": "5079876543",
+          "currency": "GBP",
+          "swift": "ZEIBNGLA",
+          "purpose": "UK & European GBP Giving"
+        },
+        {
+          "label": "Euro Domiciliary Account",
+          "bank_name": "Zenith Bank Plc",
+          "account_name": "Christ Embassy New Benin (EUR)",
+          "account_number": "5074567890",
+          "currency": "EUR",
+          "swift": "ZEIBNGLA",
+          "purpose": "Continental Euro Partnership"
         }
       ],
-      "kingspay_code": "[— To Be Supplied]",
-      "paypal_email": "[— To Be Supplied]"
+      "kingspay_code": "CENEWBENIN",
+      "paypal_email": "giving@christembassynewbenin.org",
+      "scriptures": [
+        {
+          "reference": "2 Corinthians 9:7-8",
+          "text": "Every man according as he purposeth in his heart, so let him give; not grudgingly, or of necessity: for God loveth a cheerful giver. And God is able to make all grace abound toward you; that ye, always having all sufficiency in all things, may abound to every good work."
+        },
+        {
+          "reference": "Luke 6:38",
+          "text": "Give, and it shall be given unto you; good measure, pressed down, and shaken together, and running over, shall men give into your bosom. For with the same measure that ye mete withal it shall be measured to you again."
+        },
+        {
+          "reference": "Philippians 4:19",
+          "text": "But my God shall supply all your need according to his riches in glory by Christ Jesus."
+        }
+      ],
+      "partnership_arms": [
+        {
+          "title": "Rhapsody of Realities",
+          "tag": "Global Reach",
+          "description": "Sponsoring the translation and distribution of the Daily Devotional across all languages and nations.",
+          "icon": "fa-solid fa-book-open-reader"
+        },
+        {
+          "title": "Healing School",
+          "tag": "Divine Health",
+          "description": "Taking God's miraculous healing power to the sick and demonstrating divine life across the world.",
+          "icon": "fa-solid fa-hand-holding-heart"
+        },
+        {
+          "title": "InnerCity Mission",
+          "tag": "Love in Action",
+          "description": "Providing food, education, shelter, and hope to indigent children and vulnerable families.",
+          "icon": "fa-solid fa-child-reaching"
+        },
+        {
+          "title": "Sanctuary & Media Advancement",
+          "tag": "Excellence",
+          "description": "Expanding our church auditorium, live broadcast infrastructure, and digital soul-winning networks.",
+          "icon": "fa-solid fa-tower-broadcast"
+        }
+      ]
     },
     "events": {
-      "eyebrow": "Events",
-      "title": "Events",
-      "subtitle": "Upcoming gatherings and special meetings.",
-      "body": "",
-      "hero": ""
+      "eyebrow": "Church Calendar & Gatherings",
+      "title": "Events & Services",
+      "subtitle": "Join us for Spirit-filled worship services, powerful prayer conferences, life-changing seminars, and joyful fellowship gatherings at Christ Embassy New Benin.",
+      "hero": "assets/uploaded_media/plan_visit_hero_banner.jpg",
+      "body": ""
     },
     "store": {
       "eyebrow": "Store",
@@ -455,6 +1104,29 @@
       "subtitle": "Browse available church resources and featured items.",
       "body": "<p>Featured resources will appear here when they are published.</p>",
       "hero": ""
+    },
+    "watch": {
+      "eyebrow": "LoveWorld Broadcast • Word & Spirit",
+      "title": "Watch & Listen Online",
+      "subtitle": "Immerse yourself in transformative teachings, prophetic revelations, and kingdom wisdom from Rev. Dr. Chris Oyakhilome and Pastor Joseph Atibi-Brown.",
+      "hero": "assets/uploaded_media/watch_hero_banner.jpg",
+      "featured_sermon_id": "1",
+      "categories": [
+        "All Messages",
+        "Sunday Services",
+        "Faith & Healing",
+        "Leadership & Excellence",
+        "Mid-Week Teachings",
+        "Kingdom Prosperity",
+        "Evangelism & Missions"
+      ]
+    },
+    "stories": {
+      "eyebrow": "Stories of Grace & Victory",
+      "title": "Testimonies & Stories of Faith",
+      "subtitle": "Discover inspiring real-life encounters of miraculous healing, supernatural breakthrough, transformed lives, and kingdom advancement at Christ Embassy New Benin.",
+      "hero": "assets/uploaded_media/reachout_world_banner.jpg",
+      "body": ""
     }
   },
   "nav": [

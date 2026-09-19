@@ -6,3 +6,11 @@ ref_*
 *.log
 .DS_Store
 Thumbs.db
+
+# Python bytecode and caches
+__pycache__/
+*.pyc
+
+# Local SQLite databases
+*.db
+assets/data/*.db

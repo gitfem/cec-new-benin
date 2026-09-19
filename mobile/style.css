@@ -506,3 +506,470 @@ h1,h2,h3,p{margin-top:0}
   background:rgba(255,255,255,.16);
   color:#fff;
 }
+
+/* ===== Mobile Search/Filter Bars ===== */
+.mobile-filter-bar {
+  margin: 0 0 0.75rem;
+  padding: 0;
+}
+.mobile-filter-bar .filter-inner {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.10);
+  border-radius: 10px;
+  padding: 0.45rem 0.8rem;
+}
+.mobile-filter-bar .filter-inner i.fa-magnifying-glass {
+  color: rgba(255,255,255,0.4);
+  flex-shrink: 0;
+  font-size: 0.85rem;
+}
+.mobile-filter-bar .filter-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #fff;
+  font-size: 0.85rem;
+  font-family: inherit;
+}
+.mobile-filter-bar .filter-input::placeholder {
+  color: rgba(255,255,255,0.3);
+}
+.mobile-filter-bar .filter-clear {
+  background: rgba(255,255,255,0.12);
+  border: none;
+  color: #fff;
+  border-radius: 50%;
+  width: 22px;
+  height: 22px;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  font-size: 0.7rem;
+}
+
+/* Mobile Icon Tiles */
+.icon-tile {
+  min-width: 220px;
+  max-width: 260px;
+  background: linear-gradient(145deg, rgba(28, 28, 34, 0.95), rgba(16, 16, 20, 0.98));
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 20px 18px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  text-decoration: none;
+  color: #fff;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.4);
+  flex-shrink: 0;
+}
+.icon-tile .tile-icon-bubble {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  margin-bottom: 14px;
+}
+.icon-tile.accent-gold .tile-icon-bubble { background: rgba(234, 179, 8, 0.15); color: #eab308; border: 1px solid rgba(234, 179, 8, 0.3); }
+.icon-tile.accent-blue .tile-icon-bubble { background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); }
+.icon-tile.accent-green .tile-icon-bubble { background: rgba(52, 211, 153, 0.15); color: #34d399; border: 1px solid rgba(52, 211, 153, 0.3); }
+.icon-tile.accent-rose .tile-icon-bubble { background: rgba(244, 63, 94, 0.15); color: #fb7185; border: 1px solid rgba(244, 63, 94, 0.3); }
+.icon-tile .tile-copy h3 { font-size: 1.05rem; font-weight: 800; color: #fff; margin: 0 0 6px; }
+.icon-tile .tile-copy p { font-size: 0.82rem; color: rgba(255, 255, 255, 0.65); line-height: 1.4; margin: 0 0 12px; }
+.icon-tile .tile-link { font-size: 0.82rem; font-weight: 700; color: #eab308; display: inline-flex; align-items: center; gap: 6px; }
+
+/* ==========================================================================
+   MOBILE WATCH PAGE & SERMON DETAIL STYLING
+   ========================================================================== */
+
+.mobile-watch-live-bar {
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+  background: linear-gradient(90deg, rgba(23, 122, 135, 0.25) 0%, rgba(18, 24, 38, 0.95) 100%) !important;
+  border: 1px solid rgba(23, 122, 135, 0.4) !important;
+  border-radius: 12px !important;
+  padding: 12px 14px !important;
+  margin-bottom: 14px !important;
+  text-decoration: none !important;
+  color: #ffffff !important;
+}
+
+.mobile-watch-live-bar .live-bar-content {
+  flex-grow: 1 !important;
+}
+
+.mobile-watch-live-bar .live-bar-content b {
+  display: block !important;
+  font-size: 0.88rem !important;
+  color: #ffffff !important;
+}
+
+.mobile-watch-live-bar .live-bar-content small {
+  color: #94a3b8 !important;
+  font-size: 0.74rem !important;
+}
+
+.mobile-watch-live-bar i.fa-chevron-right {
+  color: #d4af37 !important;
+  font-size: 0.8rem !important;
+}
+
+/* Category Chips Horizontal Scroll */
+.mobile-cat-chips-scroll {
+  display: flex !important;
+  gap: 8px !important;
+  overflow-x: auto !important;
+  padding-bottom: 8px !important;
+  margin-bottom: 14px !important;
+  -webkit-overflow-scrolling: touch !important;
+}
+
+.mobile-cat-chips-scroll::-webkit-scrollbar {
+  display: none !important;
+}
+
+.mobile-chip {
+  background: rgba(255, 255, 255, 0.06) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  color: #cbd5e1 !important;
+  font-size: 0.76rem !important;
+  font-weight: 600 !important;
+  padding: 6px 14px !important;
+  border-radius: 30px !important;
+  white-space: nowrap !important;
+  flex-shrink: 0 !important;
+  cursor: pointer !important;
+}
+
+.mobile-chip.active {
+  background: #d4af37 !important;
+  border-color: #d4af37 !important;
+  color: #0b0f19 !important;
+  font-weight: 700 !important;
+}
+
+/* Mobile Featured Sermon Card */
+.mobile-featured-sermon {
+  background: rgba(18, 24, 38, 0.9) !important;
+  border: 1px solid rgba(212, 175, 55, 0.35) !important;
+  border-radius: 16px !important;
+  overflow: hidden !important;
+  margin-bottom: 20px !important;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.4) !important;
+}
+
+.m-feat-thumb-wrap {
+  position: relative !important;
+  width: 100% !important;
+  aspect-ratio: 16/9 !important;
+  overflow: hidden !important;
+  background: #000 !important;
+}
+
+.m-feat-thumb {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  display: block !important;
+}
+
+.m-feat-spotlight-badge {
+  position: absolute !important;
+  top: 10px !important;
+  left: 10px !important;
+  background: #d4af37 !important;
+  color: #000 !important;
+  font-weight: 800 !important;
+  font-size: 0.66rem !important;
+  letter-spacing: 0.1em !important;
+  text-transform: uppercase !important;
+  padding: 4px 8px !important;
+  border-radius: 4px !important;
+}
+
+.m-feat-duration {
+  position: absolute !important;
+  bottom: 10px !important;
+  right: 10px !important;
+  background: rgba(0, 0, 0, 0.8) !important;
+  color: #fff !important;
+  font-size: 0.7rem !important;
+  font-weight: 700 !important;
+  padding: 3px 8px !important;
+  border-radius: 4px !important;
+}
+
+.m-feat-play-overlay {
+  position: absolute !important;
+  inset: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background: rgba(0, 0, 0, 0.25) !important;
+  text-decoration: none !important;
+}
+
+.m-play-btn {
+  width: 48px !important;
+  height: 48px !important;
+  border-radius: 50% !important;
+  background: #d4af37 !important;
+  color: #0b0f19 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 1.2rem !important;
+  padding-left: 2px !important;
+  box-shadow: 0 0 20px rgba(212, 175, 55, 0.6) !important;
+}
+
+.m-feat-body {
+  padding: 16px !important;
+}
+
+.m-cat-tag {
+  font-size: 0.68rem !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.08em !important;
+  text-transform: uppercase !important;
+  color: #d4af37 !important;
+}
+
+.m-scripture-tag {
+  font-size: 0.68rem !important;
+  font-weight: 700 !important;
+  color: #38bdf8 !important;
+  background: rgba(56, 189, 248, 0.12) !important;
+  padding: 2px 6px !important;
+  border-radius: 3px !important;
+}
+
+.m-feat-title {
+  font-size: 1.15rem !important;
+  font-weight: 700 !important;
+  line-height: 1.3 !important;
+  margin: 6px 0 !important;
+}
+
+.m-feat-title a {
+  color: #ffffff !important;
+  text-decoration: none !important;
+}
+
+.m-feat-sub {
+  font-size: 0.82rem !important;
+  color: #94a3b8 !important;
+  line-height: 1.5 !important;
+  margin-bottom: 8px !important;
+}
+
+.m-watch-btn {
+  color: #d4af37 !important;
+  font-size: 0.8rem !important;
+  font-weight: 700 !important;
+  text-decoration: none !important;
+}
+
+/* Mobile Sermon Cards List */
+.mobile-sermon-cards-wrap {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 12px !important;
+}
+
+.mobile-sermon-card {
+  display: flex !important;
+  gap: 12px !important;
+  background: rgba(18, 24, 38, 0.85) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border-radius: 12px !important;
+  padding: 10px !important;
+  text-decoration: none !important;
+  color: #ffffff !important;
+  transition: border-color 0.2s ease !important;
+}
+
+.mobile-sermon-card:active {
+  border-color: #d4af37 !important;
+  background: rgba(212, 175, 55, 0.08) !important;
+}
+
+.m-card-thumb-wrap {
+  position: relative !important;
+  width: 105px !important;
+  min-width: 105px !important;
+  aspect-ratio: 16/10 !important;
+  border-radius: 8px !important;
+  overflow: hidden !important;
+  background: #000 !important;
+}
+
+.m-card-thumb {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  display: block !important;
+}
+
+.m-card-duration {
+  position: absolute !important;
+  bottom: 4px !important;
+  right: 4px !important;
+  background: rgba(0, 0, 0, 0.8) !important;
+  color: #fff !important;
+  font-size: 0.62rem !important;
+  font-weight: 700 !important;
+  padding: 1px 4px !important;
+  border-radius: 3px !important;
+}
+
+.m-card-content {
+  flex-grow: 1 !important;
+  min-width: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: center !important;
+}
+
+.m-card-title {
+  font-size: 0.94rem !important;
+  font-weight: 700 !important;
+  line-height: 1.3 !important;
+  color: #ffffff !important;
+  margin: 3px 0 !important;
+}
+
+.m-card-sub {
+  font-size: 0.78rem !important;
+  color: #94a3b8 !important;
+  line-height: 1.4 !important;
+  margin-bottom: 6px !important;
+  display: -webkit-box !important;
+  -webkit-line-clamp: 2 !important;
+  -webkit-box-orient: vertical !important;
+  overflow: hidden !important;
+}
+
+.m-card-meta {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  font-size: 0.72rem !important;
+}
+
+.m-meta-scripture {
+  color: #38bdf8 !important;
+  font-weight: 700 !important;
+}
+
+.m-meta-speaker {
+  color: #64748b !important;
+}
+
+/* Standby Poster and Study box in Detail */
+.mobile-poster-placeholder {
+  position: relative !important;
+  width: 100% !important;
+  aspect-ratio: 16/9 !important;
+  overflow: hidden !important;
+}
+
+.mobile-poster-placeholder img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+}
+
+.m-youtube-stream-btn {
+  position: absolute !important;
+  inset: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background: rgba(0, 0, 0, 0.45) !important;
+  color: #ffffff !important;
+  font-weight: 700 !important;
+  font-size: 0.9rem !important;
+  text-decoration: none !important;
+}
+
+.mobile-study-box {
+  background: rgba(23, 122, 135, 0.12) !important;
+  border: 1px solid rgba(23, 122, 135, 0.3) !important;
+}
+
+/* ==========================================================================
+   MOBILE HIGH-CONTRAST & READABILITY ENHANCEMENTS
+   ========================================================================== */
+
+/* 1. Mobile Text & Descriptions on Dark Backgrounds */
+.list-card p,
+.story-mobile-card p,
+.visit-info-card p,
+.empty-card {
+  color: #e2e8f0 !important;
+  font-weight: 500 !important;
+}
+
+.give-note {
+  color: #cbd5e1 !important;
+  font-weight: 500 !important;
+}
+
+.m-feat-sub,
+.m-card-sub,
+.story-home-card small,
+.mobile-watch-live-bar .live-bar-content small,
+.icon-tile .tile-copy p {
+  color: #cbd5e1 !important;
+  font-size: 0.82rem !important;
+  line-height: 1.45 !important;
+}
+
+.m-meta-speaker,
+.mobile-comment small,
+.chat-msg small {
+  color: #cbd5e1 !important;
+  font-weight: 600 !important;
+}
+
+/* 2. Mobile Filter & Search Input Visibility */
+.mobile-filter-bar .filter-inner i.fa-magnifying-glass {
+  color: rgba(255, 255, 255, 0.85) !important;
+}
+.mobile-filter-bar .filter-input::placeholder {
+  color: rgba(255, 255, 255, 0.75) !important;
+  opacity: 1 !important;
+}
+.mobile-filter-bar .filter-input {
+  color: #ffffff !important;
+}
+
+/* 3. Mobile Labels & Inputs */
+.live-login-card label,
+.mobile-give-card label {
+  color: #f8fafc !important;
+  font-weight: 700 !important;
+}
+.live-login-card label span {
+  color: #cbd5e1 !important;
+}
+
+/* 4. Chat & Comments */
+.chat-msg p,
+.mobile-comment p,
+.announcement-card div {
+  color: #f8fafc !important;
+  line-height: 1.5 !important;
+}
+
+

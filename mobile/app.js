@@ -43,9 +43,25 @@ createApp({
       announcementOpen:true,
       liveError:'',
       storyCommentForm:{display_name:'', comment:'', message:'', error:'', posting:false},
-      liveForm:{name:'', phone:'', email:'', group:'Erediauwa', mode:'individual', count:1, remember:true},
-      giveForm:{amount:50, customAmount:'', name:'', phone:'', email:'', towards:'General Offering', frequency:'One Time', method:'PayPal', note:'', error:''},
-      groupOptions:['LW City','Missions 1','Missions 2','Missions 3','Missions 4','Missions 5','Missions 6','Missions 7','Missions 8','Central Missions 1','Central Missions 2','Service Centre Group','Teens & Youth Church','Erediauwa','Central Church','Ogbewase Sub group','Sapele road Sub Group','Higher Life Sub Group','Higher Grace Sub Group','Garrick Sub Group','Others'],
+      searchSermons:'',
+      searchEvents:'',
+      searchStories:'',
+      liveForm:{name:'', phone:'', email:'', group:'Christ Embassy Lagos Street', category:'Church Member', mode:'individual', count:1, remember:true},
+      categoryOptions:['Church Member','First-Time Visitor','Cell Leader','Teen/Youth','Visiting Minister'],
+      currencies: [
+        { code: 'NGN', symbol: '₦', flag: '🇳🇬', label: 'NGN (₦)', name: 'Naira', presets: [5000, 10000, 25000, 50000, 100000], defaultVal: 10000 },
+        { code: 'USD', symbol: '$', flag: '🇺🇸', label: 'USD ($)', name: 'Dollar', presets: [25, 50, 100, 250, 500], defaultVal: 50 },
+        { code: 'GBP', symbol: '£', flag: '🇬🇧', label: 'GBP (£)', name: 'Pounds', presets: [20, 50, 100, 250, 500], defaultVal: 50 },
+        { code: 'EUR', symbol: '€', flag: '🇪🇺', label: 'EUR (€)', name: 'Euros', presets: [25, 50, 100, 250, 500], defaultVal: 50 },
+        { code: 'CAD', symbol: 'CA$', flag: '🇨🇦', label: 'CAD ($)', name: 'CAD', presets: [25, 50, 100, 250, 500], defaultVal: 50 }
+      ],
+      giveForm:{currency:'NGN', amount:10000, customAmount:'', name:'', phone:'', email:'', towards:'Tithe', frequency:'One Time', method:'Bank Transfer', note:'', error:'', copiedKey:''},
+      visitPreReg:{name:'', phone:'', email:'', date:'', guests:1, submitted:false, submitting:false, error:''},
+      openVisitFaq:null,
+      groupOptions:['Christ Embassy Lagos Street','Christ Embassy Upper Mission 2','Christ Embassy Universal','Christ Embassy Lawani Model','Christ Embassy GRA','Christ Embassy Okhoro'],
+      activeSermonCategory:'All Messages',
+      sermonCategories:['All Messages', 'Sunday Services', 'Faith & Healing', 'Leadership & Excellence', 'Mid-Week Teachings', 'Kingdom Prosperity', 'Evangelism & Missions'],
+      sermonShareCopied:false,
       cms:{site:{}, home:{slides:[], feature_banners:[], sermons:[], events:[], sections:[]}, nav:[], pages:{}},
       fallbackNav:[
         {label:'Home', href:'#/'},
@@ -59,6 +75,19 @@ createApp({
   },
   computed:{
     siteName(){ return this.cms.site.name || 'Church'; },
+    groupOptions(){
+      if (this.cms && this.cms.live && Array.isArray(this.cms.live.service_groups) && this.cms.live.service_groups.length) {
+        return this.cms.live.service_groups;
+      }
+      return [
+        'Christ Embassy Lagos Street',
+        'Christ Embassy Upper Mission 2',
+        'Christ Embassy Universal',
+        'Christ Embassy Lawani Model',
+        'Christ Embassy GRA',
+        'Christ Embassy Okhoro'
+      ];
+    },
     siteLogo(){ return this.cms.site.logo || ''; },
     brandInitial(){ return this.siteName.trim().charAt(0).toUpperCase() || 'C'; },
     brandParts(){
@@ -87,7 +116,16 @@ createApp({
       const image = this.isHeroVideo ? this.asset(this.hero.image_url || '') : this.asset(this.activeSlide.image || this.hero.image_url || '');
       return image ? `url("${image}")` : 'linear-gradient(135deg,#050505,#177a87)';
     },
-    featureBanners(){ return Array.isArray(this.cms.home.feature_banners) ? this.cms.home.feature_banners : []; },
+    featureBanners(){
+      const banners = (this.cms && this.cms.home && Array.isArray(this.cms.home.feature_banners)) ? this.cms.home.feature_banners : [];
+      const defaultIcons = ['fa-solid fa-location-dot', 'fa-solid fa-calendar-days', 'fa-solid fa-hand-holding-heart', 'fa-solid fa-tower-broadcast'];
+      const defaultAccents = ['gold', 'blue', 'green', 'rose'];
+      return banners.map((item, idx) => ({
+        ...item,
+        icon: item.icon || defaultIcons[idx % defaultIcons.length],
+        accent: item.accent || defaultAccents[idx % defaultAccents.length]
+      }));
+    },
     latestSermons(){ return Array.isArray(this.cms.home.sermons) ? this.cms.home.sermons : []; },
     stories(){
       return Array.isArray(this.cms.home.stories) ? this.cms.home.stories.filter(item => item && item.id).map(item => {
@@ -129,10 +167,12 @@ createApp({
         id:item.id,
         eyebrow:item.eyebrow || this.contentConfig.eyebrow,
         title:item.title || this.contentConfig.single,
-        subtitle:item.subtitle || '',
-        body:item.body || '',
+        subtitle:item.subtitle || item.summary || '',
+        body:item.body || item.summary || '',
         image_url:this.cacheAsset(item.image_url || '', item.updated_ts),
-        meta_text:item.meta_text || '',
+        meta_text:item.meta_text || item.schedule || '',
+        schedule:item.schedule || '',
+        location:item.location || '',
         href:'#/' + this.contentConfig.slug + '/' + item.id
       }));
     },
@@ -150,6 +190,56 @@ createApp({
       }, found);
     },
     visitPage(){ return this.page('visit'); },
+    aboutPage(){ return this.page('about'); },
+    aboutPillars(){
+      const page = this.aboutPage;
+      if (Array.isArray(page.pillars) && page.pillars.length) return page.pillars;
+      return [
+        { icon: 'fa-solid fa-book-bible', title: 'The Infallible Word', desc: "Founded on the integrity and authority of God's Word, living triumphantly through faith." },
+        { icon: 'fa-solid fa-fire-flame-curved', title: 'Spirit-Led Worship & Prayer', desc: "Experiencing the tangible presence of the Holy Spirit through prayer and worship." },
+        { icon: 'fa-solid fa-medal', title: 'Culture of Excellence', desc: "Excellence is our divine nature in Christ, expressed with diligence and distinction." },
+        { icon: 'fa-solid fa-earth-americas', title: 'Global Soul Winning & Outreach', desc: "Taking the gospel to every soul in Benin City and beyond with fervent passion." }
+      ];
+    },
+    aboutBeliefs(){
+      const page = this.aboutPage;
+      if (Array.isArray(page.beliefs) && page.beliefs.length) return page.beliefs;
+      return [
+        { title: 'The Infallible Scriptures', desc: 'The Bible is the inspired, living Word of God and our supreme authority.' },
+        { title: 'The New Creation in Christ', desc: 'Born again into divine nature, righteousness, and eternal victory.' },
+        { title: 'The Ministry of the Holy Spirit', desc: 'Empowered, guided, and taught by the Spirit of God.' },
+        { title: 'Divine Health & Prosperity', desc: 'Health, peace, and abundance are our covenant inheritance in Christ.' },
+        { title: 'The Great Commission', desc: 'Taking the gospel to all nations and preparing the Church for His return.' }
+      ];
+    },
+    aboutServiceTimes(){
+      const page = this.aboutPage;
+      if (Array.isArray(page.service_times) && page.service_times.length) return page.service_times;
+      return [
+        { day: 'Every Sunday Morning', service: 'Sunday Service of Excellence', time: '7:30 AM & 9:30 AM (WAT)', badge: 'Main Worship' },
+        { day: 'Every Wednesday Evening', service: 'Mid-Week Faith Clinic', time: '6:00 PM (WAT)', badge: 'Faith Clinic' }
+      ];
+    },
+    visitExpectations(){
+      const page = this.visitPage;
+      if (Array.isArray(page.what_to_expect) && page.what_to_expect.length) return page.what_to_expect;
+      return [
+        { icon: 'fa-solid fa-heart-circle-check', title: 'Warm & Royal Welcome', desc: 'From our car park stewards to our smiling foyer ushers, you will receive VIP care and seamless guidance.' },
+        { icon: 'fa-solid fa-music', title: 'Anointed Worship', desc: 'Experience uplifting, spirit-filled music and high praise that will transport your spirit into God\'s presence.' },
+        { icon: 'fa-solid fa-book-bible', title: 'Life-Transforming Word', desc: 'Receive unadulterated divine revelations of God\'s Word designed to cause you to triumph in every area of life.' },
+        { icon: 'fa-solid fa-children', title: 'Vibrant Kids & Teens Church', desc: 'A safe, inspiring, fun-filled learning environment tailored for babies, kids, and energetic teenagers.' }
+      ];
+    },
+    visitFaqs(){
+      const page = this.visitPage;
+      if (Array.isArray(page.faqs) && page.faqs.length) return page.faqs;
+      return [
+        { q: 'What should I wear to church?', a: 'Come dressed comfortably! Whether traditional, formal suit, or smart-casual, you will be warmly received in royal love.' },
+        { q: 'What about my children?', a: 'We have dedicated, secure Children’s Church with qualified teachers providing age-appropriate ministry.' },
+        { q: 'How long do services usually last?', a: 'Our Sunday Services run for approximately 2 hours, packed with dynamic praise, worship, communion, and the Word.' },
+        { q: 'Is parking available at the church?', a: 'Yes, our secure parking lot with courteous traffic stewards is readily available to assist you.' }
+      ];
+    },
     visitLocations(){ return Array.isArray(this.cms.home.locations) ? this.cms.home.locations.slice(0, 3).map(item => Object.assign({}, item, {image_url:this.cacheAsset(item.image_url || '', item.updated_ts)})) : []; },
     genericPage(){ return this.page(this.route); },
     hasGenericPage(){
@@ -157,16 +247,53 @@ createApp({
       const handled = ['home','live','watch','events','give','locations','groups','ministries','visit','menu'];
       return handled.indexOf(this.route) === -1 && !!(page && (page.title || page.body || page.subtitle || page.hero));
     },
+    watchHeroImage(){
+      const watchPage = this.cms && this.cms.pages && this.cms.pages.watch;
+      return (watchPage && watchPage.hero) ? this.asset(watchPage.hero) : 'assets/uploaded_media/watch_hero_banner.jpg';
+    },
+    mobileFeaturedSermon(){
+      const featId = this.cms && this.cms.pages && this.cms.pages.watch && this.cms.pages.watch.featured_sermon_id;
+      const found = (featId && this.latestSermons.find(s => String(s.id) === String(featId))) || this.latestSermons[0] || {};
+      return Object.assign({}, found, {
+        poster_url: this.asset(found.poster_url || 'assets/uploaded_media/featured_sermon_spotlight.jpg'),
+        href: '#/watch/' + (found.id || '1')
+      });
+    },
     sermonDetail(){
       const id = this.routeParts[1] || '';
-      const found = this.latestSermons.find(item => String(item.id) === String(id)) || {};
+      const found = this.latestSermons.find(item => String(item.id) === String(id)) || this.latestSermons[0] || {};
       return Object.assign({}, found, {
-        media_url:this.asset(found.media_url || ''),
-        poster_url:this.asset(found.poster_url || ''),
-        image_url:this.asset(found.poster_url || (found.media_type === 'image' ? found.media_url : '') || '')
+        category: found.category || 'Sunday Service',
+        speaker: found.speaker || 'Rev. Dr. Chris Oyakhilome D.Sc., D.D.',
+        duration: found.duration || '',
+        scripture: found.scripture || '',
+        date: found.date || '',
+        media_type: found.media_type || (found.embed_url ? 'embed' : 'video'),
+        media_url: this.asset(found.media_url || ''),
+        poster_url: this.asset(found.poster_url || 'assets/uploaded_media/sermons_hero_banner.jpg'),
+        image_url: this.asset(found.poster_url || (found.media_type === 'image' ? found.media_url : '') || 'assets/uploaded_media/sermons_hero_banner.jpg')
       });
     },
     events(){ return Array.isArray(this.cms.home.events) ? this.cms.home.events : []; },
+    filteredMobileSermons(){
+      let items = this.latestSermons;
+      if (this.activeSermonCategory && this.activeSermonCategory !== 'All Messages') {
+        items = items.filter(s => (s.category || '').toLowerCase() === this.activeSermonCategory.toLowerCase());
+      }
+      if(!this.searchSermons.trim()) return items;
+      const q = this.searchSermons.trim().toLowerCase();
+      return items.filter(s => (s.title && s.title.toLowerCase().includes(q)) || (s.speaker && s.speaker.toLowerCase().includes(q)) || (s.subtitle && s.subtitle.toLowerCase().includes(q)) || (s.scripture && s.scripture.toLowerCase().includes(q)));
+    },
+    filteredMobileEvents(){
+      if(!this.searchEvents.trim()) return this.events;
+      const q = this.searchEvents.trim().toLowerCase();
+      return this.events.filter(e => (e.title && e.title.toLowerCase().includes(q)) || (e.subtitle && e.subtitle.toLowerCase().includes(q)) || (e.summary && e.summary.toLowerCase().includes(q)) || (e.event_date && e.event_date.toLowerCase().includes(q)) || (e.location && e.location.toLowerCase().includes(q)) || (e.category && e.category.toLowerCase().includes(q)));
+    },
+    filteredMobileStories(){
+      if(!this.searchStories.trim()) return this.stories;
+      const q = this.searchStories.trim().toLowerCase();
+      return this.stories.filter(s => (s.title && s.title.toLowerCase().includes(q)) || (s.subtitle && s.subtitle.toLowerCase().includes(q)) || (s.summary && s.summary.toLowerCase().includes(q)) || (s.author && s.author.toLowerCase().includes(q)) || (s.eyebrow && s.eyebrow.toLowerCase().includes(q)) || (s.category && s.category.toLowerCase().includes(q)));
+    },
     eventDetail(){
       const id = this.routeParts[1] || '';
       const found = this.events.find(item => String(item.id) === String(id)) || {};
@@ -228,20 +355,56 @@ createApp({
       const value = this.paypalRecipient;
       return /paypal\.com\/paypalme\//i.test(value) || /paypal\.me\//i.test(value) ? value : '';
     },
+    currentMobileCurrency(){
+      return this.currencies.find(c => c.code === this.giveForm.currency) || this.currencies[0];
+    },
+    mobileCurrencyPresets(){
+      return this.currentMobileCurrency.presets;
+    },
     selectedGiveAmount(){
       const value = this.giveForm.customAmount !== '' ? this.giveForm.customAmount : this.giveForm.amount;
       const parsed = parseFloat(value);
       return Number.isFinite(parsed) ? Math.max(0, parsed) : 0;
     },
-    giveAmountLabel(){ return '$' + this.selectedGiveAmount.toFixed(2); },
+    giveAmountLabel(){
+      const sym = this.currentMobileCurrency.symbol;
+      if (this.giveForm.currency === 'NGN') {
+        return sym + this.selectedGiveAmount.toLocaleString('en-NG') + ' ' + this.giveForm.currency;
+      }
+      return sym + this.selectedGiveAmount.toFixed(2) + ' ' + this.giveForm.currency;
+    },
+    giveCategories(){
+      const p = (this.cms && this.cms.pages && this.cms.pages.give) || {};
+      return Array.isArray(p.categories) && p.categories.length ? p.categories : ['Tithe', 'Partnership Seed', 'General Offering', 'First Fruits', 'Church Building Seed', 'Thanksgiving Seed'];
+    },
+    mobileBanks(){
+      const p = (this.cms && this.cms.pages && this.cms.pages.give) || {};
+      const all = Array.isArray(p.bank_details) ? p.bank_details : [];
+      const cur = this.giveForm.currency;
+      const matched = all.filter(b => b.currency === cur);
+      return matched.length ? matched : all;
+    },
+    mobileKingsPayCode(){
+      const p = (this.cms && this.cms.pages && this.cms.pages.give) || {};
+      return p.kingspay_code || 'CENEWBENIN';
+    },
     giveHelp(){
       if(this.giveForm.method === 'Bank Transfer'){
-        return (this.cms.site && this.cms.site.bank_transfer_details) ? this.cms.site.bank_transfer_details : 'Bank transfer details have not been added yet.';
+        return (this.cms.site && this.cms.site.bank_transfer_details) ? this.cms.site.bank_transfer_details : 'Select bank account below to copy details.';
       }
-      return 'Payments are completed securely on PayPal in USD.';
+      return 'Payments are completed securely.';
     }
   },
   methods:{
+    copySermonShare(href){
+      const url = href ? (window.location.origin + window.location.pathname + href) : window.location.href;
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(url).then(() => {
+          this.sermonShareCopied = true;
+          setTimeout(() => { this.sermonShareCopied = false; }, 2500);
+        });
+      }
+    },
     asset(url){
       if(!url || /^https?:\/\//i.test(url) || /^data:/i.test(url)){ return url || ''; }
       if(url.startsWith('../') || url.startsWith('./')){ return url; }
@@ -259,31 +422,78 @@ createApp({
     pageHeroStyle(slug){
       const page = this.page(slug);
       const image = this.asset(page.hero || '');
-      return image ? {backgroundImage:'linear-gradient(to bottom, rgba(0,0,0,.28), rgba(0,0,0,.86)), url(' + image + ')'} : {};
+      return image ? {backgroundImage:'linear-gradient(to bottom, rgba(0,0,0,.35), rgba(0,0,0,.88)), url(' + image + ')'} : {};
     },
     page(slug){ return (this.cms.pages && this.cms.pages[slug]) ? this.cms.pages[slug] : {}; },
+    toggleVisitFaq(idx){
+      this.openVisitFaq = this.openVisitFaq === idx ? null : idx;
+    },
+    submitVisitPreReg(){
+      if (!this.visitPreReg.name || !this.visitPreReg.phone) {
+        this.visitPreReg.error = 'Please enter your name and phone number.';
+        return;
+      }
+      this.visitPreReg.submitting = true;
+      this.visitPreReg.error = '';
+      setTimeout(() => {
+        this.visitPreReg.submitting = false;
+        this.visitPreReg.submitted = true;
+      }, 350);
+    },
+    selectMobileCurrency(code){
+      this.giveForm.currency = code;
+      const c = this.currencies.find(item => item.code === code) || this.currencies[0];
+      this.giveForm.amount = c.defaultVal;
+      this.giveForm.customAmount = '';
+      this.giveForm.error = '';
+      if (code === 'NGN') {
+        if (this.giveForm.method === 'PayPal') this.giveForm.method = 'Bank Transfer';
+      } else {
+        if (this.giveForm.method === 'KingsPay') this.giveForm.method = 'PayPal';
+      }
+    },
     setGiveAmount(value){
       this.giveForm.amount=value;
       this.giveForm.customAmount='';
       this.giveForm.error='';
     },
+    copyMobileText(text, key){
+      if (!text) return;
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(() => {
+          this.giveForm.copiedKey = key;
+          setTimeout(() => { if (this.giveForm.copiedKey === key) this.giveForm.copiedKey = ''; }, 2500);
+        });
+      } else {
+        const t = document.createElement('textarea');
+        t.value = text;
+        document.body.appendChild(t);
+        t.select();
+        try { document.execCommand('copy'); this.giveForm.copiedKey = key; setTimeout(() => { if (this.giveForm.copiedKey === key) this.giveForm.copiedKey = ''; }, 2500); } catch(e){}
+        document.body.removeChild(t);
+      }
+    },
     paypalMePaymentUrl(){
       const base = this.paypalMeUrl.replace(/\/+$/, '');
-      return base + '/' + this.selectedGiveAmount.toFixed(2) + 'USD';
+      return base + '/' + this.selectedGiveAmount.toFixed(2) + this.giveForm.currency;
     },
     submitGive(){
-      if(this.giveForm.method === 'Bank Transfer'){
+      if(this.giveForm.method === 'PayPal'){
+        if(!this.paypalRecipient){ this.giveForm.error='PayPal payment link or email has not been set yet.'; return; }
+        if(this.selectedGiveAmount < 1){ this.giveForm.error='Enter an amount of at least 1 ' + this.giveForm.currency; return; }
         this.giveForm.error='';
-        return;
+        if(this.paypalMeUrl){
+          window.location.href = this.paypalMePaymentUrl();
+          return;
+        }
+        if(this.$refs.mobilePaypalForm){ this.$refs.mobilePaypalForm.submit(); }
+      } else if(this.giveForm.method === 'Bank Transfer'){
+        if(this.mobileBanks.length && this.mobileBanks[0].account_number){
+          this.copyMobileText(this.mobileBanks[0].account_number, 'mb_acc_0');
+        }
+      } else if(this.giveForm.method === 'KingsPay'){
+        this.copyMobileText(this.mobileKingsPayCode, 'mb_kp');
       }
-      if(!this.paypalRecipient){ this.giveForm.error='PayPal payment link or email has not been set yet.'; return; }
-      if(this.selectedGiveAmount < 1){ this.giveForm.error='Enter an amount of at least $1.'; return; }
-      this.giveForm.error='';
-      if(this.paypalMeUrl){
-        window.location.href = this.paypalMePaymentUrl();
-        return;
-      }
-      if(this.$refs.mobilePaypalForm){ this.$refs.mobilePaypalForm.submit(); }
     },
     submitStoryComment(){
       const comment = this.storyCommentForm.comment.trim();
@@ -342,14 +552,24 @@ createApp({
       if(!/^[0-9+\-\s()]{6,}$/.test(this.liveForm.phone.trim())){ this.liveError='Please enter a valid phone number.'; return; }
       if(!this.liveForm.group){ this.liveError='Please select your group.'; return; }
       const attendance = this.liveForm.mode === 'group' ? Math.max(1, parseInt(this.liveForm.count || 1, 10)) : 1;
-      const member = {name:this.liveForm.name.trim(), email:this.liveForm.email.trim(), phone:this.liveForm.phone.trim(), group:this.liveForm.group, viewingMode:this.liveForm.mode, attendance};
+      const serviceName = (this.cms && this.cms.live && this.cms.live.title) ? this.cms.live.title : 'Sunday Service of Excellence';
+      const member = {name:this.liveForm.name.trim(), email:this.liveForm.email.trim(), phone:this.liveForm.phone.trim(), group:this.liveForm.group, category:this.liveForm.category || 'Church Member', viewingMode:this.liveForm.mode, attendance, service_name:serviceName};
       this.member = member;
       if(this.liveForm.remember){ localStorage.setItem('kh_member', JSON.stringify(this.member)); }
       this.liveError='';
       this.loadChat();
       this.loadLiveNotice();
       this.$nextTick(()=>{ this.setupLivePlayer(false); this.sendPresence(false); });
-      const body = new URLSearchParams({fullname:member.name, email:member.email, phone:member.phone, group:member.group, attendance:String(attendance)});
+      const body = new URLSearchParams({
+        fullname:member.name,
+        email:member.email,
+        phone:member.phone,
+        group:member.group,
+        category:member.category,
+        service_name:serviceName,
+        platform:'Mobile Web App',
+        attendance:String(attendance)
+      });
       fetch(LIVE.attendancePost,{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body})
         .then(response => response.json())
         .then(data => {

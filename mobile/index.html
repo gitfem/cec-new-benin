@@ -15,7 +15,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
-  <link href="style.css?v=30" rel="stylesheet">
+  <link href="style.css?v=36" rel="stylesheet">
 </head>
 <body>
 <div id="app" :class="{ready: ready, 'menu-open': menuOpen}">
@@ -90,7 +90,7 @@
       </section>
 
       <a v-if="upcomingEvent.title || upcomingEvent.image_url" :href="upcomingEvent.link_url || '#/events'" class="feature-event">
-        <img v-if="upcomingEvent.image_url" :src="asset(upcomingEvent.image_url)" :alt="upcomingEvent.title">
+        <img v-if="upcomingEvent.image_url" :src="asset(upcomingEvent.image_url)" :alt="upcomingEvent.title" @error="$event.target.style.display='none'" loading="lazy">
         <div>
           <span class="eyebrow">{{ upcomingEvent.eyebrow || 'Upcoming' }}</span>
           <h2>{{ upcomingEvent.title }}</h2>
@@ -102,9 +102,13 @@
       <section v-if="featureBanners.length" class="section-block">
         <div class="section-head"><span class="eyebrow">Connect</span><h2>Ways to experience church</h2></div>
         <div class="scroll-row">
-          <a v-for="item in featureBanners" :href="item.href || '#/'" class="image-tile">
-            <img :src="asset(item.image_url)" :alt="item.title">
-            <b>{{ item.title }}</b>
+          <a v-for="item in featureBanners" :key="item.id || item.title" :href="item.href || '#/'" class="icon-tile" :class="'accent-' + item.accent">
+            <div class="tile-icon-bubble"><i :class="item.icon || 'fa-solid fa-location-dot'"></i></div>
+            <div class="tile-copy">
+              <h3>{{ item.title }}</h3>
+              <p>{{ item.text }}</p>
+              <span class="tile-link">{{ item.link_text || 'Explore' }} <i class="fa-solid fa-arrow-right"></i></span>
+            </div>
           </a>
         </div>
       </section>
@@ -141,6 +145,7 @@
         <label>Full Name<input v-model="liveForm.name" placeholder="Your full name"></label>
         <label>Phone Number<input v-model="liveForm.phone" placeholder="080..."></label>
         <label>Email Address <span>optional</span><input v-model="liveForm.email" placeholder="name@email.com"></label>
+        <label>Membership Status<select v-model="liveForm.category"><option v-for="cat in categoryOptions" :value="cat">{{ cat }}</option></select></label>
         <label>Group<select v-model="liveForm.group"><option value="">Select group</option><option v-for="group in groupOptions" :value="group">{{ group }}</option></select></label>
         <div class="view-toggle">
           <button type="button" :class="{active:liveForm.mode==='individual'}" @click="liveForm.mode='individual'; liveForm.count=1">Individual</button>
@@ -195,32 +200,133 @@
     </section>
 
     <section v-else-if="route==='watch' && routeParts[1]" class="screen">
-      <div class="page-hero compact" :style="sermonDetail.image_url ? {backgroundImage:'linear-gradient(to bottom, rgba(0,0,0,.28), rgba(0,0,0,.86)), url(' + sermonDetail.image_url + ')'} : {}">
-        <span class="eyebrow">{{ sermonDetail.eyebrow || 'Watch' }}</span>
-        <h1>{{ sermonDetail.title || 'Message not found' }}</h1>
-        <p>{{ sermonDetail.subtitle || sermonDetail.speaker || '' }}</p>
+      <div class="page-hero compact" :style="sermonDetail.image_url ? {backgroundImage:'linear-gradient(to bottom, rgba(0,0,0,.35), rgba(0,0,0,.92)), url(' + sermonDetail.image_url + ')'} : {}">
+        <div class="d-flex align-items-center gap-2 mb-2">
+          <a href="#/watch" class="text-gold text-decoration-none small"><i class="fa-solid fa-arrow-left me-1"></i> All Messages</a>
+          <span class="text-muted">•</span>
+          <span class="m-cat-tag">{{ sermonDetail.category || 'Sunday Service' }}</span>
+        </div>
+        <h1>{{ sermonDetail.title || 'Message' }}</h1>
+        <p>{{ sermonDetail.subtitle || '' }}</p>
       </div>
+
       <div class="mobile-sermon-media">
         <iframe v-if="sermonDetail.media_type === 'embed' && sermonDetail.embed_url" :src="sermonDetail.embed_url" :title="sermonDetail.title" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
         <video v-else-if="sermonDetail.media_type === 'video'" :src="sermonDetail.media_url" :poster="sermonDetail.poster_url" controls playsinline preload="metadata"></video>
         <audio v-else-if="sermonDetail.media_type === 'audio'" :src="sermonDetail.media_url" controls preload="metadata"></audio>
-        <img v-else-if="sermonDetail.media_url || sermonDetail.poster_url" :src="sermonDetail.media_url || sermonDetail.poster_url" :alt="sermonDetail.title">
+        <div v-else class="mobile-poster-placeholder">
+          <img :src="sermonDetail.poster_url || sermonDetail.image_url" :alt="sermonDetail.title">
+          <a :href="'https://www.youtube.com/results?search_query=Christ+Embassy+New+Benin+' + encodeURIComponent(sermonDetail.title)" target="_blank" rel="noopener" class="m-youtube-stream-btn">
+            <i class="fa-solid fa-play me-1"></i> Stream on YouTube
+          </a>
+        </div>
       </div>
+
       <div class="event-detail-pills">
-        <span v-if="sermonDetail.speaker"><i class="fa-solid fa-user"></i> {{ sermonDetail.speaker }}</span>
-        <span v-if="sermonDetail.eyebrow"><i class="fa-solid fa-video"></i> {{ sermonDetail.eyebrow }}</span>
+        <span v-if="sermonDetail.speaker"><i class="fa-solid fa-user-tie"></i> {{ sermonDetail.speaker }}</span>
+        <span v-if="sermonDetail.duration"><i class="fa-regular fa-clock"></i> {{ sermonDetail.duration }}</span>
+        <span v-if="sermonDetail.scripture" class="text-gold"><i class="fa-solid fa-book-bible"></i> {{ sermonDetail.scripture }}</span>
+        <span v-if="sermonDetail.date"><i class="fa-regular fa-calendar"></i> {{ sermonDetail.date }}</span>
       </div>
+
+      <div class="d-flex gap-2 my-3">
+        <button type="button" class="btn-outline-gold full" @click="copySermonShare()">
+          <i :class="sermonShareCopied ? 'fa-solid fa-check text-success me-1' : 'fa-solid fa-share-nodes me-1'"></i>
+          {{ sermonShareCopied ? 'Link Copied!' : 'Share Message' }}
+        </button>
+      </div>
+
       <article v-if="sermonDetail.body" class="rich-card" v-html="sermonDetail.body"></article>
-      <article v-else-if="sermonDetail.subtitle" class="rich-card">{{ sermonDetail.subtitle }}</article>
-      <a href="#/watch" class="primary-btn full"><i class="fa-solid fa-arrow-left"></i> Back to Watch</a>
+      <article v-else class="rich-card">
+        <h4 class="text-gold mb-2"><i class="fa-solid fa-feather-pointed me-2"></i> Teaching Outline</h4>
+        <p>{{ sermonDetail.subtitle || 'Discover how to live in triumph and spiritual authority.' }}</p>
+        <div class="mobile-study-box mt-3 p-3 rounded">
+          <b class="d-block text-gold mb-2"><i class="fa-solid fa-lightbulb me-1"></i> Key Takeaway:</b>
+          <p class="mb-0 small text-light">Meditate upon God\\'s truth continually. As you profess the Word in faith, circumstances conform to the divine reality in Christ.</p>
+        </div>
+      </article>
+
+      <a href="#/watch" class="primary-btn full mt-3"><i class="fa-solid fa-arrow-left me-1"></i> Back to Watch Library</a>
     </section>
 
     <section v-else-if="route==='watch'" class="screen">
-      <div class="page-hero compact"><span class="eyebrow">Watch</span><h1>Messages</h1></div>
-      <a v-for="sermon in latestSermons" :href="'#/watch/' + sermon.id" class="list-card">
-        <img v-if="sermon.poster_url || sermon.media_url" :src="asset(sermon.poster_url || sermon.media_url)" :alt="sermon.title">
-        <div><b>{{ sermon.title }}</b><p>{{ sermon.subtitle }}</p></div>
+      <div class="page-hero compact" :style="{backgroundImage:'linear-gradient(to bottom, rgba(0,0,0,.35), rgba(0,0,0,.88)), url(' + watchHeroImage + ')'}">
+        <span class="eyebrow">Word & Spirit Broadcast</span>
+        <h1>Latest Videos & Sermons</h1>
+        <p>Transformative messages and prophetic wisdom with Rev. Dr. Chris Oyakhilome D.Sc., D.D.</p>
+      </div>
+
+      <!-- Live Broadcast Quick Banner -->
+      <a href="#/live" class="mobile-watch-live-bar">
+        <span class="live-dot-pulse"></span>
+        <div class="live-bar-content">
+          <b>Join Live Sanctuary Broadcast</b>
+          <small>Sundays 7:30 AM & 9:30 AM • Tap to stream</small>
+        </div>
+        <i class="fa-solid fa-chevron-right"></i>
       </a>
+
+      <!-- Horizontal Category Chips -->
+      <div class="mobile-cat-chips-scroll">
+        <button v-for="cat in sermonCategories" :key="cat" type="button" :class="['mobile-chip', {active: activeSermonCategory === cat}]" @click="activeSermonCategory = cat">
+          {{ cat }}
+        </button>
+      </div>
+
+      <!-- Search Bar -->
+      <div class="mobile-filter-bar">
+        <div class="filter-inner">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input type="text" v-model="searchSermons" placeholder="Search sermons, scripture, topics..." class="filter-input">
+          <button v-if="searchSermons" type="button" @click="searchSermons=''" class="filter-clear">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Featured Sermon Card (when not searching and on All Messages) -->
+      <div v-if="!searchSermons && activeSermonCategory === 'All Messages' && mobileFeaturedSermon.id" class="mobile-featured-sermon">
+        <div class="m-feat-thumb-wrap">
+          <img :src="mobileFeaturedSermon.poster_url" :alt="mobileFeaturedSermon.title" class="m-feat-thumb">
+          <span class="m-feat-spotlight-badge">Spotlight</span>
+          <span v-if="mobileFeaturedSermon.duration" class="m-feat-duration"><i class="fa-regular fa-clock me-1"></i> {{ mobileFeaturedSermon.duration }}</span>
+          <a :href="mobileFeaturedSermon.href" class="m-feat-play-overlay">
+            <span class="m-play-btn"><i class="fa-solid fa-play"></i></span>
+          </a>
+        </div>
+        <div class="m-feat-body">
+          <div class="d-flex align-items-center gap-2 mb-1">
+            <span class="m-cat-tag">{{ mobileFeaturedSermon.category || 'Sunday Service' }}</span>
+            <span v-if="mobileFeaturedSermon.scripture" class="m-scripture-tag">{{ mobileFeaturedSermon.scripture }}</span>
+          </div>
+          <h3 class="m-feat-title"><a :href="mobileFeaturedSermon.href">{{ mobileFeaturedSermon.title }}</a></h3>
+          <p class="m-feat-sub">{{ mobileFeaturedSermon.subtitle || 'Experience supernatural insight and spiritual advancement.' }}</p>
+          <div class="d-flex align-items-center justify-content-between mt-2 pt-2 border-top border-secondary border-opacity-25">
+            <small class="text-muted"><i class="fa-solid fa-user-tie me-1"></i> {{ mobileFeaturedSermon.speaker || 'Rev. Dr. Chris Oyakhilome' }}</small>
+            <a :href="mobileFeaturedSermon.href" class="m-watch-btn">Watch <i class="fa-solid fa-arrow-right ms-1"></i></a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sermon Catalog Grid -->
+      <div v-if="!filteredMobileSermons.length" class="empty-card">No sermons found matching your criteria.</div>
+      <div v-else class="mobile-sermon-cards-wrap">
+        <a v-for="sermon in filteredMobileSermons" :key="sermon.id" :href="'#/watch/' + sermon.id" class="mobile-sermon-card">
+          <div class="m-card-thumb-wrap">
+            <img :src="asset(sermon.poster_url || sermon.media_url)" :alt="sermon.title" class="m-card-thumb">
+            <span v-if="sermon.duration" class="m-card-duration">{{ sermon.duration }}</span>
+          </div>
+          <div class="m-card-content">
+            <span class="m-cat-tag">{{ sermon.category || 'Message' }}</span>
+            <b class="m-card-title">{{ sermon.title }}</b>
+            <p v-if="sermon.subtitle" class="m-card-sub">{{ sermon.subtitle }}</p>
+            <div class="m-card-meta">
+              <span v-if="sermon.scripture" class="m-meta-scripture"><i class="fa-solid fa-book-bible me-1"></i>{{ sermon.scripture }}</span>
+              <span class="m-meta-speaker">{{ sermon.speaker || 'Rev. Dr. Chris Oyakhilome' }}</span>
+            </div>
+          </div>
+        </a>
+      </div>
     </section>
 
     <section v-else-if="route==='stories' && routeParts[1]" class="screen story-mobile-screen">
@@ -257,8 +363,9 @@
 
     <section v-else-if="route==='stories'" class="screen story-mobile-screen">
       <div class="page-hero compact"><span class="eyebrow">Stories</span><h1>Stories</h1><p>Testimonies, moments, and updates from church life.</p></div>
-      <div v-if="!stories.length" class="empty-card">No stories posted yet.</div>
-      <a v-for="story in stories" :href="'#/stories/' + story.id" class="story-mobile-card">
+      <div class="mobile-filter-bar"><div class="filter-inner"><i class="fa-solid fa-magnifying-glass"></i><input type="text" v-model="searchStories" placeholder="Search testimonies..." class="filter-input"><button v-if="searchStories" type="button" @click="searchStories=''" class="filter-clear"><i class="fa-solid fa-xmark"></i></button></div></div>
+      <div v-if="!filteredMobileStories.length" class="empty-card">No stories matching your search.</div>
+      <a v-for="story in filteredMobileStories" :href="'#/stories/' + story.id" class="story-mobile-card">
         <img v-if="story.image_url" :src="story.image_url" :alt="story.title">
         <span v-else class="media-icon"><i class="fa-solid fa-play"></i></span>
         <div>
@@ -287,7 +394,9 @@
 
     <section v-else-if="route==='events'" class="screen">
       <div class="page-hero compact"><span class="eyebrow">Events</span><h1>Coming up</h1></div>
-      <a v-for="event in events" :href="'#/events/' + event.id" class="list-card">
+      <div class="mobile-filter-bar"><div class="filter-inner"><i class="fa-solid fa-magnifying-glass"></i><input type="text" v-model="searchEvents" placeholder="Search events..." class="filter-input"><button v-if="searchEvents" type="button" @click="searchEvents=''" class="filter-clear"><i class="fa-solid fa-xmark"></i></button></div></div>
+      <div v-if="!filteredMobileEvents.length" class="empty-card">No events matching your search.</div>
+      <a v-for="event in filteredMobileEvents" :href="'#/events/' + event.id" class="list-card">
         <img v-if="event.image_url" :src="asset(event.image_url)" :alt="event.title">
         <div><b>{{ event.title }}</b><p>{{ event.event_date || event.subtitle }}</p></div>
       </a>
@@ -325,94 +434,410 @@
 
     <section v-else-if="route==='about'" class="screen">
       <div class="page-hero compact" :style="pageHeroStyle('about')">
-        <span class="eyebrow">{{ page('about').eyebrow || 'About Us' }}</span>
-        <h1>{{ page('about').title || 'About Christ Embassy New Benin' }}</h1>
-        <p>{{ page('about').subtitle || 'Church of Excellence' }}</p>
+        <span class="eyebrow"><i class="fa-solid fa-church me-1"></i> {{ aboutPage.eyebrow || 'About Us' }}</span>
+        <h1>{{ aboutPage.title || 'About Christ Embassy New Benin' }}</h1>
+        <p>{{ aboutPage.subtitle || 'Church of Excellence — Living the Higher Life in Christ' }}</p>
       </div>
 
-      <!-- Pastor Profile Card Mobile -->
-      <article class="rich-card mb-3" style="background:#fff; border-radius:14px; padding:20px; box-shadow:0 4px 15px rgba(0,0,0,0.06);">
-        <img v-if="page('about').pastor_image" :src="asset(page('about').pastor_image)" alt="Pastor Joseph Atibi-Brown" style="border-radius:10px; width:100%; height:260px; object-fit:cover; margin-bottom:16px;">
-        <span style="display:inline-block; background:#fef3c7; color:#92400e; font-weight:700; font-size:0.75rem; padding:4px 10px; border-radius:6px; margin-bottom:8px;">LEADERSHIP</span>
-        <h2 style="font-size:1.5rem; color:#0f172a; margin:0 0 4px; font-weight:700;">{{ page('about').pastor_name || 'Pastor Joseph Atibi-Brown' }}</h2>
-        <div style="color:#b45309; font-weight:600; font-size:0.9rem; margin-bottom:12px;">{{ page('about').pastor_title || 'Pastor, Christ Embassy New Benin' }}</div>
-        <p style="color:#334155; font-size:0.95rem; line-height:1.7; margin:0;">{{ page('about').pastor_bio }}</p>
+      <!-- Who We Are Intro Box Mobile -->
+      <article class="rich-card mb-3" style="background:linear-gradient(135deg, rgba(212,175,55,0.12) 0%, #0e1628 100%); border:1px solid rgba(212,175,55,0.3); border-radius:14px; padding:20px; text-align:center; color:#fff;">
+        <span style="display:inline-block; background:#fbbf24; color:#000; font-weight:800; font-size:0.72rem; padding:3px 10px; border-radius:6px; text-transform:uppercase; margin-bottom:8px;">WHO WE ARE</span>
+        <h3 style="font-size:1.25rem; font-weight:800; margin:0 0 8px; color:#fff; line-height:1.3;">A Beacon of Divine Presence, Light & Victory</h3>
+        <p style="color:#cbd5e1; font-size:0.92rem; line-height:1.7; margin:0;">{{ aboutPage.intro || 'Christ Embassy New Benin is a vibrant congregation of LoveWorld Inc., dedicated to raising champions, fulfilling the Great Commission, and demonstrating the character of the Spirit with unmatched excellence.' }}</p>
+      </article>
+
+      <!-- Section Title: Ministry Leadership -->
+      <div style="margin:22px 0 12px; text-align:center;">
+        <span style="font-size:0.75rem; font-weight:800; text-transform:uppercase; letter-spacing:0.08em; color:#d4af37;">MINISTRY LEADERSHIP</span>
+        <h2 style="font-size:1.35rem; color:#0f172a; margin:4px 0 0; font-weight:800;">Shepherded by Vision & Word</h2>
+      </div>
+
+      <!-- Global President Card: Pastor Chris Oyakhilome Mobile -->
+      <article class="rich-card mb-3" style="background:#0c121e; border-radius:14px; padding:0; overflow:hidden; border:1px solid rgba(212,175,55,0.35); box-shadow:0 6px 20px rgba(0,0,0,0.15);">
+        <div style="position:relative; width:100%; height:230px; overflow:hidden; background:#000;">
+          <img :src="asset(aboutPage.global_leadership_image || 'assets/uploaded_media/sermon_pastor_chris_higher_life.jpg')" alt="Rev. Dr. Chris Oyakhilome D.Sc., D.D." style="width:100%; height:100%; object-fit:cover; object-position:center 20%; display:block;">
+          <span style="position:absolute; top:12px; right:12px; background:#fbbf24; color:#000; font-weight:800; font-size:0.72rem; padding:4px 10px; border-radius:999px; letter-spacing:0.06em;">GLOBAL PRESIDENT</span>
+        </div>
+        <div style="padding:18px;">
+          <div style="color:#fbbf24; font-weight:700; font-size:0.78rem; text-transform:uppercase; letter-spacing:0.06em; margin-bottom:4px;">
+            <i class="fa-solid fa-crown me-1"></i> LoveWorld Inc. Worldwide
+          </div>
+          <h3 style="font-size:1.3rem; color:#fff; margin:0 0 4px; font-weight:800; line-height:1.25;">{{ aboutPage.global_leadership || 'Rev. Dr. Chris Oyakhilome D.Sc., D.D.' }}</h3>
+          <div style="color:#d4af37; font-weight:600; font-size:0.86rem; margin-bottom:10px;">{{ aboutPage.global_leadership_role || 'President, LoveWorld Inc. / Christ Embassy' }}</div>
+          <p style="color:#cbd5e1; font-size:0.88rem; line-height:1.65; margin:0;">{{ aboutPage.global_leadership_bio }}</p>
+        </div>
+      </article>
+
+      <!-- Local Senior Pastor Card: Pastor Joseph Atibi-Brown Mobile -->
+      <article class="rich-card mb-3" style="background:#0c121e; border-radius:14px; padding:0; overflow:hidden; border:1px solid rgba(23,122,135,0.45); box-shadow:0 6px 20px rgba(0,0,0,0.15);">
+        <div style="position:relative; width:100%; height:230px; overflow:hidden; background:#000;">
+          <img :src="asset(aboutPage.pastor_image || 'assets/uploaded_media/WhatsApp_Image_2026-09-17_at_4.27.50_PM.jpeg')" alt="Pastor Joseph Atibi-Brown" style="width:100%; height:100%; object-fit:cover; object-position:center 20%; display:block;">
+          <span style="position:absolute; top:12px; right:12px; background:#177a87; color:#fff; font-weight:800; font-size:0.72rem; padding:4px 10px; border-radius:999px; letter-spacing:0.06em;">SENIOR PASTOR</span>
+        </div>
+        <div style="padding:18px;">
+          <div style="color:#38bdf8; font-weight:700; font-size:0.78rem; text-transform:uppercase; letter-spacing:0.06em; margin-bottom:4px;">
+            <i class="fa-solid fa-church me-1"></i> Church of Excellence
+          </div>
+          <h3 style="font-size:1.3rem; color:#fff; margin:0 0 4px; font-weight:800; line-height:1.25;">{{ aboutPage.pastor_name || 'Pastor Joseph Atibi-Brown' }}</h3>
+          <div style="color:#d4af37; font-weight:600; font-size:0.86rem; margin-bottom:10px;">{{ aboutPage.pastor_title || 'Pastor, Christ Embassy New Benin' }}</div>
+          <p style="color:#cbd5e1; font-size:0.88rem; line-height:1.65; margin:0;">{{ aboutPage.pastor_bio }}</p>
+        </div>
       </article>
 
       <!-- Global Vision Card Mobile -->
       <article class="rich-card mb-3" style="background:linear-gradient(135deg, #07152f 0%, #0f2b5c 100%); color:#fff; border-radius:14px; padding:20px; border:1px solid rgba(230,167,25,0.4);">
         <span style="color:#fbbf24; font-weight:800; font-size:0.75rem; letter-spacing:0.1em; display:block; margin-bottom:6px;">OUR GLOBAL VISION</span>
-        <h3 style="font-size:1.25rem; color:#fff; margin:0 0 10px; font-weight:700;">To Take the Divine Presence of God to the Nations</h3>
-        <blockquote style="margin:0 0 10px; padding:10px 14px; background:rgba(255,255,255,0.08); border-left:3px solid #f59e0b; border-radius:0 6px 6px 0; font-style:italic; font-size:0.95rem; line-height:1.6; color:#fff;">
-          "{{ page('about').global_vision_statement }}"
+        <h3 style="font-size:1.22rem; color:#fff; margin:0 0 10px; font-weight:700;">To Take the Divine Presence of God to the Nations</h3>
+        <blockquote style="margin:0 0 10px; padding:12px 14px; background:rgba(255,255,255,0.08); border-left:3px solid #f59e0b; border-radius:0 6px 6px 0; font-style:italic; font-size:0.92rem; line-height:1.6; color:#fef08a;">
+          "{{ aboutPage.global_vision_statement || 'To take the divine presence of God to the nations and peoples of the world; and to demonstrate the character of the Spirit.' }}"
         </blockquote>
-        <p style="color:#cbd5e1; font-size:0.8rem; margin:0;"><i class="fa-solid fa-crown text-warning me-1"></i> {{ page('about').global_leadership }}</p>
+        <p style="color:#94a3b8; font-size:0.78rem; margin:0;"><i class="fa-solid fa-check-double text-warning me-1"></i> The unaltered divine mandate given to LoveWorld by God.</p>
       </article>
 
       <!-- Local Expression Card Mobile -->
       <article class="rich-card mb-3" style="background:linear-gradient(135deg, #090e17 0%, #152238 100%); color:#fff; border-radius:14px; padding:20px; border:1px solid rgba(230,167,25,0.4);">
         <span style="color:#fbbf24; font-weight:800; font-size:0.75rem; letter-spacing:0.1em; display:block; margin-bottom:6px;">OUR LOCAL EXPRESSION</span>
-        <h3 style="font-size:1.25rem; color:#fff; margin:0 0 10px; font-weight:700;">Church of Excellence in Action</h3>
-        <p style="color:#f1f5f9; font-size:0.95rem; line-height:1.7; margin:0;">{{ page('about').local_expression_body }}</p>
+        <h3 style="font-size:1.22rem; color:#fff; margin:0 0 10px; font-weight:700;">Church of Excellence in Action</h3>
+        <p style="color:#f1f5f9; font-size:0.92rem; line-height:1.7; margin:0;">{{ aboutPage.local_expression_body }}</p>
       </article>
-      <a href="#/visit" class="primary-btn full"><i class="fa-solid fa-calendar-check"></i> Plan a Visit</a>
+
+      <!-- 4 Pillars of Excellence Mobile -->
+      <div class="mb-3">
+        <div style="margin:20px 0 12px; text-align:center;">
+          <span style="font-size:0.75rem; font-weight:800; text-transform:uppercase; letter-spacing:0.08em; color:#d4af37;">FOUNDATIONS</span>
+          <h2 style="font-size:1.3rem; color:#0f172a; margin:4px 0 0; font-weight:800;">Four Pillars of Excellence</h2>
+        </div>
+        <div style="display:grid; grid-template-columns:1fr; gap:10px;">
+          <div v-for="(pillar, pIdx) in aboutPillars" :key="pIdx" style="background:#fff; border:1px solid #e2e8f0; border-radius:12px; padding:16px; display:flex; gap:14px; align-items:flex-start; box-shadow:0 2px 8px rgba(0,0,0,0.04);">
+            <div style="width:42px; height:42px; border-radius:50%; background:rgba(212,175,55,0.14); border:1px solid rgba(212,175,55,0.35); color:#b45309; display:flex; align-items:center; justify-content:center; font-size:1.15rem; flex-shrink:0;">
+              <i :class="pillar.icon || 'fa-solid fa-star'"></i>
+            </div>
+            <div>
+              <h4 style="font-size:1rem; font-weight:700; color:#0f172a; margin:0 0 4px;">{{ pillar.title }}</h4>
+              <p style="font-size:0.85rem; color:#64748b; line-height:1.55; margin:0;">{{ pillar.desc }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Statement of Faith / What We Believe Mobile -->
+      <article class="rich-card mb-3" style="background:linear-gradient(145deg, #0b0f1a 0%, #070a12 100%); border:1px solid rgba(212,175,55,0.3); border-radius:14px; padding:20px; color:#fff;">
+        <span style="color:#fbbf24; font-weight:800; font-size:0.75rem; letter-spacing:0.1em; display:block; margin-bottom:4px; text-transform:uppercase;">STATEMENT OF FAITH</span>
+        <h3 style="font-size:1.25rem; color:#fff; margin:0 0 14px; font-weight:800;">What We Believe</h3>
+        <div style="display:flex; flex-direction:column; gap:12px;">
+          <div v-for="(belief, bIdx) in aboutBeliefs" :key="bIdx" style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:10px; padding:12px 14px;">
+            <div style="display:flex; align-items:center; gap:8px; margin-bottom:4px;">
+              <span style="color:#fbbf24; font-weight:800; font-size:0.95rem; font-family:monospace;">0{{ bIdx + 1 }}</span>
+              <b style="color:#fff; font-size:0.94rem;">{{ belief.title }}</b>
+            </div>
+            <p style="color:#cbd5e1; font-size:0.84rem; line-height:1.55; margin:0;">{{ belief.desc }}</p>
+          </div>
+        </div>
+      </article>
+
+      <!-- Weekly Service Times Mobile Strip -->
+      <article class="rich-card mb-4" style="background:#ffffff; border:1px solid #e2e8f0; border-radius:14px; padding:20px; box-shadow:0 4px 15px rgba(0,0,0,0.05);">
+        <div style="display:flex; align-items:center; gap:8px; margin-bottom:10px;">
+          <i class="fa-solid fa-clock text-warning" style="font-size:1.2rem;"></i>
+          <h3 style="font-size:1.15rem; color:#0f172a; margin:0; font-weight:800;">Weekly Service Times</h3>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:10px; margin-bottom:16px;">
+          <div v-for="(st, stIdx) in aboutServiceTimes" :key="stIdx" style="background:#f8fafc; border-left:3px solid #d4af37; border-radius:0 8px 8px 0; padding:10px 14px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:3px;">
+              <b style="color:#0f172a; font-size:0.92rem;">{{ st.service }}</b>
+              <span style="background:#0f172a; color:#fbbf24; font-weight:700; font-size:0.7rem; padding:2px 7px; border-radius:4px;">{{ st.badge }}</span>
+            </div>
+            <div style="color:#b45309; font-size:0.84rem; font-weight:700;"><i class="fa-regular fa-clock me-1"></i> {{ st.time }} • {{ st.day }}</div>
+          </div>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:8px;">
+          <a href="#/visit" class="primary-btn full"><i class="fa-solid fa-calendar-check me-1"></i> Plan Your Visit</a>
+          <a href="#/live" class="secondary-btn full" style="text-align:center; display:block; padding:12px; border-radius:8px; border:1px solid #0f172a; background:#0f172a; color:#fbbf24; text-decoration:none; font-weight:700;"><i class="fa-solid fa-tower-broadcast me-1"></i> Watch Live Online</a>
+        </div>
+      </article>
     </section>
 
     <section v-else-if="route==='visit'" class="screen">
       <div class="page-hero compact" :style="pageHeroStyle('visit')">
-        <span class="eyebrow">{{ visitPage.eyebrow || 'Plan a Visit' }}</span>
-        <h1>{{ visitPage.title || 'Plan a Visit' }}</h1>
-        <p>{{ visitPage.subtitle || 'Everything you need to know before joining us.' }}</p>
+        <span class="eyebrow"><i class="fa-solid fa-map-location-dot me-1"></i> {{ visitPage.eyebrow || 'Plan a Visit' }}</span>
+        <h1>{{ visitPage.title || 'Plan Your Visit' }}</h1>
+        <p>{{ visitPage.subtitle || 'You are warmly welcomed to Church of Excellence. Experience fellowship, power, and glory.' }}</p>
       </div>
-      <article v-if="visitPage.what_to_expect" class="rich-card mb-3" style="background:#fff; border-radius:14px; padding:18px; color:#334155; font-size:0.95rem; line-height:1.7; box-shadow:0 2px 10px rgba(0,0,0,0.04);">
-        <h3 style="color:#0f172a; font-size:1.2rem; margin:0 0 8px; font-weight:700;">What to Expect</h3>
-        <p style="margin:0;">{{ visitPage.what_to_expect }}</p>
-      </article>
-      
-      <!-- Weekly Services List Mobile -->
-      <div v-if="visitPage.services && visitPage.services.length" class="mb-3">
-        <h3 style="font-size:1.1rem; color:#0f172a; margin:16px 0 10px; font-weight:700;">Weekly Services Schedule</h3>
-        <div v-for="(srv, i) in visitPage.services" :key="i" class="rich-card mb-2" style="background:#fff; border-radius:12px; padding:14px 16px; border-left:4px solid #d97706; box-shadow:0 2px 8px rgba(0,0,0,0.04);">
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px; gap:8px;">
-            <b style="color:#0f172a; font-size:1rem;">{{ srv.name }}</b>
-            <span style="background:#1e3a8a; color:#fff; font-size:0.75rem; padding:3px 8px; border-radius:4px; font-weight:600; flex-shrink:0;">{{ srv.time }}</span>
-          </div>
-          <p style="color:#475569; font-size:0.88rem; margin:0; line-height:1.5;">{{ srv.description }}</p>
+
+      <!-- Welcome Showcase Card with HD Foyer Photography -->
+      <div class="rich-card mb-3" style="padding:0; overflow:hidden; border-radius:14px; background:#fff; box-shadow:0 3px 12px rgba(0,0,0,0.06);">
+        <img :src="asset(visitPage.foyer_image || 'assets/uploaded_media/plan_visit_welcome_foyer.jpg')" alt="Church Welcome Foyer" style="width:100%; height:190px; object-fit:cover; display:block;">
+        <div style="padding:16px;">
+          <span style="background:#fef3c7; color:#92400e; font-weight:800; font-size:0.72rem; padding:3px 9px; border-radius:4px; text-transform:uppercase; display:inline-block; margin-bottom:6px;">ROYAL RECEPTION & FOYER</span>
+          <h3 style="font-size:1.25rem; font-weight:700; margin:0 0 6px; color:#0f172a; line-height:1.25;">{{ visitPage.welcome_heading || 'We would love to welcome you.' }}</h3>
+          <p style="font-size:0.88rem; color:#475569; margin:0; line-height:1.6;">{{ visitPage.welcome_text || 'From the moment you step through our doors, you\'ll experience a warm welcome, inspiring worship, engaging kids & youth programs, and transformative teaching from Pastor Joseph Atibi-Brown.' }}</p>
         </div>
       </div>
 
+      <!-- What to Expect 4-Pillar Grid -->
+      <div class="mb-3">
+        <h3 style="font-size:1.15rem; color:#0f172a; margin:18px 0 10px; font-weight:700; display:flex; align-items:center; gap:8px;">
+          <i class="fa-solid fa-star text-warning"></i> What to Expect
+        </h3>
+        <div style="display:grid; grid-template-columns:1fr; gap:10px;">
+          <div v-for="(pillar, idx) in visitExpectations" :key="idx" class="rich-card" style="background:#fff; border-radius:12px; padding:14px 16px; border:1px solid #e2e8f0; display:flex; gap:12px; align-items:flex-start;">
+            <div style="width:38px; height:38px; border-radius:10px; background:#fef3c7; color:#b45309; display:flex; align-items:center; justify-content:center; font-size:1.1rem; flex-shrink:0;">
+              <i :class="pillar.icon || 'fa-solid fa-check'"></i>
+            </div>
+            <div>
+              <b style="color:#0f172a; font-size:0.95rem; display:block; margin-bottom:3px;">{{ pillar.title }}</b>
+              <p style="color:#475569; font-size:0.84rem; margin:0; line-height:1.5;">{{ pillar.desc }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Weekly Services Schedule -->
+      <div v-if="visitPage.services && visitPage.services.length" class="mb-3">
+        <h3 style="font-size:1.15rem; color:#0f172a; margin:18px 0 10px; font-weight:700; display:flex; align-items:center; gap:8px;">
+          <i class="fa-solid fa-calendar-check text-warning"></i> Weekly Services Schedule
+        </h3>
+        <div v-for="(srv, i) in visitPage.services" :key="i" class="rich-card mb-2" style="background:#fff; border-radius:12px; padding:14px 16px; border-left:4px solid #d97706; box-shadow:0 2px 8px rgba(0,0,0,0.04);">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px; gap:8px;">
+            <b style="color:#0f172a; font-size:0.98rem;">{{ srv.name }}</b>
+            <span style="background:#1e3a8a; color:#fff; font-size:0.75rem; padding:3px 8px; border-radius:4px; font-weight:600; flex-shrink:0;">{{ srv.time }}</span>
+          </div>
+          <p style="color:#475569; font-size:0.86rem; margin:0; line-height:1.5;">{{ srv.description }}</p>
+        </div>
+      </div>
+
+      <!-- Pre-Registration / VIP Welcome Pack Form -->
+      <div class="rich-card mb-3" style="background:#0f172a; color:#fff; border-radius:14px; padding:20px; box-shadow:0 4px 15px rgba(15,23,42,0.25);">
+        <div style="display:flex; align-items:center; gap:10px; margin-bottom:8px;">
+          <div style="width:36px; height:36px; border-radius:50%; background:rgba(230,167,25,0.2); color:#fbbf24; display:flex; align-items:center; justify-content:center; font-size:1.1rem;">
+            <i class="fa-solid fa-gift"></i>
+          </div>
+          <div>
+            <h3 style="color:#fff; font-size:1.15rem; margin:0; font-weight:700;">Let Us Know You're Coming</h3>
+            <span style="color:#cbd5e1; font-size:0.78rem;">Reserve your VIP Welcome Pack & priority seating</span>
+          </div>
+        </div>
+
+        <div v-if="visitPreReg.submitted" style="background:rgba(16,185,129,0.15); border:1px solid #10b981; border-radius:10px; padding:16px; text-align:center; margin-top:12px;">
+          <i class="fa-solid fa-circle-check text-success fs-2 mb-2"></i>
+          <h4 style="color:#10b981; font-size:1.1rem; margin:0 0 6px;">We Look Forward to Seeing You!</h4>
+          <p style="color:#e2e8f0; font-size:0.85rem; margin:0; line-height:1.5;">Your VIP visitor reservation has been recorded. Our welcome team will be delighted to host you!</p>
+        </div>
+
+        <div v-else style="margin-top:14px;">
+          <label style="font-size:0.75rem; font-weight:600; color:#cbd5e1; text-transform:uppercase; display:block; margin-bottom:4px;">Your Full Name *</label>
+          <input v-model="visitPreReg.name" type="text" placeholder="Brother / Sister Name" style="width:100%; background:#1e293b; border:1px solid #334155; color:#fff; border-radius:8px; padding:10px 12px; font-size:0.9rem; margin-bottom:10px;">
+
+          <label style="font-size:0.75rem; font-weight:600; color:#cbd5e1; text-transform:uppercase; display:block; margin-bottom:4px;">Phone / WhatsApp *</label>
+          <input v-model="visitPreReg.phone" type="tel" placeholder="e.g. +234 800 000 0000" style="width:100%; background:#1e293b; border:1px solid #334155; color:#fff; border-radius:8px; padding:10px 12px; font-size:0.9rem; margin-bottom:10px;">
+
+          <label style="font-size:0.75rem; font-weight:600; color:#cbd5e1; text-transform:uppercase; display:block; margin-bottom:4px;">Email (Optional)</label>
+          <input v-model="visitPreReg.email" type="email" placeholder="you@example.com" style="width:100%; background:#1e293b; border:1px solid #334155; color:#fff; border-radius:8px; padding:10px 12px; font-size:0.9rem; margin-bottom:10px;">
+
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:12px;">
+            <div>
+              <label style="font-size:0.75rem; font-weight:600; color:#cbd5e1; text-transform:uppercase; display:block; margin-bottom:4px;">Service Date</label>
+              <input v-model="visitPreReg.date" type="date" style="width:100%; background:#1e293b; border:1px solid #334155; color:#fff; border-radius:8px; padding:9px 10px; font-size:0.85rem;">
+            </div>
+            <div>
+              <label style="font-size:0.75rem; font-weight:600; color:#cbd5e1; text-transform:uppercase; display:block; margin-bottom:4px;">Attending Guests</label>
+              <select v-model="visitPreReg.guests" style="width:100%; background:#1e293b; border:1px solid #334155; color:#fff; border-radius:8px; padding:9px 10px; font-size:0.85rem;">
+                <option :value="1">Just Me (1)</option>
+                <option :value="2">Couple (2)</option>
+                <option :value="3">Small Family (3-4)</option>
+                <option :value="5">Large Group (5+)</option>
+              </select>
+            </div>
+          </div>
+
+          <div v-if="visitPreReg.error" style="color:#ef4444; font-size:0.82rem; margin-bottom:10px;">{{ visitPreReg.error }}</div>
+
+          <button type="button" class="btn-gold w-100 justify-content-center" @click="submitVisitPreReg" :disabled="visitPreReg.submitting" style="padding:12px; font-size:0.95rem;">
+            <i class="fa-solid fa-clipboard-check"></i> {{ visitPreReg.submitting ? 'Confirming...' : 'Reserve My VIP Welcome Pack' }}
+          </button>
+        </div>
+      </div>
+
+      <!-- VIP First-Timer Guest Experience Card (Mobile) -->
+      <div class="rich-card mb-3" style="background:#0f172a; color:#fff; border-radius:14px; padding:18px; border:1px solid rgba(234,179,8,0.3); box-shadow:0 4px 15px rgba(0,0,0,0.2);">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+          <span style="background:rgba(230,167,25,0.2); color:#fbbf24; font-weight:800; font-size:0.72rem; padding:3px 9px; border-radius:999px; text-transform:uppercase;">
+            <i class="fa-solid fa-crown me-1"></i> VIP Guest Experience
+          </span>
+        </div>
+        <h3 style="font-size:1.15rem; font-weight:700; color:#fff; margin:0 0 6px;">What You Receive as Our Guest</h3>
+        <p style="font-size:0.84rem; color:#94a3b8; margin:0 0 14px; line-height:1.5;">Every visitor is received as royalty. Here is what we have prepared for you:</p>
+
+        <div style="display:flex; flex-direction:column; gap:12px;">
+          <div style="display:flex; gap:10px; align-items:flex-start;">
+            <div style="width:32px; height:32px; border-radius:8px; background:rgba(234,179,8,0.15); color:#fbbf24; display:flex; align-items:center; justify-content:center; font-size:0.9rem; flex-shrink:0;">
+              <i class="fa-solid fa-gift"></i>
+            </div>
+            <div>
+              <b style="color:#f8fafc; font-size:0.9rem; display:block;">Exclusive Welcome Gift Pack</b>
+              <p style="color:#94a3b8; font-size:0.8rem; margin:0; line-height:1.45;">Free Rhapsody of Realities, inspiring audio messages, and personal welcome gifts.</p>
+            </div>
+          </div>
+
+          <div style="display:flex; gap:10px; align-items:flex-start;">
+            <div style="width:32px; height:32px; border-radius:8px; background:rgba(234,179,8,0.15); color:#fbbf24; display:flex; align-items:center; justify-content:center; font-size:0.9rem; flex-shrink:0;">
+              <i class="fa-solid fa-couch"></i>
+            </div>
+            <div>
+              <b style="color:#f8fafc; font-size:0.9rem; display:block;">VIP First-Timers Reception</b>
+              <p style="color:#94a3b8; font-size:0.8rem; margin:0; line-height:1.45;">Join our welcome pastors in the VIP Lounge right after service for light refreshments and prayer.</p>
+            </div>
+          </div>
+
+          <div style="display:flex; gap:10px; align-items:flex-start;">
+            <div style="width:32px; height:32px; border-radius:8px; background:rgba(234,179,8,0.15); color:#fbbf24; display:flex; align-items:center; justify-content:center; font-size:0.9rem; flex-shrink:0;">
+              <i class="fa-solid fa-chair"></i>
+            </div>
+            <div>
+              <b style="color:#f8fafc; font-size:0.9rem; display:block;">Reserved Priority Seating</b>
+              <p style="color:#94a3b8; font-size:0.8rem; margin:0; line-height:1.45;">Prime seats reserved in advance for you and your guests so you are seated comfortably.</p>
+            </div>
+          </div>
+
+          <div style="display:flex; gap:10px; align-items:flex-start;">
+            <div style="width:32px; height:32px; border-radius:8px; background:rgba(234,179,8,0.15); color:#fbbf24; display:flex; align-items:center; justify-content:center; font-size:0.9rem; flex-shrink:0;">
+              <i class="fa-solid fa-user-shield"></i>
+            </div>
+            <div>
+              <b style="color:#f8fafc; font-size:0.9rem; display:block;">Dedicated Host & Guide</b>
+              <p style="color:#94a3b8; font-size:0.8rem; margin:0; line-height:1.45;">Our hospitable protocol stewards will assist you and guide your family every step of the way.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Family & Kids Church Spotlight (Mobile) -->
+      <div class="rich-card mb-3" style="background:#fff; border-radius:14px; padding:18px; border:1px solid #e2e8f0; box-shadow:0 2px 10px rgba(0,0,0,0.04);">
+        <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
+          <i class="fa-solid fa-children text-warning fs-5"></i>
+          <h3 style="font-size:1.15rem; font-weight:700; color:#0f172a; margin:0;">Coming with Family?</h3>
+        </div>
+        <p style="font-size:0.85rem; color:#475569; margin:0 0 12px; line-height:1.5;">We have dedicated, age-graded classrooms where infants, children, and teenagers are loved, inspired, and taught God's Word:</p>
+        
+        <div style="display:flex; flex-direction:column; gap:8px; font-size:0.84rem; color:#334155;">
+          <div style="display:flex; align-items:center; gap:8px;">
+            <i class="fa-solid fa-circle-check text-warning"></i>
+            <span><b>Nursery & Toddlers (0–3 yrs):</b> Loving, secure care.</span>
+          </div>
+          <div style="display:flex; align-items:center; gap:8px;">
+            <i class="fa-solid fa-circle-check text-warning"></i>
+            <span><b>Children's Church (4–12 yrs):</b> Dynamic praise, drama, & Bible fun.</span>
+          </div>
+          <div style="display:flex; align-items:center; gap:8px;">
+            <i class="fa-solid fa-circle-check text-warning"></i>
+            <span><b>Teens Church (13–19 yrs):</b> Youth leadership, music, & fellowship.</span>
+          </div>
+        </div>
+
+        <div style="margin-top:12px; padding:8px 12px; background:#f0fdf4; border:1px solid #bbf7d0; border-radius:8px; font-size:0.78rem; color:#166534; display:flex; align-items:center; gap:6px;">
+          <i class="fa-solid fa-shield-halved"></i>
+          <span>Secure check-in and thoroughly vetted teachers for total peace of mind.</span>
+        </div>
+      </div>
+
+      <!-- Visitor FAQs Accordion -->
+      <div class="mb-3">
+        <h3 style="font-size:1.15rem; color:#0f172a; margin:18px 0 10px; font-weight:700; display:flex; align-items:center; gap:8px;">
+          <i class="fa-solid fa-circle-question text-warning"></i> Visitor Frequently Asked Questions
+        </h3>
+        <div v-for="(faq, i) in visitFaqs" :key="i" class="rich-card mb-2" style="background:#fff; border-radius:10px; padding:0; overflow:hidden; border:1px solid #e2e8f0;">
+          <button type="button" @click="toggleVisitFaq(i)" style="width:100%; text-align:left; background:transparent; border:0; padding:12px 16px; display:flex; justify-content:space-between; align-items:center; font-weight:700; font-size:0.92rem; color:#0f172a; cursor:pointer;">
+            <span>{{ faq.q }}</span>
+            <i :class="openVisitFaq === i ? 'fa-solid fa-chevron-up text-warning' : 'fa-solid fa-chevron-down text-muted'"></i>
+          </button>
+          <div v-if="openVisitFaq === i" style="padding:0 16px 14px; font-size:0.86rem; color:#475569; line-height:1.55; border-top:1px solid #f1f5f9; background:#f8fafc;">
+            {{ faq.a }}
+          </div>
+        </div>
+      </div>
+
+      <!-- Contact & Sanctuary Location -->
       <article class="contact-card visit-info-card">
-        <h3>Service Info</h3>
+        <h3 style="display:flex; align-items:center; gap:8px;"><i class="fa-solid fa-church text-warning"></i> Sanctuary & Office</h3>
         <p v-if="cms.site.address"><b>Address</b><br>{{ cms.site.address }}</p>
         <p v-if="cms.site.office_hours"><b>Office / Service Hours</b><br>{{ cms.site.office_hours }}</p>
         <p v-if="cms.site.phone || cms.site.email"><b>Contact</b><br><span v-if="cms.site.phone">{{ cms.site.phone }}<br></span><span v-if="cms.site.email">{{ cms.site.email }}</span></p>
-        <a href="#/live" class="primary-btn full"><i class="fa-solid fa-video me-1"></i> Watch Live Stream</a>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:12px;">
+          <a href="#/live" class="primary-btn" style="text-align:center; font-size:0.85rem;"><i class="fa-solid fa-video me-1"></i> Live Stream</a>
+          <a :href="'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(cms.site.address || 'Christ Embassy New Benin, Benin City')" target="_blank" rel="noopener" class="ghost-btn" style="text-align:center; font-size:0.85rem;"><i class="fa-solid fa-diamond-turn-right me-1"></i> Directions</a>
+        </div>
       </article>
     </section>
 
     <section v-else-if="route==='give'" class="screen">
-      <div class="page-hero compact"><span class="eyebrow">{{ page('give').eyebrow || 'Giving' }}</span><h1>{{ page('give').title || 'Give securely' }}</h1><p>{{ page('give').subtitle || 'Partner with the work and mission of the church.' }}</p></div>
-      <article v-if="page('give').body" class="rich-card" v-html="page('give').body"></article>
+      <div class="page-hero compact" :style="pageHeroStyle('give')">
+        <span class="eyebrow">{{ page('give').eyebrow || 'Online Giving' }}</span>
+        <h1>{{ page('give').title || 'Giving & Partnership' }}</h1>
+        <p>{{ page('give').subtitle || 'Honoring God with our substance and propagating the Gospel.' }}</p>
+      </div>
 
+      <!-- Feature Impact Image on Mobile -->
+      <div class="rich-card mb-3" style="padding:0; overflow:hidden; border-radius:14px; background:#fff;">
+        <img :src="asset(page('give').impact_banner || 'assets/uploaded_media/partnership_outreach_banner.jpg')" alt="Outreach & Partnership" style="width:100%; height:180px; object-fit:cover; display:block;">
+        <div style="padding:14px 16px;">
+          <span style="background:#fef3c7; color:#92400e; font-weight:800; font-size:0.72rem; padding:3px 8px; border-radius:4px; text-transform:uppercase;">SOULS & OUTREACHES</span>
+          <h3 style="font-size:1.15rem; font-weight:700; margin:6px 0 4px; color:#0f172a;">Propagating the Gospel Worldwide</h3>
+          <p style="font-size:0.86rem; color:#475569; margin:0; line-height:1.5;">{{ page('give').body || 'Your giving finances soul-winning crusades, free Rhapsody distribution, and community outreaches.' }}</p>
+        </div>
+      </div>
+
+      <!-- Mobile Giving Console -->
       <div class="mobile-give-card">
         <div class="give-card-head">
-          <span><i class="fa-solid fa-shield-halved"></i> Secure giving</span>
+          <span><i class="fa-solid fa-shield-halved"></i> Secure Giving ({{ currentMobileCurrency.name }})</span>
           <b>{{ giveAmountLabel }}</b>
         </div>
-        <div class="mobile-amount-grid">
-          <button type="button" v-for="value in [25,50,100,250]" :class="{active:giveForm.customAmount==='' && giveForm.amount===value}" @click="setGiveAmount(value)">{{ '$' + value }}</button>
+
+        <!-- Currency Switcher -->
+        <label style="font-size:0.75rem; font-weight:700; color:#475569; text-transform:uppercase; margin-bottom:6px; display:block;">1. Select Currency</label>
+        <div style="display:grid; grid-template-columns:repeat(5, 1fr); gap:6px; margin-bottom:14px;">
+          <button 
+            type="button" 
+            v-for="c in currencies" 
+            :key="c.code" 
+            :style="{
+              padding: '6px 2px',
+              borderRadius: '8px',
+              border: giveForm.currency === c.code ? '1.5px solid #0f172a' : '1px solid #cbd5e1',
+              background: giveForm.currency === c.code ? '#0f172a' : '#ffffff',
+              color: giveForm.currency === c.code ? '#ffffff' : '#0f172a',
+              cursor: 'pointer',
+              textAlign: 'center',
+              fontWeight: '700',
+              fontSize: '0.72rem'
+            }"
+            @click="selectMobileCurrency(c.code)"
+          >
+            <div>{{ c.flag }}</div>
+            <div>{{ c.code }}</div>
+          </button>
         </div>
-        <label>Custom Amount (USD)</label>
-        <input v-model="giveForm.customAmount" type="number" min="1" step="0.01" placeholder="Enter amount">
+
+        <!-- Presets -->
+        <label style="font-size:0.75rem; font-weight:700; color:#475569; text-transform:uppercase; margin-bottom:6px; display:block;">2. Select Amount ({{ giveForm.currency }})</label>
+        <div class="mobile-amount-grid">
+          <button 
+            type="button" 
+            v-for="value in mobileCurrencyPresets" 
+            :key="value" 
+            :class="{active: giveForm.customAmount === '' && giveForm.amount === value}" 
+            @click="setGiveAmount(value)"
+          >
+            {{ currentMobileCurrency.symbol + (value >= 1000 ? value.toLocaleString() : value) }}
+          </button>
+        </div>
+
+        <label>Or Custom Amount ({{ giveForm.currency }})</label>
+        <input v-model="giveForm.customAmount" type="number" min="1" step="any" :placeholder="'Enter ' + giveForm.currency + ' amount'">
 
         <label>Give Towards</label>
         <select v-model="giveForm.towards">
-          <option>General Offering</option>
-          <option>Tithe</option>
-          <option>Building Fund</option>
-          <option>Missions</option>
-          <option>First Fruits</option>
-          <option>Partnership</option>
+          <option v-for="cat in giveCategories" :key="cat">{{ cat }}</option>
         </select>
 
         <label>Frequency</label>
@@ -431,25 +856,73 @@
 
         <label>Payment Method</label>
         <div class="mobile-payment-methods">
-          <button type="button" :class="{active:giveForm.method==='PayPal'}" @click="giveForm.method='PayPal'; giveForm.error=''"><i class="fa-brands fa-paypal"></i> PayPal</button>
-          <button type="button" :class="{active:giveForm.method==='Bank Transfer'}" @click="giveForm.method='Bank Transfer'; giveForm.error=''"><i class="fa-solid fa-building-columns"></i> Bank Transfer</button>
+          <button type="button" :class="{active: giveForm.method === 'Bank Transfer'}" @click="giveForm.method = 'Bank Transfer'; giveForm.error = ''"><i class="fa-solid fa-building-columns"></i> Bank</button>
+          <button type="button" :class="{active: giveForm.method === 'KingsPay'}" @click="giveForm.method = 'KingsPay'; giveForm.error = ''"><i class="fa-solid fa-crown"></i> KingsPay</button>
+          <button type="button" :class="{active: giveForm.method === 'PayPal'}" @click="giveForm.method = 'PayPal'; giveForm.error = ''"><i class="fa-brands fa-paypal"></i> PayPal</button>
         </div>
 
-        <label>Note</label>
-        <input v-model="giveForm.note" type="text" placeholder="Optional note">
+        <label>Optional Note</label>
+        <input v-model="giveForm.note" type="text" placeholder="Note or testimony">
         <small v-if="giveForm.error" class="form-alert">{{ giveForm.error }}</small>
-        <div v-if="giveForm.method === 'Bank Transfer'" class="transfer-box" v-html="giveHelp"></div>
+
+        <!-- Dynamic Bank Accounts Card -->
+        <div v-if="giveForm.method === 'Bank Transfer'" class="mt-3 mb-3">
+          <div style="font-size:0.8rem; font-weight:700; color:#0f172a; margin-bottom:8px;">
+            <i class="fa-solid fa-building-columns text-warning me-1"></i> {{ giveForm.currency }} Bank Accounts:
+          </div>
+          <div v-for="(b, idx) in mobileBanks" :key="idx" class="mb-2" style="background:#f8fafc; border:1px solid #cbd5e1; border-radius:10px; padding:12px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+              <b style="color:#0f172a; font-size:0.95rem;">{{ b.bank_name }}</b>
+              <span style="background:#0f172a; color:#fbbf24; font-size:0.7rem; font-weight:800; padding:2px 6px; border-radius:4px;">{{ b.currency }}</span>
+            </div>
+            <div style="font-size:0.82rem; color:#475569; margin-bottom:6px;">{{ b.account_name }}</div>
+            <div style="display:flex; justify-content:space-between; align-items:center; background:#fff; border:1px solid #e2e8f0; border-radius:6px; padding:6px 10px;">
+              <span style="font-weight:900; font-size:1.05rem; color:#0f172a;">{{ b.account_number }}</span>
+              <button type="button" class="btn-copy-sm" @click="copyMobileText(b.account_number, 'mb_acc_' + idx)" style="padding:4px 8px; font-size:0.75rem; border-radius:4px; border:1px solid #cbd5e1; background:#fff; cursor:pointer;">
+                <i :class="giveForm.copiedKey === ('mb_acc_' + idx) ? 'fa-solid fa-check text-success' : 'fa-solid fa-copy'"></i>
+                {{ giveForm.copiedKey === ('mb_acc_' + idx) ? 'Copied' : 'Copy' }}
+              </button>
+            </div>
+            <div v-if="b.swift" style="margin-top:6px; font-size:0.78rem; color:#64748b;">
+              SWIFT: <b>{{ b.swift }}</b>
+            </div>
+          </div>
+        </div>
+
+        <!-- KingsPay Card on Mobile -->
+        <div v-if="giveForm.method === 'KingsPay'" class="mt-3 mb-3" style="background:#fefce8; border:1px solid #fef08a; border-radius:10px; padding:14px;">
+          <div style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">
+            <i class="fa-solid fa-crown text-warning fs-5"></i>
+            <b style="color:#854d0e; font-size:0.95rem;">KingsPay Merchant Code</b>
+          </div>
+          <p style="font-size:0.82rem; color:#713f12; margin:0 0 8px;">Enter this recipient code inside your KingsPay mobile app:</p>
+          <div style="display:flex; justify-content:space-between; align-items:center; background:#fff; border:2px dashed #ca8a04; border-radius:8px; padding:8px 12px;">
+            <span style="font-weight:900; font-size:1.15rem; color:#854d0e; letter-spacing:0.05em;">{{ mobileKingsPayCode }}</span>
+            <button type="button" @click="copyMobileText(mobileKingsPayCode, 'mb_kp')" style="background:#e6a719; color:#000; border:none; padding:6px 12px; border-radius:6px; font-weight:700; font-size:0.75rem; cursor:pointer;">
+              <i :class="giveForm.copiedKey === 'mb_kp' ? 'fa-solid fa-check text-success' : 'fa-solid fa-copy'"></i>
+              {{ giveForm.copiedKey === 'mb_kp' ? 'Copied' : 'Copy Code' }}
+            </button>
+          </div>
+        </div>
+
+        <!-- PayPal Form -->
         <form ref="mobilePaypalForm" method="post" action="https://www.paypal.com/cgi-bin/webscr">
           <input type="hidden" name="cmd" value="_xclick">
           <input type="hidden" name="business" :value="paypalRecipient">
-          <input type="hidden" name="currency_code" value="USD">
+          <input type="hidden" name="currency_code" :value="giveForm.currency">
           <input type="hidden" name="amount" :value="selectedGiveAmount.toFixed(2)">
-          <input type="hidden" name="item_name" :value="siteName + ' - ' + giveForm.towards + ' - ' + giveForm.frequency">
+          <input type="hidden" name="item_name" :value="siteName + ' - ' + giveForm.towards + ' (' + giveForm.frequency + ')'">
           <input type="hidden" name="no_shipping" value="1">
           <input type="hidden" name="payer_email" :value="giveForm.email">
         </form>
-        <button class="primary-btn full" type="button" @click="submitGive"><i :class="giveForm.method === 'PayPal' ? 'fa-brands fa-paypal' : 'fa-solid fa-heart'"></i> {{ giveForm.method === 'PayPal' ? 'Continue to PayPal' : 'View Transfer Details' }}</button>
-        <p class="give-note" v-html="giveHelp"></p>
+
+        <button class="primary-btn full" type="button" @click="submitGive">
+          <i :class="giveForm.method === 'PayPal' ? 'fa-brands fa-paypal' : giveForm.method === 'KingsPay' ? 'fa-solid fa-crown' : 'fa-solid fa-copy'"></i>
+          {{ giveForm.method === 'PayPal' ? 'Proceed to PayPal (' + giveAmountLabel + ')' : giveForm.method === 'KingsPay' ? 'Copy KingsPay Code' : (giveForm.copiedKey ? 'Account Copied!' : 'Copy Account Details') }}
+        </button>
+        <p class="give-note" style="text-align:center; margin-top:10px; font-size:0.8rem; color:#64748b;">
+          <i class="fa-solid fa-lock text-success me-1"></i> Secure giving portal. God bless your seed.
+        </p>
       </div>
     </section>
 
@@ -502,6 +975,6 @@
 </div>
 
 <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
-<script src="app.js?v=36"></script>
+<script src="app.js?v=47"></script>
 </body>
 </html>
