@@ -412,13 +412,47 @@ class ChurchPortalHandler(http.server.SimpleHTTPRequestHandler):
         # 7. Live Presence API
         if path == '/bridge_live_presence.php':
             length = int(self.headers.get('Content-Length', 0))
-            body = self.rfile.read(length).decode('utf-8')
-            # Return active viewer count
+            body = self.rfile.read(length).decode('utf-8') if length > 0 else ''
+            params = {}
+            if body:
+                try:
+                    if body.startswith('{'):
+                        params = json.loads(body)
+                    else:
+                        qs = urllib.parse.parse_qs(body)
+                        params = {k: v[0] for k, v in qs.items()}
+                except Exception:
+                    pass
+
+            token = params.get('token', self.client_address[0])
+            action = params.get('action', 'heartbeat')
+            attendance = max(1, int(params.get('attendance', 1)))
+
+            now = time.time()
+            if not hasattr(ChurchPortalHandler, '_active_presence'):
+                ChurchPortalHandler._active_presence = {}
+
+            # Prune sessions inactive for > 40s
+            ChurchPortalHandler._active_presence = {
+                t: data for t, data in ChurchPortalHandler._active_presence.items()
+                if (now - data.get('last_seen', 0)) < 40
+            }
+
+            if action == 'leave':
+                ChurchPortalHandler._active_presence.pop(token, None)
+            else:
+                ChurchPortalHandler._active_presence[token] = {
+                    'last_seen': now,
+                    'attendance': attendance
+                }
+
+            total_count = sum(s.get('attendance', 1) for s in ChurchPortalHandler._active_presence.values())
+
             self.send_response(200)
             self.send_header('Content-Type', 'application/json')
             self.send_header('Access-Control-Allow-Origin', '*')
             self.end_headers()
-            self.wfile.write(json.dumps({'ok': True, 'total': random.randint(18, 35)}).encode('utf-8'))
+            self.wfile.write(json.dumps({'ok': True, 'total': total_count, 'active_sessions': len(ChurchPortalHandler._active_presence)}).encode('utf-8'))
             return
 
         # Default fallback
