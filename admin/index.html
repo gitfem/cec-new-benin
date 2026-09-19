@@ -565,7 +565,7 @@
       <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 24px;">Christ Embassy New Benin</p>
       <div class="mb-3 text-start">
         <label class="form-label">Admin Security PIN</label>
-        <input type="password" v-model="pinInput" class="form-control text-center" placeholder="Enter PIN (Default: 7777)" @keyup.enter="login" style="font-size: 1.2rem; letter-spacing: 0.2em;">
+        <input type="password" v-model="pinInput" class="form-control text-center" placeholder="Enter Security PIN" @keyup.enter="login" style="font-size: 1.2rem; letter-spacing: 0.2em;">
       </div>
       <div v-if="loginError" class="text-danger small mb-3">{{ loginError }}</div>
       <button type="button" class="btn-gold w-100 justify-content-center" @click="login">
@@ -687,13 +687,18 @@
       </nav>
 
       <div class="sidebar-footer">
-        <div class="d-flex align-items-center justify-content-between mb-1">
+        <div class="d-flex align-items-center justify-content-between mb-2">
           <span class="small">Logged in as <b>Admin</b></span>
           <button class="btn btn-xs btn-outline-warning py-0 px-2" @click="setTab('settings')" title="Settings"><i class="fa-solid fa-gear"></i></button>
         </div>
-        <a href="../" target="_blank" class="text-warning text-decoration-none small d-inline-block">
-          <i class="fa-solid fa-arrow-up-right-from-square"></i> Open Live Site
-        </a>
+        <div class="d-flex align-items-center justify-content-between gap-2 pt-1 border-top border-secondary">
+          <a href="../" target="_blank" class="text-warning text-decoration-none small d-inline-flex align-items-center gap-1">
+            <i class="fa-solid fa-arrow-up-right-from-square"></i> Live Site
+          </a>
+          <button type="button" class="btn btn-xs btn-outline-danger py-1 px-2 d-inline-flex align-items-center gap-1" @click="logout" title="Logout of Admin Portal">
+            <i class="fa-solid fa-right-from-bracket"></i> Logout
+          </button>
+        </div>
       </div>
     </aside>
 
@@ -720,6 +725,9 @@
           <button class="btn-gold btn-sm" @click="saveToServer" :disabled="saving">
             <i class="fa-solid" :class="saving ? 'fa-spinner fa-spin' : 'fa-floppy-disk'"></i>
             {{ saving ? 'Saving Changes...' : 'Save Changes' }}
+          </button>
+          <button type="button" class="btn btn-sm btn-outline-danger" @click="logout" title="Logout of Admin Portal">
+            <i class="fa-solid fa-right-from-bracket me-1"></i> Logout
           </button>
         </div>
       </header>
@@ -3227,7 +3235,7 @@
             <div class="row g-3">
               <div class="col-md-6">
                 <label class="form-label">Custom Admin Unlock PIN</label>
-                <input type="text" v-model="cms.site.admin_pin" class="form-control" placeholder="Default PIN: 7777">
+                <input type="text" v-model="cms.site.admin_pin" class="form-control" placeholder="Enter custom security PIN">
                 <small class="text-muted">Enter a custom 4+ digit PIN to protect the admin portal. Click "Save Changes" to apply.</small>
               </div>
               <div class="col-md-6">
@@ -4379,6 +4387,8 @@ createApp({
     },
     logout() {
       this.authenticated = false;
+      this.pinInput = '';
+      this.loginError = '';
       sessionStorage.removeItem('cec_admin_auth');
       if (this.chatPollTimer) {
         clearInterval(this.chatPollTimer);
