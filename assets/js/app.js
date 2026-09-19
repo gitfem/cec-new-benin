@@ -368,19 +368,20 @@ const LivePage = {
       if(v.canPlayType('application/vnd.apple.mpegurl')){ v.src=this.hlsUrl; v.dataset.hlsReady=this.hlsUrl; v.load(); return; }
       if(window.Hls && Hls.isSupported()){
         const hls=new Hls({
-          lowLatencyMode:true,
-          startLevel:-1,
-          capLevelToPlayerSize:true,
-          maxBufferLength:6,
-          maxMaxBufferLength:20,
-          liveSyncDurationCount:2,
-          liveMaxLatencyDurationCount:5,
-          manifestLoadingTimeOut:4000,
-          levelLoadingTimeOut:4000,
-          fragLoadingTimeOut:6000,
+          enableWorker:true,
+          lowLatencyMode:false,
+          maxBufferLength:30,
+          maxMaxBufferLength:60,
+          liveSyncDurationCount:3,
+          liveMaxLatencyDurationCount:10,
+          manifestLoadingTimeOut:15000,
+          manifestLoadingMaxRetry:4,
+          levelLoadingTimeOut:15000,
+          levelLoadingMaxRetry:4,
+          fragLoadingTimeOut:30000,
+          fragLoadingMaxRetry:6,
           startFragPrefetch:true,
-          backBufferLength:30,
-          maxLiveSyncPlaybackRate:1.5
+          backBufferLength:30
         });
         hls.loadSource(this.hlsUrl);
         hls.attachMedia(v);
@@ -399,29 +400,6 @@ const LivePage = {
                 console.error('Fatal HLS error:', data);
                 this.markStreamError();
                 break;
-            }
-          }
-        });
-        hls.on(Hls.Events.MANIFEST_PARSED, () => {
-          if (Array.isArray(hls.levels) && hls.levels.length > 0) {
-            this.availableLevels = hls.levels.map((lvl, idx) => ({
-              index: idx,
-              height: lvl.height || 0,
-              label: lvl.height ? `${lvl.height}p` : `Level ${idx + 1}`,
-              bitrate: lvl.bitrate ? `${Math.round(lvl.bitrate / 1000)} kbps` : ''
-            }));
-          } else {
-            this.availableLevels = [];
-          }
-        });
-        hls.on(Hls.Events.LEVEL_SWITCHED, (event, data) => {
-          const currentLvl = hls.levels[data.level];
-          if (currentLvl) {
-            const res = currentLvl.height ? `${currentLvl.height}p` : '';
-            if (this.selectedLevel === -1) {
-              this.activePlayingResolution = res ? `Auto (${res})` : 'Auto';
-            } else {
-              this.activePlayingResolution = res || `Level ${data.level + 1}`;
             }
           }
         });
@@ -480,7 +458,24 @@ const LivePage = {
         this.$root.stopFloatingLive();
       }
     },
-    toggleMute(){ const v=this.$refs.liveVideo; if(!v) return; v.muted=!v.muted; this.muted=v.muted; this.$root.liveFloatMuted=v.muted; if(!v.muted){ this.soundBlocked=false; v.volume=parseFloat(this.volume || 0.85); } },
+    toggleMute(){
+      const v=this.$refs.liveVideo;
+      if(!v) return;
+      v.muted=!v.muted;
+      this.muted=v.muted;
+      this.$root.liveFloatMuted=v.muted;
+      if(!v.muted){
+        this.soundBlocked=false;
+        v.volume=parseFloat(this.volume || 1.0);
+      }
+    },
+    onVolumeChange(){
+      const v=this.$refs.liveVideo;
+      if(!v) return;
+      this.muted = v.muted || v.volume === 0;
+      this.volume = v.volume;
+      if(!this.muted){ this.soundBlocked = false; }
+    },
     setVolume(){ const v=this.$refs.liveVideo; if(!v) return; v.volume=parseFloat(this.volume); this.$root.liveFloatVolume=v.volume; if(v.volume>0){ v.muted=false; this.muted=false; this.soundBlocked=false; this.$root.liveFloatMuted=false; } },
     updateProgress(){ const v=this.$refs.liveVideo; if(!v || !v.duration) return; this.progress=(v.currentTime/v.duration)*100; },
     seekVideo(e){ const v=this.$refs.liveVideo; if(!v || !v.duration) return; const rect=e.currentTarget.getBoundingClientRect(); const pct=(e.clientX-rect.left)/rect.width; v.currentTime=Math.max(0, Math.min(v.duration*pct, v.duration)); },
@@ -625,10 +620,10 @@ const LivePage = {
           </div>
 
           <div v-if="activeStream==='player'" class="stream-player native-player" ref="playerBox">
-            <video ref="liveVideo" class="native-live-video" preload="auto" controls playsinline @loadedmetadata="markStreamReady" @canplay="markStreamReady" @playing="markStreamReady" @error="markStreamError" @play="isPlaying=true" @pause="isPlaying=false"></video>
+            <video ref="liveVideo" class="native-live-video" preload="auto" controls playsinline @loadedmetadata="markStreamReady" @canplay="markStreamReady" @playing="markStreamReady" @error="markStreamError" @play="isPlaying=true" @pause="isPlaying=false" @volumechange="onVolumeChange"></video>
             <button v-if="!isPlaying" type="button" class="native-big-play" @click="togglePlay" aria-label="Play live stream"><i class="fa-solid fa-play"></i></button>
-            <div v-if="soundBlocked" class="sound-unmute-badge" @click="toggleMute" style="position: absolute; top: 15px; right: 15px; background: rgba(0,0,0,0.85); color: #fbbf24; border: 1px solid #fbbf24; padding: 6px 14px; border-radius: 999px; font-size: 0.85rem; font-weight: 700; cursor: pointer; z-index: 20; display: flex; align-items: center; gap: 6px; box-shadow: 0 4px 15px rgba(0,0,0,0.5);">
-              <i class="fa-solid fa-volume-xmark"></i> Tap for Sound
+            <div v-if="isPlaying && (soundBlocked || muted)" class="sound-unmute-badge" @click="toggleMute" style="position: absolute; top: 15px; right: 15px; background: rgba(11,17,32,0.92); color: #fbbf24; border: 1px solid #fbbf24; padding: 7px 16px; border-radius: 999px; font-size: 0.85rem; font-weight: 700; cursor: pointer; z-index: 20; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 18px rgba(0,0,0,0.6);">
+              <i class="fa-solid fa-volume-xmark text-warning"></i> Click for Sound / Unmute
             </div>
           </div>
 
