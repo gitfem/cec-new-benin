@@ -474,21 +474,21 @@ const LivePage = {
         const hls=new Hls({
           enableWorker:true,
           lowLatencyMode:false,
-          maxBufferLength:30,
-          maxMaxBufferLength:60,
-          liveSyncDurationCount:3,
-          liveMaxLatencyDurationCount:10,
+          maxBufferLength:45,
+          maxMaxBufferLength:90,
+          liveSyncDurationCount:4,
+          liveMaxLatencyDurationCount:12,
           maxLiveSyncPlaybackRate:1.1,
-          manifestLoadingTimeOut:15000,
-          manifestLoadingMaxRetry:5,
-          levelLoadingTimeOut:15000,
-          levelLoadingMaxRetry:5,
+          manifestLoadingTimeOut:20000,
+          manifestLoadingMaxRetry:6,
+          levelLoadingTimeOut:20000,
+          levelLoadingMaxRetry:6,
           fragLoadingTimeOut:30000,
           fragLoadingMaxRetry:8,
           startFragPrefetch:true,
           backBufferLength:30,
-          nudgeOffset:0.2,
-          nudgeMaxRetry:5
+          nudgeOffset:0.3,
+          nudgeMaxRetry:8
         });
         hls.loadSource(this.hlsUrl);
         hls.attachMedia(v);
