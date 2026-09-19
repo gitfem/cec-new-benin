@@ -15,7 +15,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
-  <link href="style.css?v=52" rel="stylesheet">
+  <link href="style.css?v=53" rel="stylesheet">
 </head>
 <body>
 <div id="app" :class="{ready: ready, 'menu-open': menuOpen}">
@@ -161,11 +161,11 @@
           <div><b>{{ member.name }}</b><span>{{ member.group }}<template v-if="liveViewers > 0"> / {{ liveViewers }} online</template></span></div>
           <button type="button" @click="logoutLive">Logout</button>
         </div>
-        <div v-if="liveNotice" class="notice-card">
-          <button type="button" @click="dismissLiveNotice"><i class="fa-solid fa-xmark"></i></button>
-          <span class="eyebrow">Live Notice</span>
-          <h3>{{ liveNotice.title || 'Message from Admin' }}</h3>
-          <p>{{ liveNotice.message }}</p>
+        <div v-if="liveNotice" class="notice-card" style="background:#0f172a !important; border:1px solid #334155 !important; border-radius:14px !important; padding:16px !important; margin-bottom:14px !important; position:relative !important;">
+          <button type="button" @click="dismissLiveNotice" style="position:absolute; right:12px; top:12px; width:32px; height:32px; border-radius:50%; background:rgba(255,255,255,0.15); color:#ffffff; border:0; display:grid; place-items:center; cursor:pointer;" aria-label="Dismiss"><i class="fa-solid fa-xmark"></i></button>
+          <span class="eyebrow" style="color:#eab308; font-weight:800; font-size:0.75rem; text-transform:uppercase; letter-spacing:0.08em; display:block; margin-bottom:4px;">Live Alert Notice</span>
+          <h3 style="color:#ffffff !important; font-size:1.15rem !important; font-weight:700 !important; margin:0 34px 8px 0 !important;">{{ liveNotice.title || 'Message from Admin' }}</h3>
+          <p style="color:#e2e8f0 !important; font-size:0.95rem !important; line-height:1.55 !important; margin:0 !important;">{{ liveNotice.message }}</p>
         </div>
         <div class="stream-tabs">
           <button type="button" :class="{active:activeStream==='player'}" @click="switchStream('player')"><i class="fa-solid fa-play"></i> Player</button>
@@ -179,22 +179,24 @@
           <iframe :src="youtubeUrl" title="YouTube Live" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
         </div>
         <a v-if="activeStream==='youtube'" class="primary-btn full" :href="youtubePage" target="_blank" rel="noopener"><i class="fa-brands fa-youtube"></i> Open YouTube</a>
-        <article v-if="announcementHtml" class="announcement-card">
-          <button type="button" @click="announcementOpen=!announcementOpen">Announcement <i :class="announcementOpen ? 'fa-solid fa-chevron-up' : 'fa-solid fa-chevron-down'"></i></button>
-          <div v-show="announcementOpen" v-html="announcementHtml"></div>
+        <article v-if="announcementHtml" class="announcement-card" style="background:#ffffff !important; border:1px solid #e2e8f0 !important; border-radius:14px !important; padding:16px !important; margin-bottom:14px !important;">
+          <button type="button" @click="announcementOpen=!announcementOpen" style="width:100%; border:0; background:transparent; display:flex; justify-content:space-between; align-items:center; padding:0 0 10px; font-weight:800; text-transform:uppercase; letter-spacing:.08em; color:#0f172a; font-size:0.88rem;">Church Announcements <i :class="announcementOpen ? 'fa-solid fa-chevron-up' : 'fa-solid fa-chevron-down'"></i></button>
+          <div v-show="announcementOpen" v-html="announcementHtml" style="color:#0f172a !important;"></div>
         </article>
-        <section class="chat-card">
-          <div class="chat-title"><i class="fa-solid fa-comments"></i> Live Chat</div>
-          <div class="chat-list" ref="chatList">
-            <div v-for="item in chat" :key="item.id || item.name + item.date + item.shout" class="chat-msg">
-              <b>{{ item.name }}</b><small>{{ item.date }}</small><p>{{ item.shout || item.message || item.text || '' }}</p>
+        <section class="chat-card" style="margin-top:14px !important; background:#ffffff !important; border:1px solid #e2e8f0 !important; border-radius:18px !important; padding:16px !important; box-shadow:0 14px 44px rgba(0,0,0,.06) !important;">
+          <div class="chat-title" style="color:#0f172a !important; font-weight:800 !important; font-size:1.05rem !important; margin-bottom:12px !important;"><i class="fa-solid fa-comments text-primary me-2"></i> Live Chat</div>
+          <div class="chat-list" ref="chatList" style="max-height:330px !important; overflow:auto !important; display:grid !important; gap:10px !important; padding:4px !important; background:#f8fafc !important; border-radius:12px !important;">
+            <div v-for="item in chat" :key="item.id || item.name + item.date + (item.shout || item.message || '')" class="chat-msg" style="background:#ffffff !important; border:1px solid #e2e8f0 !important; border-radius:12px !important; padding:12px 14px !important; margin-bottom:8px !important; box-shadow:0 2px 6px rgba(0,0,0,0.04) !important;">
+              <b style="color:#1e3a8a !important; font-size:0.94rem !important; font-weight:700 !important; display:block;">{{ item.name }}</b>
+              <small style="color:#64748b !important; font-weight:600 !important; font-size:0.76rem !important; display:block; margin:2px 0 6px;">{{ item.date }}</small>
+              <p style="color:#0f172a !important; font-size:0.96rem !important; line-height:1.5 !important; font-weight:500 !important; margin:0 !important; word-break:break-word !important;">{{ item.shout || item.message || item.text || '' }}</p>
             </div>
           </div>
-          <form class="chat-form" @submit.prevent="postChat">
-            <input v-model="chatText" maxlength="500" placeholder="Type your message...">
-            <button>Send</button>
+          <form class="chat-form" @submit.prevent="postChat" style="display:grid !important; grid-template-columns:1fr auto !important; gap:8px !important; margin-top:12px !important;">
+            <input v-model="chatText" maxlength="500" placeholder="Type your message..." style="min-height:44px !important; border:1px solid #cbd5e1 !important; border-radius:999px !important; padding:0 16px !important; font-size:0.95rem !important; color:#0f172a !important; background:#ffffff !important;">
+            <button style="border:0 !important; border-radius:999px !important; background:#0d9488 !important; color:#ffffff !important; padding:0 20px !important; font-weight:700 !important; font-size:0.95rem !important; cursor:pointer !important;">Send</button>
           </form>
-          <small v-if="chatError" class="form-alert">{{ chatError }}</small>
+          <small v-if="chatError" class="form-alert" style="color:#ef4444; margin-top:6px; display:block;">{{ chatError }}</small>
         </section>
       </template>
     </section>
@@ -985,6 +987,6 @@
 
 <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/hls.js@1"></script>
-<script src="app.js?v=52"></script>
+<script src="app.js?v=53"></script>
 </body>
 </html>
