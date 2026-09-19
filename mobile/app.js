@@ -606,6 +606,30 @@ createApp({
       video.setAttribute('x-webkit-airplay', 'allow');
       video.preload='auto';
       if(this.isHlsStream && !video.canPlayType('application/vnd.apple.mpegurl') && !video.canPlayType('application/x-mpegURL')){
+        if(window.Hls && Hls.isSupported()){
+          if(video.dataset.hlsReady !== this.liveFeedUrl){
+            if(this.hls){ this.hls.destroy(); this.hls=null; }
+            const hls = new Hls({
+              lowLatencyMode: true,
+              maxBufferLength: 6,
+              maxMaxBufferLength: 20,
+              liveSyncDurationCount: 2,
+              enableWorker: true
+            });
+            hls.loadSource(this.liveFeedUrl);
+            hls.attachMedia(video);
+            hls.on(Hls.Events.ERROR, (event, data) => {
+              if(data && data.fatal){
+                if(data.type === Hls.ErrorTypes.NETWORK_ERROR){ hls.startLoad(); }
+                else if(data.type === Hls.ErrorTypes.MEDIA_ERROR){ hls.recoverMediaError(); }
+                else { this.markStreamError(); }
+              }
+            });
+            this.hls = hls;
+            video.dataset.hlsReady = this.liveFeedUrl;
+          }
+          return Promise.resolve(true);
+        }
         this.liveStatus='unsupported';
         return Promise.resolve(false);
       }

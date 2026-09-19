@@ -383,6 +383,24 @@ const LivePage = {
         });
         hls.loadSource(this.hlsUrl);
         hls.attachMedia(v);
+        hls.on(Hls.Events.ERROR, (event, data) => {
+          if (data && data.fatal) {
+            switch (data.type) {
+              case Hls.ErrorTypes.NETWORK_ERROR:
+                console.warn('HLS Network stall, attempting recovery...', data);
+                hls.startLoad();
+                break;
+              case Hls.ErrorTypes.MEDIA_ERROR:
+                console.warn('HLS Media decode stall, recovering media...', data);
+                hls.recoverMediaError();
+                break;
+              default:
+                console.error('Fatal HLS error:', data);
+                this.markStreamError();
+                break;
+            }
+          }
+        });
         this.hls=hls;
         v.dataset.hlsReady=this.hlsUrl;
       }

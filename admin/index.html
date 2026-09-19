@@ -1116,11 +1116,44 @@
               <h5 class="fw-bold mb-2">Streaming Feeds & Fallbacks</h5>
               <div class="col-md-12">
                 <label class="form-label">HLS Master Stream URL (.m3u8 or live audio URL)</label>
-                <input type="text" v-model="cms.live.hls_url" class="form-control" placeholder="https://domain.com/path/playlist.m3u8">
-                <small class="text-muted">Direct high-performance stream for native in-browser player.</small>
+                <input type="text" v-model="cms.live.hls_url" class="form-control" placeholder="https://zstream.zentrinet.com/api/playback/hls/{ID}/index.m3u8">
+                <small class="text-muted">Direct high-performance stream for native in-browser player (supports zStream HLS, Cloudflare, or direct CDN .m3u8).</small>
               </div>
 
-              <div class="col-md-12">
+              <!-- zStream & vMix / OBS Ingest Guide -->
+              <div class="col-md-12 mt-3">
+                <div class="p-3 rounded" style="background: rgba(230, 167, 25, 0.06); border: 1px solid rgba(230, 167, 25, 0.25);">
+                  <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-2">
+                    <span class="fw-bold text-warning"><i class="fa-solid fa-satellite-dish me-2"></i>zStream & vMix / OBS Direct Ingest Setup</span>
+                    <a href="https://zstream.zentrinet.com" target="_blank" rel="noopener" class="btn btn-sm btn-outline-warning text-nowrap">
+                      <i class="fa-solid fa-arrow-up-right-from-square me-1"></i> Open zStream Dashboard
+                    </a>
+                  </div>
+                  <p class="text-muted small mb-3">
+                    Stream directly from vMix or OBS to the church website without 3rd-party ads, muting, or interruptions:
+                  </p>
+                  <div class="row g-2">
+                    <div class="col-md-6">
+                      <div class="p-2 rounded bg-dark border border-secondary">
+                        <small class="text-muted d-block fw-bold">RTMP SERVER (vMix / OBS "URL" or "Server"):</small>
+                        <code class="text-success small select-all">rtmp://ingest.zentrinet.com/live</code>
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <div class="p-2 rounded bg-dark border border-secondary">
+                        <small class="text-muted d-block fw-bold">HLS PLAYBACK URL (Paste in Master URL above):</small>
+                        <code class="text-info small select-all">https://zstream.zentrinet.com/api/playback/hls/[INPUT_ID]/index.m3u8</code>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="mt-2 pt-2 border-top border-secondary border-opacity-25 small text-muted">
+                    <strong class="text-light"><i class="fa-solid fa-bolt text-warning me-1"></i> Recommended Zero-Lag Encoder Preset:</strong>
+                    Resolution: <b>1080p (or 720p) @ 30fps</b> • Bitrate: <b>2,500 – 3,200 kbps (CBR)</b> • Keyframe Interval: <b class="text-warning">2 seconds (GOP = 60)</b> • Audio: <b>AAC 128 kbps</b>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-md-12 mt-3">
                 <label class="form-label">YouTube Channel ID (Live Fallback Switcher)</label>
                 <input type="text" v-model="cms.live.youtube_channel_id" class="form-control" placeholder="e.g. UCLFScmpsKP4jlJXD8McBGgQ">
                 <small class="text-muted">Allows viewers to switch between native player and YouTube Live stream in 1 click.</small>
