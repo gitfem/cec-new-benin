@@ -787,18 +787,17 @@ const LivePage = {
       <div class="member-layout">
         <div class="member-main">
           <div class="stream-bar-controls">
-            <div class="stream-tabs stream-tabs-links">
-              <a href="#/live/player" :class="{active:activeStream==='player'}" @click.prevent="switchStream('player')"><i class="fa-solid fa-play me-2"></i> Player</a>
-              <a href="#/live/youtube" :class="{active:activeStream==='youtube'}" @click.prevent="switchStream('youtube')"><i class="fa-brands fa-youtube me-2"></i> YouTube</a>
+            <!-- Left: Stream switch tabs (Player / YouTube) -->
+            <div class="stream-tabs-pills">
+              <button type="button" class="btn-stream-tab" :class="{active: activeStream==='player'}" @click="switchStream('player')">
+                <i class="fa-solid fa-play"></i> Player
+              </button>
+              <button type="button" class="btn-stream-tab tab-youtube" :class="{active: activeStream==='youtube'}" @click="switchStream('youtube')">
+                <i class="fa-brands fa-youtube"></i> YouTube
+              </button>
             </div>
 
-          <div class="stream-bar-controls">
-            <div class="stream-tabs stream-tabs-links">
-              <a href="#/live/player" :class="{active:activeStream==='player'}" @click.prevent="switchStream('player')"><i class="fa-solid fa-play me-2"></i> Player</a>
-              <a href="#/live/youtube" :class="{active:activeStream==='youtube'}" @click.prevent="switchStream('youtube')"><i class="fa-brands fa-youtube me-2"></i> YouTube</a>
-            </div>
-
-            <!-- Quality & Adaptive Bitrate Selector in Top Bar -->
+            <!-- Right: Quality & Fullscreen -->
             <div v-if="activeStream==='player'" class="d-flex align-items-center gap-2">
               <div class="quality-selector-wrap">
                 <button type="button" class="btn-quality-toggle" :class="{'active-open': qualityMenuOpen}" @click.stop="toggleQualityMenu" aria-label="Streaming quality selection">
