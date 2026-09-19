@@ -281,18 +281,12 @@ const LivePage = {
       DATA, OLD, announcementOpen:true, activeStream:'player',
       isPlaying:false, muted:false, volume:0.85, progress:0,
       liveStatus:'checking', chat:[], chatText:'', chatError:'',
-      liveNotice:null, liveViewers:0, presenceToken:localStorage.getItem('kh_live_presence_token') || '', dismissedNoticeId:localStorage.getItem('kh_live_notice_dismissed') || '', soundBlocked:false, videoJsPlayer:null,
-      qualityMenuOpen:false, selectedLevel:-1, availableLevels:[], activePlayingResolution:'Auto'
+      liveNotice:null, liveViewers:0, presenceToken:localStorage.getItem('kh_live_presence_token') || '', dismissedNoticeId:localStorage.getItem('kh_live_notice_dismissed') || '', soundBlocked:false, videoJsPlayer:null
     }
   },
   computed:{
     member(){return this.$root.member},
-    currentQualityLabel(){
-      if(this.selectedLevel === -1){
-        return this.activePlayingResolution.startsWith('Auto') ? this.activePlayingResolution : `Auto (${this.activePlayingResolution})`;
-      }
-      return this.availableLevels[this.selectedLevel] ? this.availableLevels[this.selectedLevel].label : 'Auto';
-    },
+
     groupOptions(){
       if (this.cms && this.cms.live && Array.isArray(this.cms.live.service_groups) && this.cms.live.service_groups.length) {
         return this.cms.live.service_groups;
@@ -435,18 +429,7 @@ const LivePage = {
         v.dataset.hlsReady=this.hlsUrl;
       }
     },
-    selectQuality(lvlIdx){
-      this.selectedLevel = lvlIdx;
-      this.qualityMenuOpen = false;
-      if(this.hls){
-        this.hls.currentLevel = lvlIdx;
-        if(lvlIdx === -1){
-          this.activePlayingResolution = 'Auto';
-        } else if(this.availableLevels[lvlIdx]){
-          this.activePlayingResolution = this.availableLevels[lvlIdx].label;
-        }
-      }
-    },
+
     autoplayPlayer(){
       this.activeStream='player';
       this.liveStatus='checking';
@@ -636,36 +619,9 @@ const LivePage = {
       </div>
       <div class="member-layout">
         <div class="member-main">
-          <div class="stream-bar-controls">
-            <div class="stream-tabs stream-tabs-links">
-              <a href="#/live/player" :class="{active:activeStream==='player'}" @click.prevent="switchStream('player')"><i class="fa-solid fa-play me-2"></i> Player</a>
-              <a href="#/live/youtube" :class="{active:activeStream==='youtube'}" @click.prevent="switchStream('youtube')"><i class="fa-brands fa-youtube me-2"></i> YouTube</a>
-            </div>
-
-            <!-- Quality & Adaptive Bitrate Selector -->
-            <div v-if="activeStream==='player'" class="quality-selector-wrap">
-              <button type="button" class="btn-quality-toggle" @click="qualityMenuOpen=!qualityMenuOpen" aria-label="Streaming quality selection">
-                <i class="fa-solid fa-gear text-gold"></i>
-                <span>Quality:</span>
-                <span class="quality-active-badge">{{ currentQualityLabel }}</span>
-                <i :class="qualityMenuOpen ? 'fa-solid fa-chevron-up ms-1' : 'fa-solid fa-chevron-down ms-1'" style="font-size: 0.7rem;"></i>
-              </button>
-              <div v-if="qualityMenuOpen" class="quality-dropdown-menu">
-                <div class="quality-menu-header"><i class="fa-solid fa-sliders text-warning"></i> Quality Selection</div>
-                <button :class="['quality-item', {active: selectedLevel === -1}]" @click="selectQuality(-1)">
-                  <div>
-                    <span class="d-block fw-bold">Auto (Adaptive)</span>
-                    <small class="text-muted">Auto adjusts to network speed</small>
-                  </div>
-                  <i v-if="selectedLevel === -1" class="fa-solid fa-check text-gold ms-2"></i>
-                </button>
-                <button v-for="(lvl, idx) in availableLevels" :key="idx" :class="['quality-item', {active: selectedLevel === idx}]" @click="selectQuality(idx)">
-                  <span>{{ lvl.label }}</span>
-                  <small v-if="lvl.bitrate" class="text-muted ms-2">{{ lvl.bitrate }}</small>
-                  <i v-if="selectedLevel === idx" class="fa-solid fa-check text-gold ms-auto"></i>
-                </button>
-              </div>
-            </div>
+          <div class="stream-tabs stream-tabs-links">
+            <a href="#/live/player" :class="{active:activeStream==='player'}" @click.prevent="switchStream('player')"><i class="fa-solid fa-play me-2"></i> Player</a>
+            <a href="#/live/youtube" :class="{active:activeStream==='youtube'}" @click.prevent="switchStream('youtube')"><i class="fa-brands fa-youtube me-2"></i> YouTube</a>
           </div>
 
           <div v-if="activeStream==='player'" class="stream-player native-player" ref="playerBox">
