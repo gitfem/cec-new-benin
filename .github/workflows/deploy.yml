@@ -1,0 +1,16 @@
+name: Deploy to Production
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    name: Trigger Live Server Deploy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Webhook on Server
+        run: |
+          curl -s -f -X POST "https://christembassynewbenin.org/deploy.php?secret=cec_benin_deploy_2026"
