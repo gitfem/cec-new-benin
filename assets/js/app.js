@@ -1618,7 +1618,251 @@ const MinistryDetailPage = {
 };
 const GroupsPage = ContentListPage({slug:'groups', key:'groups', eyebrow:'Groups', title:'Join a Group', single:'Group', detail:true, dark:false});
 const GroupDetailPage = ContentDetailPage({slug:'groups', key:'groups', eyebrow:'Groups', title:'Join a Group', single:'Group'});
-const LocationsPage = ContentListPage({slug:'locations', key:'locations', eyebrow:'Locations', title:'Locations', single:'Location', detail:false, dark:false});
+const LocationsPage = {
+  inject: ['cms'],
+  data() {
+    return {
+      searchQuery: '',
+      activeCategory: 'all'
+    };
+  },
+  computed: {
+    pageCms() {
+      return (this.cms && this.cms.pages && this.cms.pages.locations) ? this.cms.pages.locations : {};
+    },
+    heroImage() {
+      return this.pageCms.hero || 'assets/uploaded_media/plan_visit_hero_banner.jpg';
+    },
+    allLocations() {
+      const pageItems = Array.isArray(this.pageCms.items) && this.pageCms.items.length ? this.pageCms.items : [];
+      const homeItems = (this.cms && this.cms.home && Array.isArray(this.cms.home.locations)) ? this.cms.home.locations : [];
+      const raw = pageItems.length ? pageItems : homeItems;
+      return raw.map((loc, idx) => ({
+        id: loc.id || String(idx + 1),
+        category: loc.category || (loc.is_central ? 'central' : 'satellite'),
+        area: loc.area || 'Benin City',
+        title: loc.title || 'Christ Embassy Church Center',
+        subtitle: loc.subtitle || '',
+        address: loc.address || loc.subtitle || 'Benin City, Edo State',
+        landmark: loc.landmark || '',
+        pastor: loc.pastor || 'Pastor Joseph Atibi-Brown',
+        pastor_role: loc.pastor_role || (loc.is_central ? 'Zonal Pastor' : 'Centre Minister'),
+        services: Array.isArray(loc.services) && loc.services.length ? loc.services : [
+          { day: 'Sunday Service', time: '8:00 AM & 10:00 AM', name: 'Worship Service' },
+          { day: 'Wednesday Midweek', time: '6:00 PM', name: 'Midweek Teaching' }
+        ],
+        phone: loc.phone || (this.cms && this.cms.site && this.cms.site.phone ? this.cms.site.phone : '+234 818 000 0000'),
+        email: loc.email || (this.cms && this.cms.site && this.cms.site.email ? this.cms.site.email : 'info@christembassynewbenin.org'),
+        maps_url: loc.maps_url || ('https://maps.google.com/?q=' + encodeURIComponent(loc.address || loc.title)),
+        image_url: loc.image_url || 'assets/uploaded_media/WhatsApp_Image_2026-09-17_at_4.27.50_PM.jpeg',
+        is_central: Boolean(loc.is_central || loc.category === 'central')
+      }));
+    },
+    flagship() {
+      return this.allLocations.find(l => l.is_central) || null;
+    },
+    filteredLocations() {
+      const q = this.searchQuery.trim().toLowerCase();
+      return this.allLocations.filter(loc => {
+        const matchesCategory = (this.activeCategory === 'all') ||
+          (this.activeCategory === 'central' && loc.is_central) ||
+          (this.activeCategory === 'satellite' && !loc.is_central);
+        const matchesQuery = !q ||
+          loc.title.toLowerCase().includes(q) ||
+          loc.area.toLowerCase().includes(q) ||
+          loc.address.toLowerCase().includes(q) ||
+          (loc.landmark && loc.landmark.toLowerCase().includes(q)) ||
+          (loc.pastor && loc.pastor.toLowerCase().includes(q));
+        return matchesCategory && matchesQuery;
+      });
+    },
+    categories() {
+      const total = this.allLocations.length;
+      const centrals = this.allLocations.filter(l => l.is_central).length;
+      const satellites = this.allLocations.filter(l => !l.is_central).length;
+      if (centrals > 0) {
+        return [
+          { key: 'all', label: `All Sanctuaries (${total})`, icon: 'fa-solid fa-church' },
+          { key: 'central', label: 'Central Church (HQ)', icon: 'fa-solid fa-star' },
+          { key: 'satellite', label: `Satellite Centers (${satellites})`, icon: 'fa-solid fa-location-crosshairs' }
+        ];
+      }
+      return [
+        { key: 'all', label: `All Sanctuaries (${total})`, icon: 'fa-solid fa-church' }
+      ];
+    }
+  },
+  template: `
+  <div class="locations-page">
+    <!-- Sub-Hero Section -->
+    <section class="locations-hero sub-hero" :style="{backgroundImage: 'url(' + heroImage + ')'}">
+      <div class="container-wide">
+        <div class="locations-hero-content">
+          <span class="eyebrow-badge"><i class="fa-solid fa-location-dot me-2"></i>{{ pageCms.eyebrow || 'LoveWorld Nation • Sanctuaries & Centers' }}</span>
+          <h1 class="locations-hero-title">{{ pageCms.title || 'Our Church Locations' }}</h1>
+          <p class="locations-hero-sub">{{ pageCms.subtitle || 'Experience the tangible presence of God, life-transforming teachings, and a warm royal family near you.' }}</p>
+
+          <!-- Interactive Search & Filter Bar -->
+          <div class="location-controls-bar">
+            <div class="location-search-wrap">
+              <i class="fa-solid fa-magnifying-glass search-icon"></i>
+              <input type="text" v-model="searchQuery" placeholder="Search by area, street, or landmark (e.g. Lagos Street, Upper Mission 2, GRA)..." class="location-search-input" />
+              <button v-if="searchQuery" @click="searchQuery=''" class="search-clear-btn" aria-label="Clear search"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div v-if="categories.length > 1" class="location-filters-row">
+              <button v-for="cat in categories" :key="cat.key" :class="['filter-pill', {active: activeCategory === cat.key}]" @click="activeCategory = cat.key">
+                <i :class="cat.icon"></i>
+                <span>{{ cat.label }}</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Main Locations Directory -->
+    <section class="locations-directory-section section">
+      <div class="container-wide">
+
+        <!-- Flagship Central Church Showcase -->
+        <div v-if="flagship && (activeCategory === 'all' || activeCategory === 'central') && !searchQuery" class="flagship-location-card">
+          <div class="flagship-badge"><i class="fa-solid fa-award me-2"></i> Central Church & Zonal Headquarters</div>
+          <div class="row g-0 align-items-stretch">
+            <div class="col-lg-6 flagship-image-col">
+              <div class="flagship-image-wrap">
+                <img :src="flagship.image_url" :alt="flagship.title" class="flagship-image" loading="lazy" decoding="async" />
+                <div class="flagship-image-overlay">
+                  <div class="pastor-pill">
+                    <i class="fa-solid fa-user-tie text-gold me-2"></i>
+                    <span>{{ flagship.pastor }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-lg-6 flagship-info-col">
+              <div class="flagship-body">
+                <span class="location-area-tag"><i class="fa-solid fa-map-pin me-1"></i> {{ flagship.area }}</span>
+                <h2 class="flagship-title">{{ flagship.title }}</h2>
+                <p class="flagship-address"><i class="fa-solid fa-location-dot me-2 text-teal"></i>{{ flagship.address }}</p>
+                <p v-if="flagship.landmark" class="flagship-landmark"><i class="fa-solid fa-compass me-2 text-gold"></i><strong>Landmark:</strong> {{ flagship.landmark }}</p>
+
+                <div class="flagship-services">
+                  <h6 class="service-schedule-header"><i class="fa-regular fa-clock me-2"></i> Weekly Service Times</h6>
+                  <div class="services-chips-grid">
+                    <div v-for="(svc, sidx) in flagship.services" :key="sidx" class="service-chip">
+                      <span class="chip-day">{{ svc.day }}</span>
+                      <strong class="chip-time">{{ svc.time }}</strong>
+                      <small class="chip-name">{{ svc.name }}</small>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="flagship-actions">
+                  <a href="#/visit" class="btn-flagship-primary"><i class="fa-solid fa-calendar-check me-2"></i> Plan a Visit</a>
+                  <a :href="flagship.maps_url" target="_blank" rel="noopener" class="btn-flagship-secondary"><i class="fa-solid fa-diamond-turn-right me-2"></i> Get Directions</a>
+                  <a href="#/live" class="btn-flagship-live"><i class="fa-solid fa-tower-broadcast me-2"></i> Watch Live</a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section Heading for Satellites / All -->
+        <div class="locations-grid-header">
+          <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+            <div>
+              <h3 class="locations-subheading">
+                <span v-if="activeCategory === 'central'">Central Church Location</span>
+                <span v-else-if="activeCategory === 'satellite'">Satellite Fellowship Centers</span>
+                <span v-else>All Church Locations & Fellowships</span>
+              </h3>
+              <p class="text-muted small m-0">Showing {{ filteredLocations.length }} sanctuary location{{ filteredLocations.length === 1 ? '' : 's' }}</p>
+            </div>
+            <div v-if="searchQuery" class="active-query-pill">
+              <span>Results for "{{ searchQuery }}"</span>
+              <button @click="searchQuery=''" class="btn-clear-query"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Locations Grid -->
+        <div v-if="filteredLocations.length" class="locations-grid">
+          <div v-for="loc in filteredLocations" :key="loc.id" :class="['location-card', { 'is-central-card': loc.is_central }]">
+            <div class="location-card-image-wrap">
+              <img :src="loc.image_url" :alt="loc.title" class="location-card-image" loading="lazy" decoding="async" />
+              <div class="location-card-badges">
+                <span class="area-badge">{{ loc.area }}</span>
+                <span v-if="loc.is_central" class="hq-badge"><i class="fa-solid fa-star"></i> HQ</span>
+              </div>
+            </div>
+
+            <div class="location-card-body">
+              <h4 class="location-card-title">{{ loc.title }}</h4>
+              <p class="location-card-address"><i class="fa-solid fa-location-dot text-teal me-2"></i>{{ loc.address }}</p>
+              <p v-if="loc.landmark" class="location-card-landmark"><i class="fa-solid fa-compass text-gold me-2"></i>{{ loc.landmark }}</p>
+
+              <!-- Services List -->
+              <div class="location-card-services">
+                <div v-for="(svc, sidx) in loc.services" :key="sidx" class="service-row">
+                  <span class="service-label">{{ svc.day }}:</span>
+                  <span class="service-time">{{ svc.time }}</span>
+                </div>
+              </div>
+
+              <!-- Minister in Charge -->
+              <div class="location-card-pastor" v-if="loc.pastor">
+                <i class="fa-solid fa-user-check text-gold me-2"></i>
+                <div>
+                  <strong class="pastor-name">{{ loc.pastor }}</strong>
+                  <span class="pastor-role">{{ loc.pastor_role }}</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Card Actions Footer -->
+            <div class="location-card-footer">
+              <a :href="loc.maps_url" target="_blank" rel="noopener" class="btn-card-dir" title="Open in Google Maps">
+                <i class="fa-solid fa-diamond-turn-right me-1"></i> Directions
+              </a>
+              <a :href="'tel:' + loc.phone" class="btn-card-call" title="Call Church">
+                <i class="fa-solid fa-phone me-1"></i> Call
+              </a>
+              <a href="#/visit" class="btn-card-visit" title="Plan a Visit">
+                Plan Visit
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Empty State -->
+        <div v-else class="locations-empty-state">
+          <div class="empty-icon"><i class="fa-solid fa-map-location-dot"></i></div>
+          <h4>No Locations Found</h4>
+          <p class="text-muted">No church centers matched your search query "{{ searchQuery }}".</p>
+          <button @click="searchQuery=''; activeCategory='all'" class="btn-brand btn-sm mt-2">View All Locations</button>
+        </div>
+
+        <!-- Cell Fellowship Support Callout Banner -->
+        <div class="cell-support-banner mt-5">
+          <div class="row align-items-center g-4">
+            <div class="col-lg-8">
+              <span class="badge-cell-group"><i class="fa-solid fa-people-roof me-2"></i> Home Cell Fellowship Network</span>
+              <h3 class="cell-banner-title">Can\'t find a center on your street?</h3>
+              <p class="cell-banner-text">We have hundreds of vibrant Cell Fellowship assemblies meeting in homes and communities across Benin City every week. Join a family near your residence for spiritual growth and fellowship.</p>
+            </div>
+            <div class="col-lg-4 text-lg-end">
+              <div class="d-flex flex-column flex-sm-row gap-2 justify-content-lg-end">
+                <a href="#/groups" class="btn-brand"><i class="fa-solid fa-users me-2"></i> Join a Cell Group</a>
+                <a href="#/visit" class="btn-outline-brand"><i class="fa-solid fa-envelope me-2"></i> Contact Office</a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+  </div>`
+};
 const EventsPage = {
   inject:['cms'],
   data(){return {visible:8, searchQuery:'', activeCategory:'all'}},
