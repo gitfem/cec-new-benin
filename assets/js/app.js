@@ -358,7 +358,7 @@ const LivePage = {
       ];
     },
     siteName(){ return (this.cms && this.cms.site && this.cms.site.name) ? this.cms.site.name : ''; },
-    helpLine(){ return (this.cms && this.cms.site && this.cms.site.help) ? this.cms.site.help : ''; },
+    helpLine(){ return (this.cms && this.cms.site && this.cms.site.help && this.cms.site.help !== '[— To Be Supplied]') ? this.cms.site.help : ((this.cms && this.cms.site && this.cms.site.phone) ? this.cms.site.phone : '08024700454'); },
     liveSettings(){ return (this.cms && this.cms.live) ? this.cms.live : {}; },
     hlsUrl(){ return this.liveSettings.hls_url || OLD.hls; },
     youtubeChannelId(){
@@ -1997,8 +1997,8 @@ const LocationsPage = {
           { day: 'Sunday Service', time: '8:00 AM & 10:00 AM', name: 'Worship Service' },
           { day: 'Wednesday Midweek', time: '6:00 PM', name: 'Midweek Teaching' }
         ],
-        phone: loc.phone || (this.cms && this.cms.site && this.cms.site.phone ? this.cms.site.phone : '+234 818 000 0000'),
-        email: loc.email || (this.cms && this.cms.site && this.cms.site.email ? this.cms.site.email : 'info@christembassynewbenin.org'),
+        phone: loc.phone || (this.cms && this.cms.site && this.cms.site.phone ? this.cms.site.phone : '08024700454'),
+        email: loc.email || (this.cms && this.cms.site && this.cms.site.email ? this.cms.site.email : 'Christembassynewbenin@gmail.com'),
         maps_url: loc.maps_url || ('https://maps.google.com/?q=' + encodeURIComponent(loc.address || loc.title)),
         image_url: loc.image_url || 'assets/uploaded_media/WhatsApp_Image_2026-09-17_at_4.27.50_PM.jpeg',
         is_central: Boolean(loc.is_central || loc.category === 'central')
@@ -3277,7 +3277,7 @@ const VisitPage = {
                     {{copiedKey === 'loc_addr' ? 'Copied' : 'Copy'}}
                   </button>
                 </div>
-                <span>{{site.address || 'Christ Embassy New Benin, Benin City, Edo State, Nigeria'}}</span>
+                <span>{{site.address || '23 Ivbiye Street, off New Lagos Road, New Benin, Benin City'}}</span>
               </div>
 
               <div v-if="site.office_hours" class="visit-loc-item mb-3">
@@ -3287,12 +3287,13 @@ const VisitPage = {
 
               <div v-if="site.phone || site.email" class="visit-loc-item mb-3">
                 <b><i class="fa-solid fa-phone text-warning me-1"></i> Direct Helplines & Enquiries</b>
-                <div v-if="site.phone"><a :href="'tel:' + site.phone" class="text-decoration-none text-light">{{site.phone}}</a></div>
-                <div v-if="site.email"><a :href="'mailto:' + site.email" class="text-decoration-none text-muted small">{{site.email}}</a></div>
+                <div v-if="site.phone"><a :href="'tel:' + site.phone" class="text-decoration-none text-light"><i class="fa-solid fa-phone text-warning me-1"></i> {{site.phone}}</a></div>
+                <div v-if="site.email"><a :href="'mailto:' + site.email" class="text-decoration-none text-light small d-block mt-1"><i class="fa-solid fa-envelope text-warning me-1"></i> {{site.email}}</a></div>
+                <div v-if="site.email_alt"><a :href="'mailto:' + site.email_alt" class="text-decoration-none text-light small d-block mt-1"><i class="fa-solid fa-envelope text-warning me-1"></i> {{site.email_alt}}</a></div>
               </div>
 
               <div class="d-flex flex-column gap-2 mt-4">
-                <a :href="'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(site.address || 'Christ Embassy New Benin, Benin City')" target="_blank" rel="noopener" class="btn-brand text-center py-2">
+                <a :href="'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(site.address || '23 Ivbiye Street, off New Lagos Road, New Benin, Benin City')" target="_blank" rel="noopener" class="btn-brand text-center py-2">
                   <i class="fa-solid fa-diamond-turn-right me-1"></i> Get Driving Directions
                 </a>
                 <a href="#/live" class="btn-outline-gold text-center py-2">

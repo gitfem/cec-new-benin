@@ -64,10 +64,12 @@
     <div class="mobile-drawer-routes">
       <a v-for="item in mobileNav" :href="item.href" @click="mobileMenu=false">{{ item.label }}</a>
     </div>
-    <div class="mobile-drawer-contact" v-if="socialLinks.length || cms.site.phone || cms.site.email">
-      <div class="mobile-drawer-meta" v-if="cms.site.phone || cms.site.email">
-        <span v-if="cms.site.phone">{{ cms.site.phone }}</span>
-        <span v-if="cms.site.email">{{ cms.site.email }}</span>
+    <div class="mobile-drawer-contact" v-if="socialLinks.length || cms.site.phone || cms.site.email || cms.site.address">
+      <div class="mobile-drawer-meta" v-if="cms.site.phone || cms.site.email || cms.site.address">
+        <span v-if="cms.site.address"><i class="fa-solid fa-location-dot text-warning me-1"></i> {{ cms.site.address }}</span>
+        <span v-if="cms.site.phone"><i class="fa-solid fa-phone text-warning me-1"></i> <a :href="'tel:' + cms.site.phone" class="text-light text-decoration-none">{{ cms.site.phone }}</a></span>
+        <span v-if="cms.site.email"><i class="fa-solid fa-envelope text-warning me-1"></i> <a :href="'mailto:' + cms.site.email" class="text-light text-decoration-none">{{ cms.site.email }}</a></span>
+        <span v-if="cms.site.email_alt"><i class="fa-solid fa-envelope text-warning me-1"></i> <a :href="'mailto:' + cms.site.email_alt" class="text-light text-decoration-none">{{ cms.site.email_alt }}</a></span>
       </div>
       <div class="mobile-drawer-socials" v-if="socialLinks.length">
         <a v-for="social in socialLinks" :href="social.url" target="_blank" rel="noopener" :aria-label="social.label" :title="social.label" :class="'social-link social-' + social.key">
@@ -160,8 +162,14 @@
           <a v-for="item in footerNextNav" :href="item.href">{{ item.label }}</a>
         </div>
         <div class="col-lg-3">
-          <h6>Contact</h6>
-          <p><span v-if="cms.site.phone">{{ cms.site.phone }}<br></span><span v-if="cms.site.email">{{ cms.site.email }}<br></span><span v-if="cms.site.address">{{ cms.site.address }}<br></span><span v-if="cms.site.office_hours">{{ cms.site.office_hours }}</span></p>
+          <h6>Contact & Sanctuary</h6>
+          <p>
+            <span v-if="cms.site.address" class="d-block mb-2"><i class="fa-solid fa-location-dot text-warning me-1"></i> {{ cms.site.address }}</span>
+            <span v-if="cms.site.phone" class="d-block mb-1"><i class="fa-solid fa-phone text-warning me-1"></i> <a :href="'tel:' + cms.site.phone" class="text-light text-decoration-none">{{ cms.site.phone }}</a></span>
+            <span v-if="cms.site.email" class="d-block mb-1"><i class="fa-solid fa-envelope text-warning me-1"></i> <a :href="'mailto:' + cms.site.email" class="text-light text-decoration-none">{{ cms.site.email }}</a></span>
+            <span v-if="cms.site.email_alt" class="d-block mb-1"><i class="fa-solid fa-envelope text-warning me-1"></i> <a :href="'mailto:' + cms.site.email_alt" class="text-light text-decoration-none">{{ cms.site.email_alt }}</a></span>
+            <span v-if="cms.site.office_hours" class="d-block mt-2 text-muted small"><i class="fa-regular fa-clock text-warning me-1"></i> {{ cms.site.office_hours }}</span>
+          </p>
           <div class="footer-social-compact" v-if="socialLinks.length">
             <div class="social-compact-row">
               <a v-for="social in socialLinks" :href="social.url" target="_blank" rel="noopener" :aria-label="social.label" :title="social.feedLabel || social.label" :class="'social-icon-btn social-' + social.key">
@@ -184,6 +192,6 @@
 <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/hls.js@1"></script>
-<script src="assets/js/app.js?v=44"></script>
+<script src="assets/js/app.js?v=45"></script>
 </body>
 </html>

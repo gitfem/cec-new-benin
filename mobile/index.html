@@ -761,10 +761,14 @@
         <h3 style="display:flex; align-items:center; gap:8px;"><i class="fa-solid fa-church text-warning"></i> Sanctuary & Office</h3>
         <p v-if="cms.site.address"><b>Address</b><br>{{ cms.site.address }}</p>
         <p v-if="cms.site.office_hours"><b>Office / Service Hours</b><br>{{ cms.site.office_hours }}</p>
-        <p v-if="cms.site.phone || cms.site.email"><b>Contact</b><br><span v-if="cms.site.phone">{{ cms.site.phone }}<br></span><span v-if="cms.site.email">{{ cms.site.email }}</span></p>
+        <p v-if="cms.site.phone || cms.site.email || cms.site.email_alt"><b>Contact & Enquiries</b><br>
+          <span v-if="cms.site.phone"><i class="fa-solid fa-phone text-warning me-1"></i> <a :href="'tel:' + cms.site.phone" style="color:#0f172a; text-decoration:none; font-weight:600;">{{ cms.site.phone }}</a><br></span>
+          <span v-if="cms.site.email"><i class="fa-solid fa-envelope text-warning me-1"></i> <a :href="'mailto:' + cms.site.email" style="color:#2563eb; text-decoration:none;">{{ cms.site.email }}</a><br></span>
+          <span v-if="cms.site.email_alt"><i class="fa-solid fa-envelope text-warning me-1"></i> <a :href="'mailto:' + cms.site.email_alt" style="color:#2563eb; text-decoration:none;">{{ cms.site.email_alt }}</a></span>
+        </p>
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:12px;">
           <a href="#/live" class="primary-btn" style="text-align:center; font-size:0.85rem;"><i class="fa-solid fa-video me-1"></i> Live Stream</a>
-          <a :href="'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(cms.site.address || 'Christ Embassy New Benin, Benin City')" target="_blank" rel="noopener" class="ghost-btn" style="text-align:center; font-size:0.85rem;"><i class="fa-solid fa-diamond-turn-right me-1"></i> Directions</a>
+          <a :href="'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(cms.site.address || '23 Ivbiye Street, off New Lagos Road, New Benin, Benin City')" target="_blank" rel="noopener" class="ghost-btn" style="text-align:center; font-size:0.85rem;"><i class="fa-solid fa-diamond-turn-right me-1"></i> Directions</a>
         </div>
       </article>
     </section>
@@ -942,7 +946,12 @@
       </div>
       <div class="contact-card">
         <h3>Contact</h3>
-        <p><span v-if="cms.site.phone">{{ cms.site.phone }}<br></span><span v-if="cms.site.email">{{ cms.site.email }}<br></span><span v-if="cms.site.address">{{ cms.site.address }}</span></p>
+        <p>
+          <span v-if="cms.site.address"><i class="fa-solid fa-location-dot text-warning me-1"></i> {{ cms.site.address }}<br></span>
+          <span v-if="cms.site.phone"><i class="fa-solid fa-phone text-warning me-1"></i> <a :href="'tel:' + cms.site.phone" style="color:#0f172a; text-decoration:none;">{{ cms.site.phone }}</a><br></span>
+          <span v-if="cms.site.email"><i class="fa-solid fa-envelope text-warning me-1"></i> <a :href="'mailto:' + cms.site.email" style="color:#2563eb; text-decoration:none;">{{ cms.site.email }}</a><br></span>
+          <span v-if="cms.site.email_alt"><i class="fa-solid fa-envelope text-warning me-1"></i> <a :href="'mailto:' + cms.site.email_alt" style="color:#2563eb; text-decoration:none;">{{ cms.site.email_alt }}</a></span>
+        </p>
         <div class="socials" v-if="socialLinks.length">
           <a v-for="social in socialLinks" :href="social.url" target="_blank" rel="noopener" :aria-label="social.label" :class="'social-btn-' + social.key" :title="social.feedLabel || social.label">
             <i v-if="social.icon" :class="social.icon"></i>
@@ -976,6 +985,6 @@
 
 <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/hls.js@1"></script>
-<script src="app.js?v=48"></script>
+<script src="app.js?v=49"></script>
 </body>
 </html>

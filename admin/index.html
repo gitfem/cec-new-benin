@@ -3162,23 +3162,31 @@
             <div class="row g-3">
               <div class="col-md-6">
                 <label class="form-label">Phone Line</label>
-                <input type="text" v-model="cms.site.phone" class="form-control" placeholder="+234 ...">
+                <input type="text" v-model="cms.site.phone" class="form-control" placeholder="08024700454">
               </div>
               <div class="col-md-6">
                 <label class="form-label">Support Helpline</label>
-                <input type="text" v-model="cms.site.support_phone" class="form-control" placeholder="+234 ...">
+                <input type="text" v-model="cms.site.support_phone" class="form-control" placeholder="08024700454">
               </div>
               <div class="col-md-6">
-                <label class="form-label">Email Address</label>
-                <input type="email" v-model="cms.site.email" class="form-control" placeholder="info@...">
+                <label class="form-label">Primary Email Address</label>
+                <input type="email" v-model="cms.site.email" class="form-control" placeholder="Christembassynewbenin@gmail.com">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Secondary / Official Email</label>
+                <input type="email" v-model="cms.site.email_alt" class="form-control" placeholder="info@Christembassynewbenin.com">
               </div>
               <div class="col-md-6">
                 <label class="form-label">Office & Service Hours</label>
                 <input type="text" v-model="cms.site.office_hours" class="form-control">
               </div>
+              <div class="col-md-6">
+                <label class="form-label">Live Streaming Helpline</label>
+                <input type="text" v-model="cms.site.help" class="form-control" placeholder="08024700454">
+              </div>
               <div class="col-md-12">
                 <label class="form-label">Physical Street Address</label>
-                <input type="text" v-model="cms.site.address" class="form-control">
+                <input type="text" v-model="cms.site.address" class="form-control" placeholder="23 Ivbiye Street, off New Lagos Road, New Benin, Benin City">
               </div>
             </div>
           </div>
@@ -4472,7 +4480,7 @@ createApp({
         id: String(Date.now()),
         title: 'New Sanctuary Location',
         eyebrow: 'Sanctuary',
-        subtitle: '13, Eghosa Street, Off Stadium Road, Benin City, Edo State',
+        subtitle: '23 Ivbiye Street, off New Lagos Road, New Benin, Benin City',
         body: 'Service times: Sunday 7:30 AM & 9:30 AM | Wednesday 6:00 PM',
         image_url: 'assets/uploaded_media/about_hero_banner.jpg'
       });
