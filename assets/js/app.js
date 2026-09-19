@@ -282,67 +282,16 @@ const LivePage = {
       isPlaying:false, muted:false, volume:0.85, progress:0,
       liveStatus:'checking', chat:[], chatText:'', chatError:'',
       liveNotice:null, liveViewers:0, presenceToken:localStorage.getItem('kh_live_presence_token') || '', dismissedNoticeId:localStorage.getItem('kh_live_notice_dismissed') || '', soundBlocked:false, videoJsPlayer:null,
-      qualityMenuOpen:false, selectedLevel:-1, availableLevels:[], activePlayingResolution:'Auto',
-      isFullscreen:false, overlayControlsVisible:false
+      qualityMenuOpen:false, selectedLevel:-1, availableLevels:[], activePlayingResolution:'Auto'
     }
   },
   computed:{
     member(){return this.$root.member},
-    formattedLevels(){
-      const v = this.$refs.liveVideo;
-      const currentH = (v && v.videoHeight) ? v.videoHeight : 720;
-      if (Array.isArray(this.availableLevels) && this.availableLevels.length > 0) {
-        return this.availableLevels.map((lvl, idx) => {
-          const h = lvl.height || currentH;
-          let title = `${h}p HD`;
-          let badge = '';
-          let subtitle = 'Studio broadcast quality';
-
-          if (h >= 1080) {
-            title = '1080p Full HD';
-            badge = 'Full HD';
-            subtitle = 'Crisp studio master stream • Best for high-speed Wi-Fi or Fibre';
-          } else if (h >= 720) {
-            title = '720p HD';
-            badge = this.availableLevels.length === 1 ? 'Studio Source' : 'HD';
-            subtitle = this.availableLevels.length === 1 ? 'Direct high-definition feed from church sanctuary' : 'High definition video with clear sanctuary audio';
-          } else if (h >= 480) {
-            title = '480p Standard';
-            badge = 'SD';
-            subtitle = 'Standard quality • Smooth playback with moderate data usage';
-          } else {
-            title = `${h}p Data Saver`;
-            badge = 'Low Data';
-            subtitle = 'Conserves mobile data • Best for slow or fluctuating connections';
-          }
-
-          return {
-            id: 'lvl-' + idx,
-            levelIndex: idx,
-            height: h,
-            title,
-            badge,
-            subtitle,
-            bitrate: lvl.bitrate || ''
-          };
-        });
-      }
-      return [{
-        id: 'lvl-0',
-        levelIndex: 0,
-        height: currentH,
-        title: `${currentH}p HD (Source)`,
-        badge: 'Studio Source',
-        subtitle: 'Direct high-definition feed from church sanctuary',
-        bitrate: ''
-      }];
-    },
     currentQualityLabel(){
-      if (this.selectedLevel === -1) {
-        return this.activePlayingResolution && this.activePlayingResolution !== 'Auto' ? `Auto (${this.activePlayingResolution})` : 'Auto';
+      if(this.selectedLevel === -1){
+        return this.activePlayingResolution.startsWith('Auto') ? this.activePlayingResolution : `Auto (${this.activePlayingResolution})`;
       }
-      const lvl = this.formattedLevels.find(l => l.levelIndex === this.selectedLevel);
-      return lvl ? lvl.title.split(' ')[0] : 'Auto';
+      return this.availableLevels[this.selectedLevel] ? this.availableLevels[this.selectedLevel].label : 'Auto';
     },
     groupOptions(){
       if (this.cms && this.cms.live && Array.isArray(this.cms.live.service_groups) && this.cms.live.service_groups.length) {
@@ -358,7 +307,7 @@ const LivePage = {
       ];
     },
     siteName(){ return (this.cms && this.cms.site && this.cms.site.name) ? this.cms.site.name : ''; },
-    helpLine(){ return (this.cms && this.cms.site && this.cms.site.help && this.cms.site.help !== '[— To Be Supplied]') ? this.cms.site.help : ((this.cms && this.cms.site && this.cms.site.phone) ? this.cms.site.phone : '08024700454'); },
+    helpLine(){ return (this.cms && this.cms.site && this.cms.site.help) ? this.cms.site.help : ''; },
     liveSettings(){ return (this.cms && this.cms.live) ? this.cms.live : {}; },
     hlsUrl(){ return this.liveSettings.hls_url || OLD.hls; },
     youtubeChannelId(){
@@ -376,63 +325,8 @@ const LivePage = {
       return item ? item.announcement : '';
     }
   },
-  mounted(){
-    this.loadStatus();
-    this.loadChat();
-    this.loadLiveNotice();
-    this.chatTimer=setInterval(this.loadChat, 5000);
-    this.statusTimer=setInterval(this.loadStatus, 30000);
-    this.noticeTimer=setInterval(this.loadLiveNotice, 8000);
-    this.presenceTimer=setInterval(()=>this.sendPresence(false), 15000);
-    this.sendPresence(false);
-
-    this._fsHandler = () => {
-      const fsEl = document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement;
-      this.isFullscreen = !!(fsEl && (fsEl === this.$refs.playerBox || fsEl === this.$refs.liveVideo));
-      if (this.isFullscreen) {
-        this.onPlayerInteraction();
-      }
-    };
-    document.addEventListener('fullscreenchange', this._fsHandler);
-    document.addEventListener('webkitfullscreenchange', this._fsHandler);
-    document.addEventListener('mozfullscreenchange', this._fsHandler);
-    document.addEventListener('MSFullscreenChange', this._fsHandler);
-
-    this._clickOutsideHandler = (e) => {
-      if (!e.target.closest('.quality-selector-wrap')) {
-        this.qualityMenuOpen = false;
-      }
-    };
-    document.addEventListener('click', this._clickOutsideHandler);
-
-    this._keyHandler = (e) => {
-      if (e.target && ['INPUT', 'TEXTAREA', 'SELECT'].includes(e.target.tagName)) return;
-      if (e.key === 'f' || e.key === 'F') {
-        if (this.activeStream === 'player') this.toggleFullscreen();
-      } else if (e.key === 'Escape') {
-        this.qualityMenuOpen = false;
-      }
-    };
-    window.addEventListener('keydown', this._keyHandler);
-
-    if(this.member){ this.$nextTick(()=>this.autoplayPlayer()); }
-  },
-  unmounted(){
-    clearInterval(this.chatTimer);
-    clearInterval(this.statusTimer);
-    clearInterval(this.noticeTimer);
-    clearInterval(this.presenceTimer);
-    if (this._overlayTimer) clearTimeout(this._overlayTimer);
-    document.removeEventListener('fullscreenchange', this._fsHandler);
-    document.removeEventListener('webkitfullscreenchange', this._fsHandler);
-    document.removeEventListener('mozfullscreenchange', this._fsHandler);
-    document.removeEventListener('MSFullscreenChange', this._fsHandler);
-    document.removeEventListener('click', this._clickOutsideHandler);
-    window.removeEventListener('keydown', this._keyHandler);
-    this.sendPresence(true);
-    if(this.videoJsPlayer){ this.videoJsPlayer.dispose(); this.videoJsPlayer=null; }
-    if(this.hls){ this.hls.destroy(); }
-  },
+  mounted(){this.loadStatus(); this.loadChat(); this.loadLiveNotice(); this.chatTimer=setInterval(this.loadChat, 5000); this.statusTimer=setInterval(this.loadStatus, 30000); this.noticeTimer=setInterval(this.loadLiveNotice, 8000); this.presenceTimer=setInterval(()=>this.sendPresence(false), 15000); this.sendPresence(false); if(this.member){ this.$nextTick(()=>this.autoplayPlayer()); }},
+  unmounted(){clearInterval(this.chatTimer); clearInterval(this.statusTimer); clearInterval(this.noticeTimer); clearInterval(this.presenceTimer); this.sendPresence(true); if(this.videoJsPlayer){ this.videoJsPlayer.dispose(); this.videoJsPlayer=null; } if(this.hls){ this.hls.destroy(); }},
   methods:{
     login(){
       if(!this.name.trim()){ this.error='Please enter your full name.'; return; }
@@ -515,10 +409,16 @@ const LivePage = {
           }
         });
         hls.on(Hls.Events.MANIFEST_PARSED, () => {
-          this.syncHlsLevels(hls);
-        });
-        hls.on(Hls.Events.LEVEL_UPDATED, () => {
-          this.syncHlsLevels(hls);
+          if (Array.isArray(hls.levels) && hls.levels.length > 0) {
+            this.availableLevels = hls.levels.map((lvl, idx) => ({
+              index: idx,
+              height: lvl.height || 0,
+              label: lvl.height ? `${lvl.height}p` : `Level ${idx + 1}`,
+              bitrate: lvl.bitrate ? `${Math.round(lvl.bitrate / 1000)} kbps` : ''
+            }));
+          } else {
+            this.availableLevels = [];
+          }
         });
         hls.on(Hls.Events.LEVEL_SWITCHED, (event, data) => {
           const currentLvl = hls.levels[data.level];
@@ -535,20 +435,6 @@ const LivePage = {
         v.dataset.hlsReady=this.hlsUrl;
       }
     },
-    syncHlsLevels(hls) {
-      if (!hls || !Array.isArray(hls.levels)) return;
-      const v = this.$refs.liveVideo;
-      const fallbackH = (v && v.videoHeight) ? v.videoHeight : 720;
-      this.availableLevels = hls.levels.map((lvl, idx) => {
-        const h = lvl.height || fallbackH;
-        return {
-          index: idx,
-          height: h,
-          label: `${h}p HD`,
-          bitrate: lvl.bitrate ? `${Math.round(lvl.bitrate / 1000)} kbps` : ''
-        };
-      });
-    },
     selectQuality(lvlIdx){
       this.selectedLevel = lvlIdx;
       this.qualityMenuOpen = false;
@@ -559,41 +445,6 @@ const LivePage = {
         } else if(this.availableLevels[lvlIdx]){
           this.activePlayingResolution = this.availableLevels[lvlIdx].label;
         }
-      }
-      if (this.isFullscreen) {
-        this.onPlayerInteraction();
-      }
-    },
-    toggleQualityMenu(){
-      this.qualityMenuOpen = !this.qualityMenuOpen;
-      if (this.qualityMenuOpen) {
-        this.overlayControlsVisible = true;
-        if (this._overlayTimer) clearTimeout(this._overlayTimer);
-      }
-    },
-    onPlayerInteraction(){
-      this.overlayControlsVisible = true;
-      if (this._overlayTimer) clearTimeout(this._overlayTimer);
-      if (this.isFullscreen && !this.qualityMenuOpen) {
-        this._overlayTimer = setTimeout(() => {
-          this.overlayControlsVisible = false;
-        }, 3500);
-      }
-    },
-    toggleFullscreen(){
-      const box = this.$refs.playerBox || this.$refs.liveVideo;
-      if(!box) return;
-      const isFs = !!(document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement);
-      if(!isFs){
-        if(box.requestFullscreen){ box.requestFullscreen().catch(()=>{}); }
-        else if(box.webkitRequestFullscreen){ box.webkitRequestFullscreen(); }
-        else if(box.mozRequestFullScreen){ box.mozRequestFullScreen(); }
-        else if(box.msRequestFullscreen){ box.msRequestFullscreen(); }
-      } else {
-        if(document.exitFullscreen){ document.exitFullscreen().catch(()=>{}); }
-        else if(document.webkitExitFullscreen){ document.webkitExitFullscreen(); }
-        else if(document.mozCancelFullScreen){ document.mozCancelFullScreen(); }
-        else if(document.msExitFullscreen){ document.msExitFullscreen(); }
       }
     },
     autoplayPlayer(){
@@ -612,14 +463,7 @@ const LivePage = {
       this.muted=false;
       this.$root.liveFloatMuted=false;
     },
-    markStreamReady(){
-      this.liveStatus='live';
-      this.$root.enableFloatingLive(false);
-      const v = this.$refs.liveVideo;
-      if (v && v.videoHeight && this.hls) {
-        this.syncHlsLevels(this.hls);
-      }
-    },
+    markStreamReady(){ this.liveStatus='live'; this.$root.enableFloatingLive(false); },
     markStreamError(){ if(this.activeStream==='player'){ this.liveStatus='offline'; this.isPlaying=false; } },
     togglePlay(){
       const v = this.$refs.liveVideo;
@@ -657,7 +501,13 @@ const LivePage = {
     setVolume(){ const v=this.$refs.liveVideo; if(!v) return; v.volume=parseFloat(this.volume); this.$root.liveFloatVolume=v.volume; if(v.volume>0){ v.muted=false; this.muted=false; this.soundBlocked=false; this.$root.liveFloatMuted=false; } },
     updateProgress(){ const v=this.$refs.liveVideo; if(!v || !v.duration) return; this.progress=(v.currentTime/v.duration)*100; },
     seekVideo(e){ const v=this.$refs.liveVideo; if(!v || !v.duration) return; const rect=e.currentTarget.getBoundingClientRect(); const pct=(e.clientX-rect.left)/rect.width; v.currentTime=Math.max(0, Math.min(v.duration*pct, v.duration)); },
-    fullscreen(){ this.toggleFullscreen(); },
+    fullscreen(){
+      const el=this.$refs.playerBox || this.$refs.liveVideo;
+      if(!el) return;
+      if(document.fullscreenElement){ document.exitFullscreen(); return; }
+      if(el.requestFullscreen){ el.requestFullscreen(); }
+      else if(el.webkitRequestFullscreen){ el.webkitRequestFullscreen(); }
+    },
     loadStatus(){
       fetch(OLD.status).then(r=>r.json()).then(d=>{
         if(d.isLive){ this.liveStatus='live'; return; }
@@ -787,142 +637,42 @@ const LivePage = {
       <div class="member-layout">
         <div class="member-main">
           <div class="stream-bar-controls">
-            <!-- Left: Stream switch tabs (Player / YouTube) -->
-            <div class="stream-tabs-pills">
-              <button type="button" class="btn-stream-tab" :class="{active: activeStream==='player'}" @click="switchStream('player')">
-                <i class="fa-solid fa-play"></i> Player
-              </button>
-              <button type="button" class="btn-stream-tab tab-youtube" :class="{active: activeStream==='youtube'}" @click="switchStream('youtube')">
-                <i class="fa-brands fa-youtube"></i> YouTube
-              </button>
+            <div class="stream-tabs stream-tabs-links">
+              <a href="#/live/player" :class="{active:activeStream==='player'}" @click.prevent="switchStream('player')"><i class="fa-solid fa-play me-2"></i> Player</a>
+              <a href="#/live/youtube" :class="{active:activeStream==='youtube'}" @click.prevent="switchStream('youtube')"><i class="fa-brands fa-youtube me-2"></i> YouTube</a>
             </div>
 
-            <!-- Right: Quality & Fullscreen -->
-            <div v-if="activeStream==='player'" class="d-flex align-items-center gap-2">
-              <div class="quality-selector-wrap">
-                <button type="button" class="btn-quality-toggle" :class="{'active-open': qualityMenuOpen}" @click.stop="toggleQualityMenu" aria-label="Streaming quality selection">
-                  <i class="fa-solid fa-gear text-gold"></i>
-                  <span>Quality:</span>
-                  <span class="quality-active-badge">{{ currentQualityLabel }}</span>
-                  <i :class="qualityMenuOpen ? 'fa-solid fa-chevron-up ms-1' : 'fa-solid fa-chevron-down ms-1'" style="font-size: 0.7rem;"></i>
-                </button>
-                <div v-if="qualityMenuOpen" class="quality-dropdown-menu" @click.stop>
-                  <div class="quality-menu-header">
-                    <span><i class="fa-solid fa-sliders text-warning me-2"></i> Stream Quality</span>
-                    <span class="badge-abr-pill"><i class="fa-solid fa-bolt me-1"></i> Auto ABR</span>
-                  </div>
-                  <!-- Auto Option -->
-                  <button type="button" :class="['quality-item', {active: selectedLevel === -1}]" @click="selectQuality(-1)">
-                    <div class="quality-item-text">
-                      <div class="d-flex align-items-center gap-2">
-                        <span class="quality-item-title">Auto (Adaptive)</span>
-                        <span class="quality-pill-rec">Recommended</span>
-                      </div>
-                      <span class="quality-item-desc">Dynamically optimizes for the smoothest playback without buffering</span>
-                    </div>
-                    <i v-if="selectedLevel === -1" class="fa-solid fa-check quality-check-icon"></i>
-                  </button>
-                  <!-- Formatted Broadcast Levels -->
-                  <button v-for="lvl in formattedLevels" :key="lvl.id" type="button" :class="['quality-item', {active: selectedLevel === lvl.levelIndex}]" @click="selectQuality(lvl.levelIndex)">
-                    <div class="quality-item-text">
-                      <div class="d-flex align-items-center gap-2">
-                        <span class="quality-item-title">{{ lvl.title }}</span>
-                        <span v-if="lvl.badge" class="quality-pill-sub">{{ lvl.badge }}</span>
-                      </div>
-                      <span class="quality-item-desc">{{ lvl.subtitle }}</span>
-                    </div>
-                    <i v-if="selectedLevel === lvl.levelIndex" class="fa-solid fa-check quality-check-icon"></i>
-                  </button>
-                </div>
-              </div>
-
-              <!-- Fullscreen button in top bar -->
-              <button type="button" class="btn-topbar-fullscreen" @click="toggleFullscreen" :title="isFullscreen ? 'Exit Full Screen' : 'Full Screen'" aria-label="Toggle Full Screen">
-                <i :class="isFullscreen ? 'fa-solid fa-compress' : 'fa-solid fa-expand'"></i>
+            <!-- Quality & Adaptive Bitrate Selector -->
+            <div v-if="activeStream==='player'" class="quality-selector-wrap">
+              <button type="button" class="btn-quality-toggle" @click="qualityMenuOpen=!qualityMenuOpen" aria-label="Streaming quality selection">
+                <i class="fa-solid fa-gear text-gold"></i>
+                <span>Quality:</span>
+                <span class="quality-active-badge">{{ currentQualityLabel }}</span>
+                <i :class="qualityMenuOpen ? 'fa-solid fa-chevron-up ms-1' : 'fa-solid fa-chevron-down ms-1'" style="font-size: 0.7rem;"></i>
               </button>
+              <div v-if="qualityMenuOpen" class="quality-dropdown-menu">
+                <div class="quality-menu-header"><i class="fa-solid fa-sliders text-warning"></i> Quality Selection</div>
+                <button :class="['quality-item', {active: selectedLevel === -1}]" @click="selectQuality(-1)">
+                  <div>
+                    <span class="d-block fw-bold">Auto (Adaptive)</span>
+                    <small class="text-muted">Auto adjusts to network speed</small>
+                  </div>
+                  <i v-if="selectedLevel === -1" class="fa-solid fa-check text-gold ms-2"></i>
+                </button>
+                <button v-for="(lvl, idx) in availableLevels" :key="idx" :class="['quality-item', {active: selectedLevel === idx}]" @click="selectQuality(idx)">
+                  <span>{{ lvl.label }}</span>
+                  <small v-if="lvl.bitrate" class="text-muted ms-2">{{ lvl.bitrate }}</small>
+                  <i v-if="selectedLevel === idx" class="fa-solid fa-check text-gold ms-auto"></i>
+                </button>
+              </div>
             </div>
           </div>
 
-          <div v-if="activeStream==='player'"
-               class="stream-player native-player"
-               :class="{'is-fullscreen': isFullscreen}"
-               ref="playerBox"
-               @mousemove="onPlayerInteraction"
-               @touchstart="onPlayerInteraction"
-               @click="onPlayerInteraction">
-
-            <video ref="liveVideo"
-                   class="native-live-video"
-                   preload="auto"
-                   controls
-                   controlsList="nodownload"
-                   playsinline
-                   @loadedmetadata="markStreamReady"
-                   @canplay="markStreamReady"
-                   @playing="markStreamReady"
-                   @error="markStreamError"
-                   @play="isPlaying=true"
-                   @pause="isPlaying=false"
-                   @dblclick="toggleFullscreen"></video>
-
-            <!-- Big play button when paused -->
+          <div v-if="activeStream==='player'" class="stream-player native-player" ref="playerBox">
+            <video ref="liveVideo" class="native-live-video" preload="auto" controls playsinline @loadedmetadata="markStreamReady" @canplay="markStreamReady" @playing="markStreamReady" @error="markStreamError" @play="isPlaying=true" @pause="isPlaying=false"></video>
             <button v-if="!isPlaying" type="button" class="native-big-play" @click="togglePlay" aria-label="Play live stream"><i class="fa-solid fa-play"></i></button>
-
-            <!-- Sound Unmute Badge -->
             <div v-if="soundBlocked" class="sound-unmute-badge" @click="toggleMute" style="position: absolute; top: 15px; right: 15px; background: rgba(0,0,0,0.85); color: #fbbf24; border: 1px solid #fbbf24; padding: 6px 14px; border-radius: 999px; font-size: 0.85rem; font-weight: 700; cursor: pointer; z-index: 20; display: flex; align-items: center; gap: 6px; box-shadow: 0 4px 15px rgba(0,0,0,0.5);">
               <i class="fa-solid fa-volume-xmark"></i> Tap for Sound
-            </div>
-
-            <!-- Fullscreen In-Player Overlay Bar (visible in Fullscreen and on hover) -->
-            <div class="player-overlay-bar" :class="{'show-overlay': isFullscreen ? (overlayControlsVisible || qualityMenuOpen) : false}">
-              <div class="player-overlay-left">
-                <span class="player-live-badge"><span class="pulse-dot"></span> LIVE</span>
-                <span class="player-quality-tag">{{ currentQualityLabel }}</span>
-              </div>
-              <div class="player-overlay-right d-flex align-items-center gap-2">
-                <!-- Quality Selector Dropdown in Fullscreen -->
-                <div class="quality-selector-wrap">
-                  <button type="button" class="btn-quality-toggle" :class="{'active-open': qualityMenuOpen}" @click.stop="toggleQualityMenu" aria-label="Streaming quality selection in full screen">
-                    <i class="fa-solid fa-gear text-gold"></i>
-                    <span>Quality:</span>
-                    <span class="quality-active-badge">{{ currentQualityLabel }}</span>
-                    <i :class="qualityMenuOpen ? 'fa-solid fa-chevron-up ms-1' : 'fa-solid fa-chevron-down ms-1'" style="font-size: 0.7rem;"></i>
-                  </button>
-                  <div v-if="qualityMenuOpen" class="quality-dropdown-menu" @click.stop>
-                    <div class="quality-menu-header">
-                      <span><i class="fa-solid fa-sliders text-warning me-2"></i> Stream Quality</span>
-                      <span class="badge-abr-pill"><i class="fa-solid fa-bolt me-1"></i> Auto ABR</span>
-                    </div>
-                    <!-- Auto Option -->
-                    <button type="button" :class="['quality-item', {active: selectedLevel === -1}]" @click="selectQuality(-1)">
-                      <div class="quality-item-text">
-                        <div class="d-flex align-items-center gap-2">
-                          <span class="quality-item-title">Auto (Adaptive)</span>
-                          <span class="quality-pill-rec">Recommended</span>
-                        </div>
-                        <span class="quality-item-desc">Dynamically optimizes for the smoothest playback without buffering</span>
-                      </div>
-                      <i v-if="selectedLevel === -1" class="fa-solid fa-check quality-check-icon"></i>
-                    </button>
-                    <!-- Broadcast Levels -->
-                    <button v-for="lvl in formattedLevels" :key="'fs-'+lvl.id" type="button" :class="['quality-item', {active: selectedLevel === lvl.levelIndex}]" @click="selectQuality(lvl.levelIndex)">
-                      <div class="quality-item-text">
-                        <div class="d-flex align-items-center gap-2">
-                          <span class="quality-item-title">{{ lvl.title }}</span>
-                          <span v-if="lvl.badge" class="quality-pill-sub">{{ lvl.badge }}</span>
-                        </div>
-                        <span class="quality-item-desc">{{ lvl.subtitle }}</span>
-                      </div>
-                      <i v-if="selectedLevel === lvl.levelIndex" class="fa-solid fa-check quality-check-icon"></i>
-                    </button>
-                  </div>
-                </div>
-
-                <!-- Exit Fullscreen Button -->
-                <button type="button" class="btn-fs-exit" @click.stop="toggleFullscreen" title="Exit Full Screen (Esc)" aria-label="Exit Full Screen">
-                  <i class="fa-solid fa-compress"></i>
-                </button>
-              </div>
             </div>
           </div>
 
