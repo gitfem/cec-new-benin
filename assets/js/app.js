@@ -466,29 +466,34 @@ const LivePage = {
     markStreamReady(){ this.liveStatus='live'; this.$root.enableFloatingLive(false); },
     markStreamError(){ if(this.activeStream==='player'){ this.liveStatus='offline'; this.isPlaying=false; } },
     togglePlay(){
-      const v=this.$refs.liveVideo;
-      if(!v) return;
+      const v = this.$refs.liveVideo;
+      if (!v) return;
       this.setupHls();
-      if(v.muted){
-        v.muted=false;
-        this.muted=false;
-        this.soundBlocked=false;
-        this.$root.liveFloatMuted=false;
-        v.volume=parseFloat(this.volume || 0.85);
-        if(v.paused){
-          const playPromise = v.play();
-          if(playPromise && playPromise.catch){ playPromise.catch(()=>{ this.isPlaying=false; this.soundBlocked=true; }); }
-        }
-        return;
-      }
-      if(v.paused){
+      if (v.paused) {
+        v.muted = false;
+        v.volume = parseFloat(this.volume || 0.85);
         const playPromise = v.play();
-        if(playPromise && playPromise.catch){ playPromise.catch(()=>{ this.isPlaying=false; this.soundBlocked=true; }); }
-        this.isPlaying=true;
-        this.$root.enableFloatingLive(false);
+        if (playPromise !== undefined) {
+          playPromise.then(() => {
+            this.isPlaying = true;
+            this.soundBlocked = false;
+            this.liveStatus = 'live';
+          }).catch((err) => {
+            console.warn('Playback with sound blocked by browser, trying muted:', err);
+            v.muted = true;
+            this.muted = true;
+            this.soundBlocked = true;
+            v.play().then(() => {
+              this.isPlaying = true;
+              this.liveStatus = 'live';
+            }).catch(() => {
+              this.isPlaying = false;
+            });
+          });
+        }
       } else {
         v.pause();
-        this.isPlaying=false;
+        this.isPlaying = false;
         this.$root.stopFloatingLive();
       }
     },
@@ -666,6 +671,9 @@ const LivePage = {
           <div v-if="activeStream==='player'" class="stream-player native-player" ref="playerBox">
             <video ref="liveVideo" class="native-live-video" preload="auto" controls playsinline @loadedmetadata="markStreamReady" @canplay="markStreamReady" @playing="markStreamReady" @error="markStreamError" @play="isPlaying=true" @pause="isPlaying=false"></video>
             <button v-if="!isPlaying" type="button" class="native-big-play" @click="togglePlay" aria-label="Play live stream"><i class="fa-solid fa-play"></i></button>
+            <div v-if="soundBlocked" class="sound-unmute-badge" @click="toggleMute" style="position: absolute; top: 15px; right: 15px; background: rgba(0,0,0,0.85); color: #fbbf24; border: 1px solid #fbbf24; padding: 6px 14px; border-radius: 999px; font-size: 0.85rem; font-weight: 700; cursor: pointer; z-index: 20; display: flex; align-items: center; gap: 6px; box-shadow: 0 4px 15px rgba(0,0,0,0.5);">
+              <i class="fa-solid fa-volume-xmark"></i> Tap for Sound
+            </div>
           </div>
 
           <div v-else class="youtube-panel">

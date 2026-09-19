@@ -794,7 +794,7 @@
     ]
   },
   "live": {
-    "hls_url": "https://vcpout-sf01-altnetro.internetmultimediaonline.org/vcp/ahjbkam8asu49/playlist.m3u8",
+    "hls_url": "https://zstream.zentrinet.com/api/playback/hls/df38a58a-5f5f-47b0-936f-4f0f99664f3d/index.m3u8",
     "youtube_channel_id": "UCLFScmpsKP4jlJXD8McBGgQ",
     "title": "Sunday Service of Excellence",
     "description": "Welcome to our live service from Christ Embassy New Benin Sanctuary with Pastor Joseph Atibi-Brown. Receive divine transformation through the Word.",
