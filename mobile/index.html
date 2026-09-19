@@ -15,7 +15,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
-  <link href="style.css?v=36" rel="stylesheet">
+  <link href="style.css?v=52" rel="stylesheet">
 </head>
 <body>
 <div id="app" :class="{ready: ready, 'menu-open': menuOpen}">
@@ -187,7 +187,7 @@
           <div class="chat-title"><i class="fa-solid fa-comments"></i> Live Chat</div>
           <div class="chat-list" ref="chatList">
             <div v-for="item in chat" :key="item.id || item.name + item.date + item.shout" class="chat-msg">
-              <b>{{ item.name }}</b><small>{{ item.date }}</small><p>{{ item.shout }}</p>
+              <b>{{ item.name }}</b><small>{{ item.date }}</small><p>{{ item.shout || item.message || item.text || '' }}</p>
             </div>
           </div>
           <form class="chat-form" @submit.prevent="postChat">
@@ -985,6 +985,6 @@
 
 <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/hls.js@1"></script>
-<script src="app.js?v=50"></script>
+<script src="app.js?v=52"></script>
 </body>
 </html>

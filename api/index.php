@@ -115,7 +115,7 @@ if ($method === 'POST' && (strpos($uri, '/api/save') !== false || strpos($uri, '
 // -------------------------------------------------------------
 // 2. LIVE ATTENDANCE REGISTER
 // -------------------------------------------------------------
-if ($method === 'GET' && strpos($uri, '/api/attendance') !== false) {
+if ($method === 'GET' && (strpos($uri, '/api/attendance') !== false || strpos($uri, '/bridge_live_login.php') !== false)) {
     if (file_exists($attendanceFile)) {
         echo file_get_contents($attendanceFile);
     } else {
@@ -198,7 +198,7 @@ if ($method === 'POST' && (strpos($uri, '/api/attendance') !== false || strpos($
 // -------------------------------------------------------------
 // 3. LIVE CHAT MODERATION & FEED
 // -------------------------------------------------------------
-if ($method === 'GET' && (strpos($uri, '/api/chat') !== false || strpos($uri, '/bridge_a73c9_messages.php') !== false)) {
+if ($method === 'GET' && (strpos($uri, '/api/chat') !== false || strpos($uri, '/bridge_a73c9_messages.php') !== false || strpos($uri, '/oldwebsite/shoutbox.php') !== false)) {
     if (file_exists($chatFile)) {
         echo file_get_contents($chatFile);
     } else {
@@ -242,10 +242,10 @@ if ($method === 'POST' && strpos($uri, '/api/chat/clear') !== false) {
     exit;
 }
 
-if ($method === 'POST' && (strpos($uri, '/api/chat') !== false || strpos($uri, '/oldwebsite/shoutbox.php') !== false)) {
+if ($method === 'POST' && (strpos($uri, '/api/chat') !== false || strpos($uri, '/oldwebsite/shoutbox.php') !== false || strpos($uri, '/bridge_a73c9_messages.php') !== false)) {
     $p = getPayload();
     $name = trim($p['name'] ?? 'Guest');
-    $shout = trim($p['shout'] ?? '');
+    $shout = trim($p['shout'] ?? $p['message'] ?? $p['text'] ?? '');
     $dateStr = $p['date'] ?? date('jS M, Y H:i');
 
     if (empty($shout)) {
@@ -257,17 +257,22 @@ if ($method === 'POST' && (strpos($uri, '/api/chat') !== false || strpos($uri, '
     $chats = file_exists($chatFile) ? json_decode(file_get_contents($chatFile), true) : [];
     if (!is_array($chats)) $chats = [];
 
-    $newId = count($chats) > 0 ? (max(array_column($chats, 'id')) + 1) : 1;
+    $maxId = 0;
+    foreach ($chats as $c) {
+        $mid = intval($c['id'] ?? 0);
+        if ($mid > $maxId) $maxId = $mid;
+    }
+
     $newMsg = [
-        'id' => (string)$newId,
+        'id' => (string)($maxId + 1),
         'name' => htmlspecialchars($name, ENT_QUOTES, 'UTF-8'),
         'shout' => htmlspecialchars($shout, ENT_QUOTES, 'UTF-8'),
         'date' => $dateStr
     ];
 
-    array_unshift($chats, $newMsg);
-    if (count($chats) > 200) {
-        $chats = array_slice($chats, 0, 200);
+    $chats[] = $newMsg;
+    if (count($chats) > 150) {
+        $chats = array_slice($chats, -150);
     }
     file_put_contents($chatFile, json_encode($chats, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
 

@@ -9,7 +9,7 @@ const OLD = {
   liveNotices: 'bridge_live_notices.php',
   presence: 'bridge_live_presence.php',
   chatFeed: 'bridge_a73c9_messages.php',
-  chatPost: 'oldwebsite/shoutbox.php',
+  chatPost: 'bridge_a73c9_messages.php',
   storyComment: 'bridge_story_comment.php',
   content: 'assets/data/content.json',
   oldMember: 'oldwebsite/member.php'
@@ -315,13 +315,56 @@ const LivePage = {
     isAudioStream(){ return /\.(mp3|m4a|aac|ogg|oga|wav)(\?.*)?$/i.test(this.hlsUrl); },
     announcementHtml(){
       const items = this.cms && this.cms.home && Array.isArray(this.cms.home.member_announcements) ? this.cms.home.member_announcements : [];
-      const item = items.find(item => item && item.announcement);
-      return item ? item.announcement : '';
+      const valid = items.filter(item => item && (item.announcement || item.title));
+      if(!valid.length) return '';
+      return valid.map(item => {
+        let h = '';
+        if(item.title) h += '<h4 style="color:#1e3a8a; font-weight:700; margin-bottom:8px; font-size:1.1rem;">' + item.title + '</h4>';
+        if(item.announcement) h += '<div style="color:#1e293b; line-height:1.65; font-size:0.98rem;">' + item.announcement + '</div>';
+        return '<div class="announcement-item mb-4 pb-3" style="border-bottom:1px solid #e2e8f0;">' + h + '</div>';
+      }).join('');
     }
   },
-  mounted(){this.loadStatus(); this.loadChat(); this.loadLiveNotice(); this.chatTimer=setInterval(this.loadChat, 5000); this.statusTimer=setInterval(this.loadStatus, 30000); this.noticeTimer=setInterval(this.loadLiveNotice, 8000); this.presenceTimer=setInterval(()=>this.sendPresence(false), 15000); this.sendPresence(false); if(this.member){ this.$nextTick(()=>this.autoplayPlayer()); }},
+  mounted(){
+    this.loadStatus();
+    this.loadChat();
+    this.loadLiveNotice();
+    this.chatTimer=setInterval(this.loadChat, 4000);
+    this.statusTimer=setInterval(this.loadStatus, 30000);
+    this.noticeTimer=setInterval(this.loadLiveNotice, 6000);
+    this.presenceTimer=setInterval(()=>this.sendPresence(false), 15000);
+    this.sendPresence(false);
+    if(this.member){
+      this.$nextTick(()=>this.autoplayPlayer());
+      this.ensureAttendanceCaptured();
+    }
+  },
   unmounted(){this.releaseWakeLock(); clearInterval(this.chatTimer); clearInterval(this.statusTimer); clearInterval(this.noticeTimer); clearInterval(this.presenceTimer); this.sendPresence(true); if(this.videoJsPlayer){ this.videoJsPlayer.dispose(); this.videoJsPlayer=null; } if(this.hls){ this.hls.destroy(); }},
   methods:{
+    ensureAttendanceCaptured(){
+      if(!this.member || !this.member.name){ return; }
+      const today = new Date().toISOString().slice(0, 10);
+      const sessionKey = 'kh_att_session_' + today;
+      if(sessionStorage.getItem(sessionKey) === 'logged'){ return; }
+      const serviceName = (this.liveSettings && this.liveSettings.title) ? this.liveSettings.title : 'Sunday Service of Excellence';
+      const attendance = this.member.attendance || (this.member.viewingMode === 'group' ? Math.max(1, parseInt(this.member.groupCount || 1, 10)) : 1);
+      const body = new URLSearchParams({
+        fullname: this.member.name,
+        email: this.member.email || '',
+        phone: this.member.phone || '',
+        group: this.member.group || 'Christ Embassy Lagos Street',
+        category: this.member.category || 'Church Member',
+        service_name: serviceName,
+        platform: window.innerWidth <= 768 ? 'Mobile Web' : 'Desktop Web',
+        attendance: String(attendance),
+        viewing_mode: this.member.viewingMode || 'individual'
+      });
+      fetch(OLD.attendancePost, {method:'POST', headers:{'Content-Type':'application/x-www-form-urlencoded'}, body})
+        .then(r => r.json())
+        .then(res => {
+          if(res && res.ok){ sessionStorage.setItem(sessionKey, 'logged'); }
+        }).catch(()=>{});
+    },
     login(){
       if(!this.name.trim()){ this.error='Please enter your full name.'; return; }
       if(!this.phone.trim()){ this.error='Please enter your phone number.'; return; }
@@ -352,6 +395,7 @@ const LivePage = {
           savedMember.viewingMode = this.viewingMode;
           this.$root.member = savedMember;
           if(this.remember){ localStorage.setItem('kh_member', JSON.stringify(savedMember)); }
+          sessionStorage.setItem('kh_att_session_' + new Date().toISOString().slice(0, 10), 'logged');
           this.error='';
           this.$nextTick(()=>{ this.loadChat(); this.loadLiveNotice(); this.autoplayPlayer(); this.sendPresence(false); });
         })
@@ -617,16 +661,17 @@ const LivePage = {
     },
     loadLiveNotice(){
       if(!this.member){ this.liveNotice=null; return; }
-      fetch(OLD.liveNotices).then(r=>r.json()).then(data=>{
+      fetch(OLD.liveNotices + '?t=' + Date.now(), {cache:'no-store'}).then(r=>r.json()).then(data=>{
         const notice = data && data.notice ? data.notice : null;
-        if(!notice || !notice.id){ this.liveNotice=null; return; }
-        this.liveNotice = String(notice.id) === String(this.dismissedNoticeId) ? null : notice;
+        if(!notice || !notice.id || !notice.message){ this.liveNotice=null; return; }
+        const key = 'kh_live_notice_seen_' + notice.id;
+        const seenMessage = localStorage.getItem(key);
+        this.liveNotice = (seenMessage === String(notice.message)) ? null : notice;
       }).catch(()=>{});
     },
     dismissLiveNotice(){
       if(this.liveNotice && this.liveNotice.id){
-        this.dismissedNoticeId = String(this.liveNotice.id);
-        localStorage.setItem('kh_live_notice_dismissed', this.dismissedNoticeId);
+        localStorage.setItem('kh_live_notice_seen_' + this.liveNotice.id, String(this.liveNotice.message || ''));
       }
       this.liveNotice = null;
     },
@@ -739,7 +784,7 @@ const LivePage = {
           <div class="chat-box">
             <div class="chat-head"><i class="fa-solid fa-comments me-2"></i> Live Chat</div>
             <div class="chat-list" ref="chatList">
-              <div class="chat-msg" v-for="c in chat" :key="c.id || c.name+c.date+c.shout"><div><b>{{c.name}}</b><span>{{c.date}}</span></div><p>{{c.shout}}</p></div>
+              <div class="chat-msg" v-for="c in chat" :key="c.id || c.name+c.date+(c.shout||c.message||'')"><div><b>{{c.name}}</b><span>{{c.date}}</span></div><p>{{c.shout || c.message || c.text || ''}}</p></div>
             </div>
             <form class="chat-input" @submit.prevent="postChat"><small>{{chatText.length}}/500 characters</small><div><input v-model="chatText" maxlength="500" placeholder="Type your message..."><button>Send</button></div><small v-if="chatError">{{chatError}}</small></form>
           </div>

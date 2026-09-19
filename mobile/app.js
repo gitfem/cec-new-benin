@@ -10,7 +10,7 @@ const LIVE = {
   liveNotices:'../bridge_live_notices.php',
   presence:'../bridge_live_presence.php',
   chatFeed:'../bridge_a73c9_messages.php',
-  chatPost:'../oldwebsite/shoutbox.php'
+  chatPost:'../bridge_a73c9_messages.php'
 };
 
 createApp({
@@ -338,8 +338,14 @@ createApp({
     },
     announcementHtml(){
       const items = this.cms.home && Array.isArray(this.cms.home.member_announcements) ? this.cms.home.member_announcements : [];
-      const item = items.find(row => row && row.announcement);
-      return item ? item.announcement : '';
+      const valid = items.filter(row => row && (row.announcement || row.title));
+      if(!valid.length) return '';
+      return valid.map(item => {
+        let h = '';
+        if(item.title) h += '<h4 style="color:#1e3a8a; font-weight:700; margin-bottom:6px; font-size:1.05rem;">' + item.title + '</h4>';
+        if(item.announcement) h += '<div style="color:#0f172a; line-height:1.6; font-size:0.92rem;">' + item.announcement + '</div>';
+        return '<div class="announcement-item mb-3 pb-3" style="border-bottom:1px solid #e2e8f0;">' + h + '</div>';
+      }).join('');
     },
     youtubeChannelId(){
       const value = String((this.cms.live && this.cms.live.youtube_channel_id) || '').trim();
@@ -533,6 +539,9 @@ createApp({
       this.storyCommentForm.message='';
       this.storyCommentForm.error='';
       window.scrollTo(0,0);
+      if(this.route === 'live' && this.member){
+        this.ensureAttendanceCaptured();
+      }
       this.$nextTick(()=>{ if(this.route === 'live' && this.member && this.activeStream === 'player'){ this.setupLivePlayer(true); } });
       this.$nextTick(()=>this.syncMiniLive());
     },
@@ -546,6 +555,30 @@ createApp({
       this.ready = true;
       this.$nextTick(()=>{ if(this.route === 'live' && this.member && this.activeStream === 'player'){ this.setupLivePlayer(true); } });
       this.$nextTick(()=>this.syncMiniLive());
+    },
+    ensureAttendanceCaptured(){
+      if(!this.member || !this.member.name){ return; }
+      const today = new Date().toISOString().slice(0, 10);
+      const sessionKey = 'kh_att_session_' + today;
+      if(sessionStorage.getItem(sessionKey) === 'logged'){ return; }
+      const serviceName = (this.cms && this.cms.live && this.cms.live.title) ? this.cms.live.title : 'Sunday Service of Excellence';
+      const attendance = this.member.attendance || (this.member.viewingMode === 'group' ? Math.max(1, parseInt(this.member.groupCount || 1, 10)) : 1);
+      const body = new URLSearchParams({
+        fullname: this.member.name,
+        email: this.member.email || '',
+        phone: this.member.phone || '',
+        group: this.member.group || 'Christ Embassy Lagos Street',
+        category: this.member.category || 'Church Member',
+        service_name: serviceName,
+        platform: 'Mobile Web App',
+        attendance: String(attendance),
+        viewing_mode: this.member.viewingMode || 'individual'
+      });
+      fetch(LIVE.attendancePost, {method:'POST', headers:{'Content-Type':'application/x-www-form-urlencoded'}, body})
+        .then(response => response.json())
+        .then(res => {
+          if(res && res.ok){ sessionStorage.setItem(sessionKey, 'logged'); }
+        }).catch(()=>{});
     },
     loginLive(){
       if(!this.liveForm.name.trim()){ this.liveError='Please enter your full name.'; return; }
@@ -576,6 +609,7 @@ createApp({
           if(!data || !data.ok){ this.liveError=(data && data.error) ? data.error : 'Unable to sign in right now.'; return; }
           this.member = Object.assign({}, member, data.member || {});
           if(this.liveForm.remember){ localStorage.setItem('kh_member', JSON.stringify(this.member)); }
+          sessionStorage.setItem('kh_att_session_' + new Date().toISOString().slice(0, 10), 'logged');
           this.liveError='';
           this.loadChat();
           this.loadLiveNotice();
@@ -879,10 +913,12 @@ createApp({
     },
     loadLiveNotice(){
       if(!this.member){ this.liveNotice=null; return; }
-      fetch(LIVE.liveNotices).then(response=>response.json()).then(data=>{
+      fetch(LIVE.liveNotices + '?t=' + Date.now(), {cache:'no-store'}).then(response=>response.json()).then(data=>{
         const notice = data && data.notice ? data.notice : null;
-        if(!notice || !notice.id){ this.liveNotice=null; return; }
-        this.liveNotice = String(notice.id) === String(this.dismissedNoticeId) ? null : notice;
+        if(!notice || !notice.id || !notice.message){ this.liveNotice=null; return; }
+        const key = 'kh_live_notice_seen_' + notice.id;
+        const seenMessage = localStorage.getItem(key);
+        this.liveNotice = (seenMessage === String(notice.message)) ? null : notice;
       }).catch(()=>{});
     },
     syncMiniLive(){
@@ -916,8 +952,7 @@ createApp({
     },
     dismissLiveNotice(){
       if(this.liveNotice && this.liveNotice.id){
-        this.dismissedNoticeId=String(this.liveNotice.id);
-        localStorage.setItem('kh_live_notice_dismissed', this.dismissedNoticeId);
+        localStorage.setItem('kh_live_notice_seen_' + this.liveNotice.id, String(this.liveNotice.message || ''));
       }
       this.liveNotice=null;
     }
@@ -929,11 +964,14 @@ createApp({
     window.addEventListener('hashchange', this.syncRoute);
     window.addEventListener('focus', () => this.loadCms());
     this.cmsRefreshTimer = setInterval(() => this.loadCms(), 20000);
-    this.chatTimer=setInterval(()=>{ if(this.member){ this.loadChat(); } }, 5000);
+    this.chatTimer=setInterval(()=>{ if(this.member){ this.loadChat(); } }, 4000);
     this.statusTimer=setInterval(()=>{ if(this.route === 'live'){ this.loadStatus(); } }, 30000);
-    this.noticeTimer=setInterval(()=>{ if(this.member){ this.loadLiveNotice(); } }, 8000);
+    this.noticeTimer=setInterval(()=>{ if(this.member){ this.loadLiveNotice(); } }, 6000);
     this.presenceTimer=setInterval(()=>this.sendPresence(false), 15000);
     this.sendPresence(false);
+    if(this.member){
+      this.ensureAttendanceCaptured();
+    }
     if('serviceWorker' in navigator){
       navigator.serviceWorker.register('sw.js').catch(()=>{});
     }

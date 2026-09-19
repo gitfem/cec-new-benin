@@ -204,7 +204,7 @@ class ChurchPortalHandler(http.server.SimpleHTTPRequestHandler):
                 return
 
         # 3. Live Chat Post API (Database + JSON Sync)
-        if path == '/oldwebsite/shoutbox.php' or path == '/api/chat':
+        if path == '/oldwebsite/shoutbox.php' or path == '/api/chat' or path == '/bridge_a73c9_messages.php':
             length = int(self.headers.get('Content-Length', 0))
             body = self.rfile.read(length).decode('utf-8')
             content_type = self.headers.get('Content-Type', '')
@@ -215,12 +215,12 @@ class ChurchPortalHandler(http.server.SimpleHTTPRequestHandler):
                 except Exception:
                     payload = {}
                 name = payload.get('name', 'Guest')
-                shout = payload.get('shout', '')
+                shout = payload.get('shout') or payload.get('message') or payload.get('text') or ''
                 date_str = payload.get('date')
             else:
                 params = urllib.parse.parse_qs(body)
                 name = params.get('name', ['Guest'])[0]
-                shout = params.get('shout', [''])[0]
+                shout = params.get('shout', params.get('message', ['']))[0]
                 date_str = params.get('date', [None])[0]
 
             if not shout.strip():

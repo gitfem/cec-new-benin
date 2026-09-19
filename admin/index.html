@@ -1268,6 +1268,12 @@
                 <label class="form-label">Alert Message</label>
                 <textarea v-model="liveNotice.message" class="form-control" rows="3" placeholder="Welcome to Church of Excellence Live Service! Please have your communion elements ready as we partake together with Pastor Joseph."></textarea>
               </div>
+              <div class="col-12 d-flex justify-content-between align-items-center flex-wrap gap-2 pt-2">
+                <span class="text-muted small"><i class="fa-solid fa-circle-info me-1"></i> Changes broadcast instantly to live stream viewers.</span>
+                <button type="button" class="btn btn-warning" @click="publishAlertNotice">
+                  <i class="fa-solid fa-tower-broadcast me-1"></i> Broadcast Alert Notice to Live Stream Now
+                </button>
+              </div>
             </div>
           </div>
 
@@ -1286,6 +1292,7 @@
                   <i class="fa-solid fa-trash-can me-1"></i> Delete Selected ({{ selectedAnnouncements.length }})
                 </button>
                 <button class="btn-gold btn-sm" @click="addAnnouncement"><i class="fa-solid fa-plus"></i> Add Announcement</button>
+                <button class="btn btn-sm btn-outline-warning" @click="saveCms"><i class="fa-solid fa-cloud-arrow-up me-1"></i> Save & Publish All</button>
               </div>
             </div>
             <p class="text-muted small">These announcements appear in the expandable Announcement section right below the live player and in church bulletins.</p>
@@ -1339,7 +1346,7 @@
               </div>
               <div class="col-12 text-end">
                 <button class="btn btn-secondary me-2" @click="editingAnnouncement = null">Close</button>
-                <button class="btn-gold" @click="editingAnnouncement = null">Done</button>
+                <button class="btn-gold" @click="saveAnnouncement"><i class="fa-solid fa-check me-1"></i> Done & Publish</button>
               </div>
             </div>
           </div>
@@ -3777,7 +3784,7 @@
                     <td class="fw-bold text-light">
                       <i class="fa-solid fa-user-circle text-secondary me-1"></i> {{ msg.name }}
                     </td>
-                    <td class="text-light" style="word-break: break-word;">{{ msg.shout }}</td>
+                    <td class="text-light" style="word-break: break-word;">{{ msg.shout || msg.message || msg.text || '' }}</td>
                     <td class="text-end">
                       <button class="btn btn-sm btn-outline-danger" @click="deleteChatMessage(msg.id)" title="Delete message"><i class="fa-solid fa-trash"></i></button>
                     </td>
@@ -4226,10 +4233,10 @@ createApp({
       return Object.values(groups).sort((a, b) => (b.date || '').localeCompare(a.date || ''));
     },
     filteredChatMessages() {
-      let list = this.chatMessages || [];
+      let list = (this.chatMessages || []).slice().reverse();
       const q = this.chatSearchQuery.trim().toLowerCase();
       if (q) {
-        list = list.filter(m => (m.name && m.name.toLowerCase().includes(q)) || (m.shout && m.shout.toLowerCase().includes(q)));
+        list = list.filter(m => (m.name && m.name.toLowerCase().includes(q)) || ((m.shout || m.message || m.text) && String(m.shout || m.message || m.text).toLowerCase().includes(q)));
       }
       if (this.filterChatSender !== 'ALL') {
         list = list.filter(m => m.name === this.filterChatSender);
@@ -4394,6 +4401,10 @@ createApp({
         clearInterval(this.chatPollTimer);
         this.chatPollTimer = null;
       }
+      if (this.attendancePollTimer) {
+        clearInterval(this.attendancePollTimer);
+        this.attendancePollTimer = null;
+      }
       this.showToast('Logged out of Admin Portal.');
     },
     addNavItem() {
@@ -4548,6 +4559,8 @@ createApp({
         this.loadChatMessages();
         if (this.chatPollTimer) clearInterval(this.chatPollTimer);
         this.chatPollTimer = setInterval(this.loadChatMessages, 8000);
+        if (this.attendancePollTimer) clearInterval(this.attendancePollTimer);
+        this.attendancePollTimer = setInterval(this.loadAttendance, 10000);
       } else {
         this.loginError = 'Invalid PIN. Please try again.';
       }
@@ -5299,7 +5312,18 @@ createApp({
       URL.revokeObjectURL(url);
       this.showToast('content.json downloaded successfully!');
     },
-    // Announcements
+    // Announcements & Alert Notices
+    publishAlertNotice() {
+      this.liveNotice.id = 'notice_' + Date.now();
+      this.liveNotice.enabled = true;
+      this.saveCms();
+      this.showToast('Alert Notice broadcast to live stream!');
+    },
+    saveAnnouncement() {
+      this.editingAnnouncement = null;
+      this.saveCms();
+      this.showToast('Announcement saved and published to site!');
+    },
     addAnnouncement() {
       if (!Array.isArray(this.cms.home.member_announcements)) this.cms.home.member_announcements = [];
       this.cms.home.member_announcements.push({
@@ -5316,6 +5340,8 @@ createApp({
     deleteAnnouncement(index) {
       this.cms.home.member_announcements.splice(index, 1);
       if (this.editingAnnouncement === index) this.editingAnnouncement = null;
+      this.saveCms();
+      this.showToast('Announcement removed and changes published.');
     },
     // Giving Categories & Banks
     addCategory() {
@@ -5569,6 +5595,8 @@ createApp({
       this.loadChatMessages();
       if (this.chatPollTimer) clearInterval(this.chatPollTimer);
       this.chatPollTimer = setInterval(this.loadChatMessages, 8000);
+      if (this.attendancePollTimer) clearInterval(this.attendancePollTimer);
+      this.attendancePollTimer = setInterval(this.loadAttendance, 10000);
     }
   }
 }).mount('#app');
