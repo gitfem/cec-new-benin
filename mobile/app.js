@@ -553,7 +553,14 @@ createApp({
         if(data.site && data.site.name){ document.title = data.site.name + ' Mobile'; }
       }catch(error){}
       this.ready = true;
-      this.$nextTick(()=>{ if(this.route === 'live' && this.member && this.activeStream === 'player'){ this.setupLivePlayer(true); } });
+      this.$nextTick(()=>{
+        if(this.route === 'live' && this.member && this.activeStream === 'player'){
+          const video = this.$refs.liveVideo;
+          if(!video || video.dataset.hlsReady !== this.liveFeedUrl){
+            this.setupLivePlayer(true);
+          }
+        }
+      });
       this.$nextTick(()=>this.syncMiniLive());
     },
     ensureAttendanceCaptured(){
@@ -650,8 +657,18 @@ createApp({
       const video=this.$refs.liveVideo;
       if(!video || !this.hlsUrl){ this.liveStatus='offline'; return Promise.resolve(false); }
       if(!this.liveFeedUrl){ this.liveStatus='invalid stream'; return Promise.resolve(false); }
+
+      // If player is already initialized for this exact feed URL, do not destroy or restart it
+      if(video.dataset.hlsReady === this.liveFeedUrl && (this.hls || video.src)){
+        if(autoplay && video.paused && !this._userManuallyPaused){
+          this.playLiveVideo(true);
+        }
+        return Promise.resolve(true);
+      }
+
       this.liveStatus='checking';
       if(this.hls){ this.hls.destroy(); this.hls=null; }
+      video.dataset.hlsReady='';
       this.hlsReadyPromise=null;
       video.setAttribute('playsinline', '');
       video.setAttribute('webkit-playsinline', '');
@@ -661,28 +678,45 @@ createApp({
       if(!video._stallRecoveryAttached){
         video._stallRecoveryAttached = true;
         let stallTimer = null;
-        video.addEventListener('waiting', () => {
-          clearTimeout(stallTimer);
-          stallTimer = setTimeout(() => {
-            if(this.isPlaying && !this._userManuallyPaused){
-              if(video.buffered && video.buffered.length > 0){
-                const end = video.buffered.end(video.buffered.length - 1);
-                if(video.currentTime < end){
-                  video.currentTime = Math.min(video.currentTime + 0.25, end - 0.1);
+
+        const tryResume = () => {
+          if(!this._userManuallyPaused && this.activeStream === 'player' && this.route === 'live'){
+            if(video.buffered && video.buffered.length > 0){
+              const end = video.buffered.end(video.buffered.length - 1);
+              if(video.currentTime < end - 0.2){
+                video.currentTime = Math.min(video.currentTime + 0.3, end - 0.05);
+              } else {
+                const edge = (this.hls && Number.isFinite(this.hls.liveSyncPosition))
+                  ? this.hls.liveSyncPosition
+                  : (video.seekable && video.seekable.length ? video.seekable.end(video.seekable.length - 1) - 1 : 0);
+                if(edge > 0 && Math.abs(edge - video.currentTime) > 10){
+                  try { video.currentTime = Math.max(0, edge - 2); } catch(e){}
                 }
               }
-              video.play().catch(()=>{});
             }
-          }, 1000);
-        });
-        video.addEventListener('stalled', () => {
+            if(video.paused){
+              video.play().then(() => {
+                this.liveStatus = 'live';
+                this.isPlaying = true;
+              }).catch(()=>{});
+            } else {
+              this.liveStatus = 'live';
+            }
+          }
+        };
+
+        video.addEventListener('waiting', () => {
+          this.liveStatus = 'buffering';
           clearTimeout(stallTimer);
-          stallTimer = setTimeout(() => {
-            if(this.isPlaying && !this._userManuallyPaused){
-              video.play().catch(()=>{});
-            }
-          }, 1500);
+          stallTimer = setTimeout(tryResume, 1200);
         });
+
+        video.addEventListener('stalled', () => {
+          this.liveStatus = 'buffering';
+          clearTimeout(stallTimer);
+          stallTimer = setTimeout(tryResume, 1500);
+        });
+
         video.addEventListener('pause', () => {
           if(this.isPlaying && !this._userManuallyPaused){
             setTimeout(() => {
@@ -692,68 +726,104 @@ createApp({
             }, 600);
           }
         });
+
         video.addEventListener('playing', () => {
           clearTimeout(stallTimer);
+          this.liveStatus = 'live';
+          this.isPlaying = true;
           this.acquireWakeLock();
+        });
+
+        video.addEventListener('ended', () => {
+          if(this.isPlaying && !this._userManuallyPaused){
+            tryResume();
+          }
         });
       }
 
       const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
       if(this.isHlsStream && !isIOS && window.Hls && Hls.isSupported()){
-        if(video.dataset.hlsReady !== this.liveFeedUrl){
-          if(this.hls){ this.hls.destroy(); this.hls=null; }
-          const hls = new Hls({
-            enableWorker: true,
-            lowLatencyMode: false,
-            maxBufferLength: 45,
-            maxMaxBufferLength: 90,
-            liveSyncDurationCount: 4,
-            liveMaxLatencyDurationCount: 12,
-            maxLiveSyncPlaybackRate: 1.1,
-            manifestLoadingTimeOut: 20000,
-            manifestLoadingMaxRetry: 6,
-            levelLoadingTimeOut: 20000,
-            levelLoadingMaxRetry: 6,
-            fragLoadingTimeOut: 30000,
-            fragLoadingMaxRetry: 8,
-            startFragPrefetch: true,
-            backBufferLength: 30,
-            nudgeOffset: 0.3,
-            nudgeMaxRetry: 8
-          });
-          hls.loadSource(this.liveFeedUrl);
-          hls.attachMedia(video);
-          hls.on(Hls.Events.ERROR, (event, data) => {
-            if(data){
-              if(data.details === Hls.ErrorDetails.BUFFER_STALLED_ERROR){
-                if(video && video.buffered.length > 0){
-                  const bEnd = video.buffered.end(video.buffered.length - 1);
-                  if(video.currentTime < bEnd){
-                    video.currentTime = Math.min(video.currentTime + 0.25, bEnd - 0.1);
+        const hls = new Hls({
+          enableWorker: true,
+          lowLatencyMode: false,
+          maxBufferLength: 45,
+          maxMaxBufferLength: 90,
+          liveSyncDurationCount: 4,
+          liveMaxLatencyDurationCount: 12,
+          maxLiveSyncPlaybackRate: 1.15,
+          maxBufferHole: 0.5,
+          maxFragLookUpTolerance: 0.25,
+          liveDurationInfinity: true,
+          manifestLoadingTimeOut: 20000,
+          manifestLoadingMaxRetry: 8,
+          levelLoadingTimeOut: 20000,
+          levelLoadingMaxRetry: 8,
+          fragLoadingTimeOut: 30000,
+          fragLoadingMaxRetry: 10,
+          startFragPrefetch: true,
+          backBufferLength: 30,
+          nudgeOffset: 0.3,
+          nudgeMaxRetry: 10
+        });
+        hls.loadSource(this.liveFeedUrl);
+        hls.attachMedia(video);
+        hls.on(Hls.Events.ERROR, (event, data) => {
+          if(!data) return;
+          if(data.details === Hls.ErrorDetails.BUFFER_STALLED_ERROR || data.details === Hls.ErrorDetails.BUFFER_NUDGE_ON_STALL){
+            if(video && !this._userManuallyPaused){
+              if(video.buffered && video.buffered.length > 0){
+                const bEnd = video.buffered.end(video.buffered.length - 1);
+                if(video.currentTime < bEnd - 0.2){
+                  video.currentTime = Math.min(video.currentTime + 0.3, bEnd - 0.05);
+                } else {
+                  const edge = Number.isFinite(hls.liveSyncPosition) ? hls.liveSyncPosition : (video.seekable && video.seekable.length ? video.seekable.end(video.seekable.length - 1) - 1 : 0);
+                  if(edge > 0 && Math.abs(edge - video.currentTime) > 10){
+                    try { video.currentTime = Math.max(0, edge - 2); } catch(e){}
                   }
                 }
-                if(video && video.paused && !this._userManuallyPaused){
-                  video.play().catch(()=>{});
-                }
-                return;
               }
-              if(data.fatal){
-                if(data.type === Hls.ErrorTypes.NETWORK_ERROR){ hls.startLoad(); }
-                else if(data.type === Hls.ErrorTypes.MEDIA_ERROR){ hls.recoverMediaError(); }
-                else { this.markStreamError(); }
+              if(video.paused && !this._userManuallyPaused){
+                video.play().catch(()=>{});
               }
             }
-          });
-          this.hls = hls;
-          video.dataset.hlsReady = this.liveFeedUrl;
+            return;
+          }
+          if(data.fatal){
+            switch(data.type){
+              case Hls.ErrorTypes.NETWORK_ERROR:
+                console.warn('HLS Network stall, attempting recovery...', data);
+                hls.startLoad();
+                break;
+              case Hls.ErrorTypes.MEDIA_ERROR:
+                console.warn('HLS Media decode stall, recovering media...', data);
+                hls.recoverMediaError();
+                break;
+              default:
+                console.error('Fatal HLS error, re-initializing...', data);
+                this.stopLivePlayer(false);
+                setTimeout(() => {
+                  if(!this._userManuallyPaused && this.activeStream === 'player' && this.route === 'live'){
+                    this.setupLivePlayer(true);
+                  }
+                }, 2000);
+                break;
+            }
+          }
+        });
+        this.hls = hls;
+        video.dataset.hlsReady = this.liveFeedUrl;
+        if(autoplay){
+          this.playLiveVideo(true);
         }
         return Promise.resolve(true);
       }
-      if(video.dataset.hlsReady !== this.liveFeedUrl){
-        video.removeAttribute('src');
-        video.src=this.liveFeedUrl;
-        video.load();
-        video.dataset.hlsReady=this.liveFeedUrl;
+
+      video.removeAttribute('src');
+      video.src=this.liveFeedUrl;
+      video.load();
+      video.dataset.hlsReady=this.liveFeedUrl;
+      if(autoplay){
+        this.playLiveVideo(true);
       }
       return Promise.resolve(true);
     },
@@ -784,27 +854,6 @@ createApp({
     },
     markStreamReady(){ this.liveStatus='live'; this.miniLiveEnabled=true; this.miniLiveClosed=false; this.$nextTick(()=>this.syncMiniLive()); },
     markStreamError(){ this.liveStatus='offline'; this.isPlaying=false; },
-    liveEdgeTime(video){
-      if(this.hls && Number.isFinite(this.hls.liveSyncPosition)){ return this.hls.liveSyncPosition; }
-      if(video && video.seekable && video.seekable.length){ return video.seekable.end(video.seekable.length - 1) - 1; }
-      return 0;
-    },
-    recoverLivePlayback(force){
-      const video=this.$refs.liveVideo;
-      if(!video || this.activeStream !== 'player' || this.isIOSNativeHls){ return; }
-      const edge=this.liveEdgeTime(video);
-      if(!edge || !Number.isFinite(edge)){ return; }
-      const drift=edge - video.currentTime;
-      if(force || drift > 30 || video.ended){
-        try{ video.currentTime=Math.max(0, edge - 2); }catch(error){}
-      }
-      if((force || video.ended) && this.isPlaying){ this.playLiveVideo(true); }
-    },
-    checkLiveDrift(){
-      const video=this.$refs.liveVideo;
-      if(!video || video.paused || this.isIOSNativeHls){ return; }
-      this.recoverLivePlayback(false);
-    },
     handleLiveStall(){
       const video=this.$refs.liveVideo;
       if(!video || this.activeStream !== 'player'){ return; }
@@ -815,11 +864,13 @@ createApp({
           if(video.buffered && video.buffered.length > 0){
             const bEnd = video.buffered.end(video.buffered.length - 1);
             if(video.currentTime < bEnd - 0.2){
-              video.currentTime = Math.min(video.currentTime + 0.3, bEnd - 0.1);
+              video.currentTime = Math.min(video.currentTime + 0.3, bEnd - 0.05);
             } else {
-              const edge = this.liveEdgeTime(video);
-              if(edge > 0){
-                try { video.currentTime = Math.max(0, edge - 1.5); } catch(e){}
+              const edge = (this.hls && Number.isFinite(this.hls.liveSyncPosition)) 
+                ? this.hls.liveSyncPosition 
+                : (video.seekable && video.seekable.length ? video.seekable.end(video.seekable.length - 1) - 1 : 0);
+              if(edge > 0 && Math.abs(edge - video.currentTime) > 10){
+                try { video.currentTime = Math.max(0, edge - 2); } catch(e){}
               }
             }
           }
@@ -828,16 +879,13 @@ createApp({
               this.liveStatus = 'live';
               this.isPlaying = true;
             }).catch(() => {});
+          } else if(!video.paused){
+            this.liveStatus = 'live';
           }
         }
       }, 1200);
-      if(video.ended || video.error){
-        this.liveStatus='reconnecting';
-        if(this.liveFeedUrl){
-          video.src=this.liveFeedUrl;
-          video.load();
-          if(this.isPlaying){ setTimeout(()=>this.playLiveVideo(true), 350); }
-        }
+      if(video.error && this.hls){
+        this.hls.recoverMediaError();
       }
     },
     toggleLivePlay(){
@@ -983,7 +1031,27 @@ createApp({
     this.syncRoute();
     this.loadCms();
     window.addEventListener('hashchange', this.syncRoute);
-    window.addEventListener('focus', () => this.loadCms());
+    window.addEventListener('focus', () => {
+      if(this.route === 'live' && this.member && this.activeStream === 'player'){
+        const video = this.$refs.liveVideo;
+        if(video && !this._userManuallyPaused && video.paused){
+          video.play().catch(()=>{});
+        }
+        this.acquireWakeLock();
+      }
+      this.loadCms();
+    });
+    document.addEventListener('visibilitychange', () => {
+      if(document.visibilityState === 'visible'){
+        if(this.route === 'live' && this.member && this.activeStream === 'player'){
+          const video = this.$refs.liveVideo;
+          if(video && !this._userManuallyPaused && video.paused){
+            video.play().catch(()=>{});
+          }
+          this.acquireWakeLock();
+        }
+      }
+    });
     this.cmsRefreshTimer = setInterval(() => this.loadCms(), 20000);
     this.chatTimer=setInterval(()=>{ if(this.member){ this.loadChat(); } }, 4000);
     this.statusTimer=setInterval(()=>{ if(this.route === 'live'){ this.loadStatus(); } }, 30000);

@@ -432,27 +432,35 @@ const LivePage = {
       if(!v._stallRecoveryAttached){
         v._stallRecoveryAttached = true;
         let stallTimer = null;
-        v.addEventListener('waiting', () => {
-          clearTimeout(stallTimer);
-          stallTimer = setTimeout(() => {
-            if(this.isPlaying && !this._userManuallyPaused){
-              if(v.buffered && v.buffered.length > 0){
-                const end = v.buffered.end(v.buffered.length - 1);
-                if(v.currentTime < end){
-                  v.currentTime = Math.min(v.currentTime + 0.25, end - 0.1);
+
+        const tryResume = () => {
+          if(!this._userManuallyPaused && this.activeStream === 'player'){
+            if(v.buffered && v.buffered.length > 0){
+              const end = v.buffered.end(v.buffered.length - 1);
+              if(v.currentTime < end - 0.2){
+                v.currentTime = Math.min(v.currentTime + 0.3, end - 0.05);
+              } else {
+                const edge = (this.hls && Number.isFinite(this.hls.liveSyncPosition))
+                  ? this.hls.liveSyncPosition
+                  : (v.seekable && v.seekable.length ? v.seekable.end(v.seekable.length - 1) - 1 : 0);
+                if(edge > 0 && Math.abs(edge - v.currentTime) > 10){
+                  try { v.currentTime = Math.max(0, edge - 2); } catch(e){}
                 }
               }
+            }
+            if(v.paused){
               v.play().catch(()=>{});
             }
-          }, 1000);
+          }
+        };
+
+        v.addEventListener('waiting', () => {
+          clearTimeout(stallTimer);
+          stallTimer = setTimeout(tryResume, 1200);
         });
         v.addEventListener('stalled', () => {
           clearTimeout(stallTimer);
-          stallTimer = setTimeout(() => {
-            if(this.isPlaying && !this._userManuallyPaused){
-              v.play().catch(()=>{});
-            }
-          }, 1500);
+          stallTimer = setTimeout(tryResume, 1500);
         });
         v.addEventListener('pause', () => {
           if(this.isPlaying && !this._userManuallyPaused){
@@ -467,6 +475,11 @@ const LivePage = {
           clearTimeout(stallTimer);
           this.acquireWakeLock();
         });
+        v.addEventListener('ended', () => {
+          if(this.isPlaying && !this._userManuallyPaused){
+            tryResume();
+          }
+        });
       }
 
       const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
@@ -478,31 +491,41 @@ const LivePage = {
           maxMaxBufferLength:90,
           liveSyncDurationCount:4,
           liveMaxLatencyDurationCount:12,
-          maxLiveSyncPlaybackRate:1.1,
+          maxLiveSyncPlaybackRate:1.15,
+          maxBufferHole:0.5,
+          maxFragLookUpTolerance:0.25,
+          liveDurationInfinity:true,
           manifestLoadingTimeOut:20000,
-          manifestLoadingMaxRetry:6,
+          manifestLoadingMaxRetry:8,
           levelLoadingTimeOut:20000,
-          levelLoadingMaxRetry:6,
+          levelLoadingMaxRetry:8,
           fragLoadingTimeOut:30000,
-          fragLoadingMaxRetry:8,
+          fragLoadingMaxRetry:10,
           startFragPrefetch:true,
           backBufferLength:30,
           nudgeOffset:0.3,
-          nudgeMaxRetry:8
+          nudgeMaxRetry:10
         });
         hls.loadSource(this.hlsUrl);
         hls.attachMedia(v);
         hls.on(Hls.Events.ERROR, (event, data) => {
           if(data){
-            if(data.details === Hls.ErrorDetails.BUFFER_STALLED_ERROR){
-              if(v && v.buffered.length > 0){
-                const bEnd = v.buffered.end(v.buffered.length - 1);
-                if(v.currentTime < bEnd){
-                  v.currentTime = Math.min(v.currentTime + 0.25, bEnd - 0.1);
+            if(data.details === Hls.ErrorDetails.BUFFER_STALLED_ERROR || data.details === Hls.ErrorDetails.BUFFER_NUDGE_ON_STALL){
+              if(v && !this._userManuallyPaused){
+                if(v.buffered && v.buffered.length > 0){
+                  const bEnd = v.buffered.end(v.buffered.length - 1);
+                  if(v.currentTime < bEnd - 0.2){
+                    v.currentTime = Math.min(v.currentTime + 0.3, bEnd - 0.05);
+                  } else {
+                    const edge = Number.isFinite(hls.liveSyncPosition) ? hls.liveSyncPosition : (v.seekable && v.seekable.length ? v.seekable.end(v.seekable.length - 1) - 1 : 0);
+                    if(edge > 0 && Math.abs(edge - v.currentTime) > 10){
+                      try { v.currentTime = Math.max(0, edge - 2); } catch(e){}
+                    }
+                  }
                 }
-              }
-              if(v && v.paused && !this._userManuallyPaused){
-                v.play().catch(()=>{});
+                if(v.paused && !this._userManuallyPaused){
+                  v.play().catch(()=>{});
+                }
               }
               return;
             }
