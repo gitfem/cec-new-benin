@@ -7811,3 +7811,98 @@ body,
   max-width: 650px;
   margin: 0;
 }
+
+/* ==========================================================================
+   LIVE STREAM ADAPTIVE QUALITY SELECTOR
+   ========================================================================== */
+.stream-bar-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+.quality-selector-wrap {
+  position: relative;
+  display: inline-block;
+}
+.btn-quality-toggle {
+  background: rgba(15, 23, 42, 0.9);
+  border: 1px solid rgba(230, 167, 25, 0.45);
+  color: #f8fafc;
+  font-size: 0.82rem;
+  font-weight: 600;
+  padding: 6px 14px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(8px);
+}
+.btn-quality-toggle:hover {
+  border-color: #e6a719;
+  background: #0f172a;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(230, 167, 25, 0.15);
+}
+.btn-quality-toggle .quality-active-badge {
+  background: rgba(230, 167, 25, 0.2);
+  color: #fbbf24;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 4px;
+  border: 1px solid rgba(230, 167, 25, 0.3);
+}
+.quality-dropdown-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  background: #0b1120;
+  border: 1px solid rgba(230, 167, 25, 0.35);
+  box-shadow: 0 12px 35px rgba(0,0,0,0.6);
+  border-radius: 12px;
+  min-width: 210px;
+  z-index: 120;
+  padding: 8px 0;
+  animation: fadeIn 0.15s ease;
+}
+.quality-menu-header {
+  padding: 8px 16px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #94a3b8;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.quality-item {
+  width: 100%;
+  text-align: left;
+  padding: 9px 16px;
+  background: transparent;
+  border: none;
+  color: #cbd5e1;
+  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.quality-item:hover {
+  background: rgba(230, 167, 25, 0.15);
+  color: #fbbf24;
+}
+.quality-item.active {
+  color: #fbbf24;
+  font-weight: 700;
+  background: rgba(230, 167, 25, 0.1);
+}
+
