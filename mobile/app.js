@@ -594,6 +594,24 @@ createApp({
       if(type === 'youtube'){ this.stopLivePlayer(false); this.loadStatus(); return; }
       this.$nextTick(()=>{ this.setupLivePlayer(true); this.sendPresence(false); });
     },
+    acquireWakeLock(){
+      try {
+        if ('wakeLock' in navigator && !this._wakeLock) {
+          navigator.wakeLock.request('screen').then(lock => {
+            this._wakeLock = lock;
+            lock.addEventListener('release', () => { this._wakeLock = null; });
+          }).catch(()=>{});
+        }
+      } catch(e){}
+    },
+    releaseWakeLock(){
+      try {
+        if (this._wakeLock) {
+          this._wakeLock.release().catch(()=>{});
+          this._wakeLock = null;
+        }
+      } catch(e){}
+    },
     setupLivePlayer(autoplay){
       const video=this.$refs.liveVideo;
       if(!video || !this.hlsUrl){ this.liveStatus='offline'; return Promise.resolve(false); }
@@ -605,33 +623,97 @@ createApp({
       video.setAttribute('webkit-playsinline', '');
       video.setAttribute('x-webkit-airplay', 'allow');
       video.preload='auto';
-      if(this.isHlsStream && !video.canPlayType('application/vnd.apple.mpegurl') && !video.canPlayType('application/x-mpegURL')){
-        if(window.Hls && Hls.isSupported()){
-          if(video.dataset.hlsReady !== this.liveFeedUrl){
-            if(this.hls){ this.hls.destroy(); this.hls=null; }
-            const hls = new Hls({
-              lowLatencyMode: true,
-              maxBufferLength: 6,
-              maxMaxBufferLength: 20,
-              liveSyncDurationCount: 2,
-              enableWorker: true
-            });
-            hls.loadSource(this.liveFeedUrl);
-            hls.attachMedia(video);
-            hls.on(Hls.Events.ERROR, (event, data) => {
-              if(data && data.fatal){
+
+      if(!video._stallRecoveryAttached){
+        video._stallRecoveryAttached = true;
+        let stallTimer = null;
+        video.addEventListener('waiting', () => {
+          clearTimeout(stallTimer);
+          stallTimer = setTimeout(() => {
+            if(this.isPlaying && !this._userManuallyPaused){
+              if(video.buffered && video.buffered.length > 0){
+                const end = video.buffered.end(video.buffered.length - 1);
+                if(video.currentTime < end){
+                  video.currentTime = Math.min(video.currentTime + 0.25, end - 0.1);
+                }
+              }
+              video.play().catch(()=>{});
+            }
+          }, 1000);
+        });
+        video.addEventListener('stalled', () => {
+          clearTimeout(stallTimer);
+          stallTimer = setTimeout(() => {
+            if(this.isPlaying && !this._userManuallyPaused){
+              video.play().catch(()=>{});
+            }
+          }, 1500);
+        });
+        video.addEventListener('pause', () => {
+          if(this.isPlaying && !this._userManuallyPaused){
+            setTimeout(() => {
+              if(this.isPlaying && !this._userManuallyPaused && video.paused){
+                video.play().catch(()=>{});
+              }
+            }, 600);
+          }
+        });
+        video.addEventListener('playing', () => {
+          clearTimeout(stallTimer);
+          this.acquireWakeLock();
+        });
+      }
+
+      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+      if(this.isHlsStream && !isIOS && window.Hls && Hls.isSupported()){
+        if(video.dataset.hlsReady !== this.liveFeedUrl){
+          if(this.hls){ this.hls.destroy(); this.hls=null; }
+          const hls = new Hls({
+            enableWorker: true,
+            lowLatencyMode: false,
+            maxBufferLength: 30,
+            maxMaxBufferLength: 60,
+            liveSyncDurationCount: 3,
+            liveMaxLatencyDurationCount: 10,
+            maxLiveSyncPlaybackRate: 1.1,
+            manifestLoadingTimeOut: 15000,
+            manifestLoadingMaxRetry: 5,
+            levelLoadingTimeOut: 15000,
+            levelLoadingMaxRetry: 5,
+            fragLoadingTimeOut: 30000,
+            fragLoadingMaxRetry: 8,
+            startFragPrefetch: true,
+            backBufferLength: 30,
+            nudgeOffset: 0.2,
+            nudgeMaxRetry: 5
+          });
+          hls.loadSource(this.liveFeedUrl);
+          hls.attachMedia(video);
+          hls.on(Hls.Events.ERROR, (event, data) => {
+            if(data){
+              if(data.details === Hls.ErrorDetails.BUFFER_STALLED_ERROR){
+                if(video && video.buffered.length > 0){
+                  const bEnd = video.buffered.end(video.buffered.length - 1);
+                  if(video.currentTime < bEnd){
+                    video.currentTime = Math.min(video.currentTime + 0.25, bEnd - 0.1);
+                  }
+                }
+                if(video && video.paused && !this._userManuallyPaused){
+                  video.play().catch(()=>{});
+                }
+                return;
+              }
+              if(data.fatal){
                 if(data.type === Hls.ErrorTypes.NETWORK_ERROR){ hls.startLoad(); }
                 else if(data.type === Hls.ErrorTypes.MEDIA_ERROR){ hls.recoverMediaError(); }
                 else { this.markStreamError(); }
               }
-            });
-            this.hls = hls;
-            video.dataset.hlsReady = this.liveFeedUrl;
-          }
-          return Promise.resolve(true);
+            }
+          });
+          this.hls = hls;
+          video.dataset.hlsReady = this.liveFeedUrl;
         }
-        this.liveStatus='unsupported';
-        return Promise.resolve(false);
+        return Promise.resolve(true);
       }
       if(video.dataset.hlsReady !== this.liveFeedUrl){
         video.removeAttribute('src');
@@ -644,6 +726,8 @@ createApp({
     playLiveVideo(allowMutedRetry){
       const video=this.$refs.liveVideo;
       if(!video){ return; }
+      this._userManuallyPaused = false;
+      this.acquireWakeLock();
       const playPromise=video.play();
       if(playPromise && playPromise.catch){
         playPromise.catch(() => {
@@ -656,6 +740,8 @@ createApp({
     },
     stopLivePlayer(clearSource=true){
       const video=this.$refs.liveVideo;
+      this._userManuallyPaused = true;
+      this.releaseWakeLock();
       if(this.videoJsPlayer){ this.videoJsPlayer.pause(); }
       if(video){ video.pause(); if(clearSource){ video.removeAttribute('src'); video.load(); } }
       if(this.hls){ this.hls.destroy(); this.hls=null; }

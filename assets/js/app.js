@@ -320,7 +320,7 @@ const LivePage = {
     }
   },
   mounted(){this.loadStatus(); this.loadChat(); this.loadLiveNotice(); this.chatTimer=setInterval(this.loadChat, 5000); this.statusTimer=setInterval(this.loadStatus, 30000); this.noticeTimer=setInterval(this.loadLiveNotice, 8000); this.presenceTimer=setInterval(()=>this.sendPresence(false), 15000); this.sendPresence(false); if(this.member){ this.$nextTick(()=>this.autoplayPlayer()); }},
-  unmounted(){clearInterval(this.chatTimer); clearInterval(this.statusTimer); clearInterval(this.noticeTimer); clearInterval(this.presenceTimer); this.sendPresence(true); if(this.videoJsPlayer){ this.videoJsPlayer.dispose(); this.videoJsPlayer=null; } if(this.hls){ this.hls.destroy(); }},
+  unmounted(){this.releaseWakeLock(); clearInterval(this.chatTimer); clearInterval(this.statusTimer); clearInterval(this.noticeTimer); clearInterval(this.presenceTimer); this.sendPresence(true); if(this.videoJsPlayer){ this.videoJsPlayer.dispose(); this.videoJsPlayer=null; } if(this.hls){ this.hls.destroy(); }},
   methods:{
     login(){
       if(!this.name.trim()){ this.error='Please enter your full name.'; return; }
@@ -359,14 +359,74 @@ const LivePage = {
     },
     logout(){ this.sendPresence(true); localStorage.removeItem('kh_member'); this.$root.stopFloatingLive(); this.$root.member=null; this.activeStream='player'; },
     switchStream(type){ this.activeStream=type; if(type==='youtube'){ const v=this.$refs.liveVideo; if(v && !v.paused){ v.pause(); } this.isPlaying=false; this.loadStatus(); } else { this.liveStatus=this.isPlaying ? 'live' : 'checking'; this.$nextTick(()=>this.autoplayPlayer()); } },
+    acquireWakeLock(){
+      try {
+        if ('wakeLock' in navigator && !this._wakeLock) {
+          navigator.wakeLock.request('screen').then(lock => {
+            this._wakeLock = lock;
+            lock.addEventListener('release', () => { this._wakeLock = null; });
+          }).catch(()=>{});
+        }
+      } catch(e){}
+    },
+    releaseWakeLock(){
+      try {
+        if (this._wakeLock) {
+          this._wakeLock.release().catch(()=>{});
+          this._wakeLock = null;
+        }
+      } catch(e){}
+    },
     setupHls(){
       const v=this.$refs.liveVideo;
       if(!v || !this.hlsUrl){ this.liveStatus='offline'; return; }
       if(v.dataset.hlsReady === this.hlsUrl){ return; }
       if(this.hls){ this.hls.destroy(); this.hls=null; }
       if(this.isAudioStream){ v.src=this.hlsUrl; v.dataset.hlsReady=this.hlsUrl; v.load(); return; }
-      if(v.canPlayType('application/vnd.apple.mpegurl')){ v.src=this.hlsUrl; v.dataset.hlsReady=this.hlsUrl; v.load(); return; }
-      if(window.Hls && Hls.isSupported()){
+
+      // Auto-recovery watcher on the video element (handles buffer underruns, waiting stalls, pauses without needing screen tap)
+      if(!v._stallRecoveryAttached){
+        v._stallRecoveryAttached = true;
+        let stallTimer = null;
+        v.addEventListener('waiting', () => {
+          clearTimeout(stallTimer);
+          stallTimer = setTimeout(() => {
+            if(this.isPlaying && !this._userManuallyPaused){
+              if(v.buffered && v.buffered.length > 0){
+                const end = v.buffered.end(v.buffered.length - 1);
+                if(v.currentTime < end){
+                  v.currentTime = Math.min(v.currentTime + 0.25, end - 0.1);
+                }
+              }
+              v.play().catch(()=>{});
+            }
+          }, 1000);
+        });
+        v.addEventListener('stalled', () => {
+          clearTimeout(stallTimer);
+          stallTimer = setTimeout(() => {
+            if(this.isPlaying && !this._userManuallyPaused){
+              v.play().catch(()=>{});
+            }
+          }, 1500);
+        });
+        v.addEventListener('pause', () => {
+          if(this.isPlaying && !this._userManuallyPaused){
+            setTimeout(() => {
+              if(this.isPlaying && !this._userManuallyPaused && v.paused){
+                v.play().catch(()=>{});
+              }
+            }, 600);
+          }
+        });
+        v.addEventListener('playing', () => {
+          clearTimeout(stallTimer);
+          this.acquireWakeLock();
+        });
+      }
+
+      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+      if(!isIOS && window.Hls && Hls.isSupported()){
         const hls=new Hls({
           enableWorker:true,
           lowLatencyMode:false,
@@ -374,37 +434,58 @@ const LivePage = {
           maxMaxBufferLength:60,
           liveSyncDurationCount:3,
           liveMaxLatencyDurationCount:10,
+          maxLiveSyncPlaybackRate:1.1,
           manifestLoadingTimeOut:15000,
-          manifestLoadingMaxRetry:4,
+          manifestLoadingMaxRetry:5,
           levelLoadingTimeOut:15000,
-          levelLoadingMaxRetry:4,
+          levelLoadingMaxRetry:5,
           fragLoadingTimeOut:30000,
-          fragLoadingMaxRetry:6,
+          fragLoadingMaxRetry:8,
           startFragPrefetch:true,
-          backBufferLength:30
+          backBufferLength:30,
+          nudgeOffset:0.2,
+          nudgeMaxRetry:5
         });
         hls.loadSource(this.hlsUrl);
         hls.attachMedia(v);
         hls.on(Hls.Events.ERROR, (event, data) => {
-          if (data && data.fatal) {
-            switch (data.type) {
-              case Hls.ErrorTypes.NETWORK_ERROR:
-                console.warn('HLS Network stall, attempting recovery...', data);
-                hls.startLoad();
-                break;
-              case Hls.ErrorTypes.MEDIA_ERROR:
-                console.warn('HLS Media decode stall, recovering media...', data);
-                hls.recoverMediaError();
-                break;
-              default:
-                console.error('Fatal HLS error:', data);
-                this.markStreamError();
-                break;
+          if(data){
+            if(data.details === Hls.ErrorDetails.BUFFER_STALLED_ERROR){
+              if(v && v.buffered.length > 0){
+                const bEnd = v.buffered.end(v.buffered.length - 1);
+                if(v.currentTime < bEnd){
+                  v.currentTime = Math.min(v.currentTime + 0.25, bEnd - 0.1);
+                }
+              }
+              if(v && v.paused && !this._userManuallyPaused){
+                v.play().catch(()=>{});
+              }
+              return;
+            }
+            if(data.fatal){
+              switch(data.type){
+                case Hls.ErrorTypes.NETWORK_ERROR:
+                  console.warn('HLS Network stall, attempting recovery...', data);
+                  hls.startLoad();
+                  break;
+                case Hls.ErrorTypes.MEDIA_ERROR:
+                  console.warn('HLS Media decode stall, recovering media...', data);
+                  hls.recoverMediaError();
+                  break;
+                default:
+                  console.error('Fatal HLS error:', data);
+                  this.markStreamError();
+                  break;
+              }
             }
           }
         });
         this.hls=hls;
         v.dataset.hlsReady=this.hlsUrl;
+      } else if(v.canPlayType('application/vnd.apple.mpegurl')){
+        v.src=this.hlsUrl;
+        v.dataset.hlsReady=this.hlsUrl;
+        v.load();
       }
     },
 
@@ -431,6 +512,7 @@ const LivePage = {
       if (!v) return;
       this.setupHls();
       if (v.paused) {
+        this._userManuallyPaused = false;
         v.muted = false;
         v.volume = parseFloat(this.volume || 0.85);
         const playPromise = v.play();
@@ -439,6 +521,7 @@ const LivePage = {
             this.isPlaying = true;
             this.soundBlocked = false;
             this.liveStatus = 'live';
+            this.acquireWakeLock();
           }).catch((err) => {
             console.warn('Playback with sound blocked by browser, trying muted:', err);
             v.muted = true;
@@ -447,14 +530,17 @@ const LivePage = {
             v.play().then(() => {
               this.isPlaying = true;
               this.liveStatus = 'live';
+              this.acquireWakeLock();
             }).catch(() => {
               this.isPlaying = false;
             });
           });
         }
       } else {
+        this._userManuallyPaused = true;
         v.pause();
         this.isPlaying = false;
+        this.releaseWakeLock();
         this.$root.stopFloatingLive();
       }
     },
