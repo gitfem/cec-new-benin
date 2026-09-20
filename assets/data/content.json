@@ -1,6 +1,6 @@
 {
   "site": {
-    "name": "Christ Embassy New Benin",
+    "name": "CE New Benin",
     "logo": "assets/uploaded_media/cec_newbenin_church_logo_1_web.png",
     "logo_full": "assets/uploaded_media/cec_newbenin_church_logo_1.png",
     "logo_icon": "assets/uploaded_media/cec_newbenin_church_logo_icon.png",
@@ -42,12 +42,12 @@
     "help": "[— To Be Supplied]"
   },
   "home": {
-    "welcome_header": "Welcome to Christ Embassy New Benin",
+    "welcome_header": "Welcome to CE New Benin",
     "welcome_text": "Church of Excellence with Pastor Joseph Atibi-Brown. A family of faith demonstrating the supernatural character of the Spirit.",
     "slides": [
       {
         "id": "1",
-        "title": "Welcome to Christ Embassy New Benin",
+        "title": "Welcome to CE New Benin",
         "subtitle": "Church of Excellence — Pastored by Pastor Joseph Atibi-Brown",
         "link_url": "#/visit",
         "link_text": "Plan a Visit",
@@ -818,7 +818,7 @@
   },
   "pages": {
     "about": {
-      "title": "About Christ Embassy New Benin",
+      "title": "About CE New Benin",
       "subtitle": "Church of Excellence - Living the Higher Life in Christ",
       "eyebrow": "Welcome to Church of Excellence",
       "hero": "assets/uploaded_media/about_hero_banner.jpg",

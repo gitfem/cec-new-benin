@@ -507,25 +507,25 @@ const LivePage = {
       if(!isIOS && window.Hls && Hls.isSupported()){
         const hls=new Hls({
           enableWorker:true,
-          lowLatencyMode:false,
-          maxBufferLength:20,
-          maxMaxBufferLength:30,
-          liveSyncDurationCount:3,
-          liveMaxLatencyDurationCount:6,
-          maxLiveSyncPlaybackRate:1.15,
+          lowLatencyMode:true,
+          maxBufferLength:8,
+          maxMaxBufferLength:14,
+          liveSyncDurationCount:2,
+          liveMaxLatencyDurationCount:4,
+          maxLiveSyncPlaybackRate:1.0,
           maxBufferHole:0.5,
           maxFragLookUpTolerance:0.25,
           liveDurationInfinity:true,
-          manifestLoadingTimeOut:20000,
-          manifestLoadingMaxRetry:8,
-          levelLoadingTimeOut:20000,
-          levelLoadingMaxRetry:8,
-          fragLoadingTimeOut:30000,
-          fragLoadingMaxRetry:10,
+          manifestLoadingTimeOut:15000,
+          manifestLoadingMaxRetry:6,
+          levelLoadingTimeOut:15000,
+          levelLoadingMaxRetry:6,
+          fragLoadingTimeOut:20000,
+          fragLoadingMaxRetry:8,
           startFragPrefetch:true,
-          backBufferLength:10,
-          nudgeOffset:0.2,
-          nudgeMaxRetry:8
+          backBufferLength:3,
+          nudgeOffset:0.1,
+          nudgeMaxRetry:6
         });
 
         Object.defineProperty(hls, 'liveSyncPosition', {
@@ -4664,7 +4664,11 @@ createApp({
     siteLogo(){ return (this.cms.site && this.cms.site.logo) ? this.cms.site.logo : ''; },
     brandInitial(){ return this.siteName.trim().charAt(0).toUpperCase() || ''; },
     brandParts(){
-      const words = this.siteName.trim().split(/\s+/).filter(Boolean);
+      const name = this.siteName.trim();
+      if(/^ce\s+new\s+benin$/i.test(name) || /^christ\s+embassy\s+new\s+benin$/i.test(name)){
+        return ['CE', 'New Benin'];
+      }
+      const words = name.split(/\s+/).filter(Boolean);
       if(words.length < 2){ return [this.siteName, '']; }
       return [words.slice(0, -1).join(' '), words[words.length - 1]];
     },
