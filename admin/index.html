@@ -1162,9 +1162,24 @@
               </div>
 
               <div class="col-md-12 mt-3">
-                <label class="form-label">YouTube Channel ID (Live Fallback Switcher)</label>
-                <input type="text" v-model="cms.live.youtube_channel_id" class="form-control" placeholder="e.g. UCLFScmpsKP4jlJXD8McBGgQ">
-                <small class="text-muted">Allows viewers to switch between native player and YouTube Live stream in 1 click.</small>
+                <div class="p-3 rounded border" style="background: rgba(230, 33, 23, 0.05); border-color: rgba(230, 33, 23, 0.25) !important;">
+                  <label class="form-label fw-bold d-flex align-items-center gap-2">
+                    <i class="fa-brands fa-youtube text-danger fs-5"></i>
+                    <span>YouTube Live Stream Fallback (Second Option for Viewers)</span>
+                  </label>
+                  <div class="input-group">
+                    <span class="input-group-text bg-dark border-secondary text-danger"><i class="fa-brands fa-youtube"></i></span>
+                    <input type="text" v-model="cms.live.youtube_channel_id" class="form-control" placeholder="Paste YouTube Live URL, Video ID, or Channel ID (e.g. https://www.youtube.com/watch?v=... or UCLFScmpsKP4jlJXD8McBGgQ)">
+                  </div>
+                  <div class="form-text text-muted mt-2">
+                    <div class="fw-bold text-light mb-1"><i class="fa-solid fa-circle-question text-warning me-1"></i> How to set this up:</div>
+                    <ul class="mb-1 ps-3 small text-muted">
+                      <li><b>Option A (Recommended for specific services):</b> Paste the exact YouTube Live link (e.g. <code>https://www.youtube.com/watch?v=...</code>, <code>https://youtu.be/...</code>, or <code>https://www.youtube.com/live/...</code>).</li>
+                      <li><b>Option B (Channel Live Stream):</b> Enter your church's YouTube Channel ID (e.g. <code>UCLFScmpsKP4jlJXD8McBGgQ</code>) or handle (e.g. <code>@christembassynewbenin</code>).</li>
+                    </ul>
+                    <span class="text-info small"><i class="fa-solid fa-check text-success me-1"></i> Viewers can switch instantly between the HD Player and YouTube at any time with 1 tap.</span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>

@@ -304,14 +304,48 @@ const LivePage = {
     helpLine(){ return (this.cms && this.cms.site && this.cms.site.help) ? this.cms.site.help : ''; },
     liveSettings(){ return (this.cms && this.cms.live) ? this.cms.live : {}; },
     hlsUrl(){ return this.liveSettings.hls_url || OLD.hls; },
-    youtubeChannelId(){
-      const value = String(this.liveSettings.youtube_channel_id || '').trim();
-      if(!value){ return 'UCLFScmpsKP4jlJXD8McBGgQ'; }
-      const match = value.match(/(?:channel\/|channel=)([A-Za-z0-9_-]+)/);
-      return match ? match[1] : value;
+    youtubeData(){
+      const raw = String((this.liveSettings && (this.liveSettings.youtube_channel_id || this.liveSettings.youtube_url || this.liveSettings.youtube_video_id)) || '').trim() || 'UCLFScmpsKP4jlJXD8McBGgQ';
+      const vidMatch = raw.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?(?:.*&)?v=|live\/|embed\/|v\/))([a-zA-Z0-9_-]{11})/i);
+      if(vidMatch){
+        const id = vidMatch[1];
+        return {
+          id,
+          type: 'video',
+          embedUrl: 'https://www.youtube.com/embed/' + id + '?autoplay=1&controls=1&modestbranding=1&rel=0',
+          pageUrl: 'https://www.youtube.com/watch?v=' + id
+        };
+      }
+      if(/^[a-zA-Z0-9_-]{11}$/.test(raw)){
+        return {
+          id: raw,
+          type: 'video',
+          embedUrl: 'https://www.youtube.com/embed/' + raw + '?autoplay=1&controls=1&modestbranding=1&rel=0',
+          pageUrl: 'https://www.youtube.com/watch?v=' + raw
+        };
+      }
+      const handleMatch = raw.match(/(?:youtube\.com\/)?(@[a-zA-Z0-9_.-]+)/i);
+      if(handleMatch){
+        const handle = handleMatch[1];
+        return {
+          id: handle,
+          type: 'handle',
+          embedUrl: 'https://www.youtube.com/embed/live_stream?channel=' + encodeURIComponent(handle) + '&autoplay=1&controls=1&modestbranding=1&rel=0',
+          pageUrl: 'https://www.youtube.com/' + handle
+        };
+      }
+      const chMatch = raw.match(/(?:youtube\.com\/(?:channel\/|c\/))?(UC[a-zA-Z0-9_-]{21,22})/i);
+      const channelId = chMatch ? chMatch[1] : (raw.startsWith('UC') ? raw : raw);
+      return {
+        id: channelId,
+        type: 'channel',
+        embedUrl: 'https://www.youtube.com/embed/live_stream?channel=' + encodeURIComponent(channelId) + '&autoplay=1&controls=1&modestbranding=1&rel=0',
+        pageUrl: 'https://www.youtube.com/channel/' + encodeURIComponent(channelId)
+      };
     },
-    youtubeUrl(){ return 'https://www.youtube.com/embed/live_stream?channel=' + encodeURIComponent(this.youtubeChannelId) + '&autoplay=1&controls=1&modestbranding=1&rel=0'; },
-    youtubePage(){ return 'https://www.youtube.com/channel/' + encodeURIComponent(this.youtubeChannelId); },
+    youtubeChannelId(){ return this.youtubeData.id; },
+    youtubeUrl(){ return this.youtubeData.embedUrl; },
+    youtubePage(){ return this.youtubeData.pageUrl; },
     isAudioStream(){ return /\.(mp3|m4a|aac|ogg|oga|wav)(\?.*)?$/i.test(this.hlsUrl); },
     announcementHtml(){
       const items = this.cms && this.cms.home && Array.isArray(this.cms.home.member_announcements) ? this.cms.home.member_announcements : [];
@@ -478,24 +512,6 @@ const LivePage = {
           clearTimeout(stallTimer);
           this.acquireWakeLock();
         });
-        v.addEventListener('seeking', () => {
-          if (v.buffered && v.buffered.length > 0) {
-            const bStart = v.buffered.start(0);
-            const bEnd = v.buffered.end(v.buffered.length - 1);
-            if (v.currentTime > bEnd || v.currentTime < bStart) {
-              v.currentTime = Math.max(bStart, bEnd - 1.5);
-            }
-          }
-        });
-        v.addEventListener('timeupdate', () => {
-          if (v.buffered && v.buffered.length > 0) {
-            const bStart = v.buffered.start(0);
-            const bEnd = v.buffered.end(v.buffered.length - 1);
-            if (v.currentTime > bEnd) {
-              v.currentTime = Math.max(bStart, bEnd - 1.5);
-            }
-          }
-        });
         v.addEventListener('ended', () => {
           if(this.isPlaying && !this._userManuallyPaused){
             tryResume();
@@ -507,11 +523,11 @@ const LivePage = {
       if(!isIOS && window.Hls && Hls.isSupported()){
         const hls=new Hls({
           enableWorker:true,
-          lowLatencyMode:true,
-          maxBufferLength:8,
-          maxMaxBufferLength:14,
-          liveSyncDurationCount:2,
-          liveMaxLatencyDurationCount:4,
+          lowLatencyMode:false,
+          maxBufferLength:15,
+          maxMaxBufferLength:30,
+          liveSyncDurationCount:3,
+          liveMaxLatencyDurationCount:6,
           maxLiveSyncPlaybackRate:1.0,
           maxBufferHole:0.5,
           maxFragLookUpTolerance:0.25,
@@ -523,24 +539,9 @@ const LivePage = {
           fragLoadingTimeOut:20000,
           fragLoadingMaxRetry:8,
           startFragPrefetch:true,
-          backBufferLength:3,
+          backBufferLength:10,
           nudgeOffset:0.1,
-          nudgeMaxRetry:6
-        });
-
-        Object.defineProperty(hls, 'liveSyncPosition', {
-          get: function() {
-            if (v.buffered && v.buffered.length > 0) {
-              const bEnd = v.buffered.end(v.buffered.length - 1);
-              const bStart = v.buffered.start(0);
-              if (v.currentTime >= bStart && v.currentTime <= bEnd) {
-                return v.currentTime;
-              }
-              return Math.max(bStart, bEnd - 1.5);
-            }
-            return 0;
-          },
-          configurable: true
+          nudgeMaxRetry:5
         });
 
         hls.loadSource(this.hlsUrl);
@@ -549,23 +550,10 @@ const LivePage = {
           if(data){
             if(data.details === Hls.ErrorDetails.BUFFER_STALLED_ERROR || data.details === Hls.ErrorDetails.BUFFER_NUDGE_ON_STALL){
               if(v && !this._userManuallyPaused){
-                if(v.buffered && v.buffered.length > 0){
-                  for(let i = 0; i < v.buffered.length; i++){
-                    const bStart = v.buffered.start(i);
-                    const bEnd = v.buffered.end(i);
-                    if(v.currentTime >= bStart && v.currentTime < bEnd - 0.25){
-                      v.currentTime = Math.min(v.currentTime + 0.2, bEnd - 0.05);
-                      break;
-                    } else if(v.currentTime < bStart && bStart - v.currentTime < 1.0){
-                      v.currentTime = bStart + 0.05;
-                      break;
-                    }
-                  }
-                }
                 if(hls){
                   hls.startLoad();
                 }
-                if(v.paused && !this._userManuallyPaused){
+                if(v.paused){
                   v.play().catch(()=>{});
                 }
               }

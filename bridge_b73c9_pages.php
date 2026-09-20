@@ -565,20 +565,7 @@
         "updated_ts": "1789758000"
       }
     ],
-    "member_announcements": [
-      {
-        "id": "1",
-        "announcement": "<p>1.&nbsp;&nbsp;&nbsp; Missions\r\n7, Missions 8,&nbsp; Missions 9 and Loveworld\r\nCity and Environs Groups will handle tomorrow's Unending Praise sessions by\r\n10am at Erediauwa. Thanks to Esteemed Pastor Margaret Idubor for participating\r\nin the Unending Praise physically last week,and Special thanks to Erediauwa\r\nGroup for being the first Group to have an attendance of 63 people during\r\nUnending Praise sessions. </p><p>\r\n\r\n2.&nbsp;&nbsp; Foundation school classes\r\nholds immediately after the service as we prepare for our 3Q GRADUATION last\r\nSundayof this month.\r\n</p><p>\r\n3.&nbsp;&nbsp;&nbsp; An\r\nHour With God ( A special Prayer\r\nservice&nbsp; holds every Friday at Central\r\nchurch by 5pm)\r\n</p><p>\r\n4.&nbsp;&nbsp;&nbsp; Every\r\nmember is encouraged to download and subscribe to Alpha Tv App, with just 3\r\nespees. </p><p>\r\n\r\n5.&nbsp;&nbsp;&nbsp; Praise\r\nNight with Pastor Chris comes up next Sunday 20th September, 2026 on all\r\nLoveworld Networks</p>",
-        "sort_order": "10",
-        "updated_ts": "1789246286"
-      },
-      {
-        "id": "1789831042401",
-        "title": "New Church Announcement",
-        "announcement": "<p>Special announcement text goes here. Join us this week for fellowship and prayers.</p>khshksfglskllsfgfs",
-        "sort_order": "10"
-      }
-    ],
+    "member_announcements": [],
     "featured_story": {
       "eyebrow": "Featured Testimony",
       "title": "Supernatural Breakthrough & Divine Healing",

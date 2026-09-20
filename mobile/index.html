@@ -168,17 +168,30 @@
           <p style="color:#e2e8f0 !important; font-size:0.95rem !important; line-height:1.55 !important; margin:0 !important;">{{ liveNotice.message }}</p>
         </div>
         <div class="stream-tabs">
-          <button type="button" :class="{active:activeStream==='player'}" @click="switchStream('player')"><i class="fa-solid fa-play"></i> Player</button>
-          <button type="button" :class="{active:activeStream==='youtube'}" @click="switchStream('youtube')"><i class="fa-brands fa-youtube"></i> YouTube</button>
+          <button type="button" :class="{active:activeStream==='player'}" @click="switchStream('player')"><i class="fa-solid fa-play"></i> HD Player</button>
+          <button type="button" :class="{active:activeStream==='youtube'}" @click="switchStream('youtube')"><i class="fa-brands fa-youtube"></i> YouTube Live</button>
         </div>
         <div v-if="activeStream==='player'" class="player-card native-mobile-player">
           <video ref="liveVideo" preload="auto" controls playsinline webkit-playsinline x-webkit-airplay="allow" @loadedmetadata="markStreamReady" @canplay="markStreamReady" @playing="markStreamReady" @waiting="handleLiveStall" @stalled="handleLiveStall" @ended="handleLiveStall" @error="markStreamError" @play="onVideoPlay" @pause="onVideoPause"></video>
           <button v-if="!isPlaying" type="button" class="native-big-play" @click="toggleLivePlay" aria-label="Play live stream"><i class="fa-solid fa-play"></i></button>
         </div>
-        <div v-else class="player-card">
+        <div v-if="activeStream==='player'" style="display:flex; justify-content:space-between; align-items:center; margin:8px 2px 14px; padding:9px 12px; background:#f1f5f9; border-radius:10px; font-size:0.83rem;">
+          <span style="color:#475569; font-weight:600;"><i class="fa-solid fa-wifi text-primary me-1"></i> Slow network?</span>
+          <button type="button" @click="switchStream('youtube')" style="background:none; border:none; color:#dc2626; font-weight:700; cursor:pointer; display:inline-flex; align-items:center; gap:4px; font-size:0.83rem;">
+            <i class="fa-brands fa-youtube"></i> Switch to YouTube Stream &rarr;
+          </button>
+        </div>
+        <div v-else class="player-card" style="margin-bottom:12px;">
           <iframe :src="youtubeUrl" title="YouTube Live" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
         </div>
-        <a v-if="activeStream==='youtube'" class="primary-btn full" :href="youtubePage" target="_blank" rel="noopener"><i class="fa-brands fa-youtube"></i> Open YouTube</a>
+        <div v-if="activeStream==='youtube'" style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:14px;">
+          <button type="button" @click="switchStream('player')" style="padding:11px; font-size:0.85rem; border-radius:10px; background:#e2e8f0; color:#0f172a; border:none; font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px;">
+            <i class="fa-solid fa-play"></i> HD Player
+          </button>
+          <a class="primary-btn" :href="youtubePage" target="_blank" rel="noopener" style="padding:11px; font-size:0.85rem; border-radius:10px; text-align:center; display:flex; align-items:center; justify-content:center; gap:6px; background:#e62117; color:#ffffff; font-weight:700; text-decoration:none;">
+            <i class="fa-brands fa-youtube"></i> Open in YouTube <i class="fa-solid fa-arrow-up-right-from-square" style="font-size:0.75rem;"></i>
+          </a>
+        </div>
         <article v-if="announcementHtml" class="announcement-card" style="background:#ffffff !important; border:1px solid #e2e8f0 !important; border-radius:14px !important; padding:16px !important; margin-bottom:14px !important;">
           <button type="button" @click="announcementOpen=!announcementOpen" style="width:100%; border:0; background:transparent; display:flex; justify-content:space-between; align-items:center; padding:0 0 10px; font-weight:800; text-transform:uppercase; letter-spacing:.08em; color:#0f172a; font-size:0.88rem;">Church Announcements <i :class="announcementOpen ? 'fa-solid fa-chevron-up' : 'fa-solid fa-chevron-down'"></i></button>
           <div v-show="announcementOpen" v-html="announcementHtml" style="color:#0f172a !important;"></div>
@@ -987,6 +1000,6 @@
 
 <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/hls.js@1"></script>
-<script src="app.js?v=57"></script>
+<script src="app.js?v=58"></script>
 </body>
 </html>
