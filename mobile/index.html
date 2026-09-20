@@ -175,12 +175,6 @@
           <video ref="liveVideo" preload="auto" controls playsinline webkit-playsinline x-webkit-airplay="allow" @loadedmetadata="markStreamReady" @canplay="markStreamReady" @playing="markStreamReady" @waiting="handleLiveStall" @stalled="handleLiveStall" @ended="handleLiveStall" @error="markStreamError" @play="onVideoPlay" @pause="onVideoPause"></video>
           <button v-if="!isPlaying" type="button" class="native-big-play" @click="toggleLivePlay" aria-label="Play live stream"><i class="fa-solid fa-play"></i></button>
         </div>
-        <div v-if="activeStream==='player'" style="display:flex; justify-content:space-between; align-items:center; margin:8px 2px 14px; padding:9px 12px; background:#f1f5f9; border-radius:10px; font-size:0.83rem;">
-          <span style="color:#475569; font-weight:600;"><i class="fa-solid fa-wifi text-primary me-1"></i> Slow network?</span>
-          <button type="button" @click="switchStream('youtube')" style="background:none; border:none; color:#dc2626; font-weight:700; cursor:pointer; display:inline-flex; align-items:center; gap:4px; font-size:0.83rem;">
-            <i class="fa-brands fa-youtube"></i> Switch to YouTube Stream &rarr;
-          </button>
-        </div>
         <div v-else class="player-card" style="margin-bottom:14px;">
           <iframe :src="youtubeUrl" title="YouTube Live Stream" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen style="width:100%; aspect-ratio:16/9; border:0; display:block;"></iframe>
         </div>
@@ -992,6 +986,6 @@
 
 <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/hls.js@1"></script>
-<script src="app.js?v=59"></script>
+<script src="app.js?v=60"></script>
 </body>
 </html>
