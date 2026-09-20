@@ -312,7 +312,7 @@ const LivePage = {
         return {
           id,
           type: 'video',
-          embedUrl: 'https://www.youtube.com/embed/' + id + '?autoplay=1&controls=1&modestbranding=1&rel=0',
+          embedUrl: 'https://www.youtube.com/embed/' + id + '?autoplay=1&playsinline=1&controls=1&modestbranding=1&rel=0',
           pageUrl: 'https://www.youtube.com/watch?v=' + id
         };
       }
@@ -320,7 +320,7 @@ const LivePage = {
         return {
           id: raw,
           type: 'video',
-          embedUrl: 'https://www.youtube.com/embed/' + raw + '?autoplay=1&controls=1&modestbranding=1&rel=0',
+          embedUrl: 'https://www.youtube.com/embed/' + raw + '?autoplay=1&playsinline=1&controls=1&modestbranding=1&rel=0',
           pageUrl: 'https://www.youtube.com/watch?v=' + raw
         };
       }
@@ -330,7 +330,7 @@ const LivePage = {
         return {
           id: handle,
           type: 'handle',
-          embedUrl: 'https://www.youtube.com/embed/live_stream?channel=' + encodeURIComponent(handle) + '&autoplay=1&controls=1&modestbranding=1&rel=0',
+          embedUrl: 'https://www.youtube.com/embed/live_stream?channel=' + encodeURIComponent(handle) + '&autoplay=1&playsinline=1&controls=1&modestbranding=1&rel=0',
           pageUrl: 'https://www.youtube.com/' + handle
         };
       }
@@ -339,7 +339,7 @@ const LivePage = {
       return {
         id: channelId,
         type: 'channel',
-        embedUrl: 'https://www.youtube.com/embed/live_stream?channel=' + encodeURIComponent(channelId) + '&autoplay=1&controls=1&modestbranding=1&rel=0',
+        embedUrl: 'https://www.youtube.com/embed/live_stream?channel=' + encodeURIComponent(channelId) + '&autoplay=1&playsinline=1&controls=1&modestbranding=1&rel=0',
         pageUrl: 'https://www.youtube.com/channel/' + encodeURIComponent(channelId)
       };
     },
@@ -812,8 +812,7 @@ const LivePage = {
           </div>
 
           <div v-else class="youtube-panel">
-            <div class="youtube-frame"><iframe :src="youtubeUrl" :title="siteName ? siteName + ' YouTube Live' : 'YouTube Live'" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe></div>
-            <div class="youtube-actions"><div><b>YouTube Live</b><span>Uses the selected YouTube channel ID.</span></div><a :href="youtubePage" target="_blank" rel="noopener" class="btn-brand">Open YouTube Page</a></div>
+            <div class="youtube-frame"><iframe :src="youtubeUrl" :title="siteName ? siteName + ' YouTube Live' : 'YouTube Live'" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen style="width:100%; aspect-ratio:16/9; border:0; border-radius:14px;"></iframe></div>
           </div>
 
           <div class="live-service-info mt-3 p-4 rounded" style="background: #ffffff; border: 1px solid #e2e8f0; box-shadow: 0 4px 20px rgba(0,0,0,0.05); border-radius: 14px;">

@@ -181,16 +181,8 @@
             <i class="fa-brands fa-youtube"></i> Switch to YouTube Stream &rarr;
           </button>
         </div>
-        <div v-else class="player-card" style="margin-bottom:12px;">
-          <iframe :src="youtubeUrl" title="YouTube Live" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
-        </div>
-        <div v-if="activeStream==='youtube'" style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:14px;">
-          <button type="button" @click="switchStream('player')" style="padding:11px; font-size:0.85rem; border-radius:10px; background:#e2e8f0; color:#0f172a; border:none; font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px;">
-            <i class="fa-solid fa-play"></i> HD Player
-          </button>
-          <a class="primary-btn" :href="youtubePage" target="_blank" rel="noopener" style="padding:11px; font-size:0.85rem; border-radius:10px; text-align:center; display:flex; align-items:center; justify-content:center; gap:6px; background:#e62117; color:#ffffff; font-weight:700; text-decoration:none;">
-            <i class="fa-brands fa-youtube"></i> Open in YouTube <i class="fa-solid fa-arrow-up-right-from-square" style="font-size:0.75rem;"></i>
-          </a>
+        <div v-else class="player-card" style="margin-bottom:14px;">
+          <iframe :src="youtubeUrl" title="YouTube Live Stream" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen style="width:100%; aspect-ratio:16/9; border:0; display:block;"></iframe>
         </div>
         <article v-if="announcementHtml" class="announcement-card" style="background:#ffffff !important; border:1px solid #e2e8f0 !important; border-radius:14px !important; padding:16px !important; margin-bottom:14px !important;">
           <button type="button" @click="announcementOpen=!announcementOpen" style="width:100%; border:0; background:transparent; display:flex; justify-content:space-between; align-items:center; padding:0 0 10px; font-weight:800; text-transform:uppercase; letter-spacing:.08em; color:#0f172a; font-size:0.88rem;">Church Announcements <i :class="announcementOpen ? 'fa-solid fa-chevron-up' : 'fa-solid fa-chevron-down'"></i></button>
@@ -1000,6 +992,6 @@
 
 <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/hls.js@1"></script>
-<script src="app.js?v=58"></script>
+<script src="app.js?v=59"></script>
 </body>
 </html>

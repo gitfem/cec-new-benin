@@ -359,7 +359,7 @@ createApp({
         return {
           id,
           type: 'video',
-          embedUrl: 'https://www.youtube.com/embed/' + id + '?autoplay=1&controls=1&modestbranding=1&rel=0',
+          embedUrl: 'https://www.youtube.com/embed/' + id + '?autoplay=1&playsinline=1&controls=1&modestbranding=1&rel=0',
           pageUrl: 'https://www.youtube.com/watch?v=' + id
         };
       }
@@ -367,7 +367,7 @@ createApp({
         return {
           id: raw,
           type: 'video',
-          embedUrl: 'https://www.youtube.com/embed/' + raw + '?autoplay=1&controls=1&modestbranding=1&rel=0',
+          embedUrl: 'https://www.youtube.com/embed/' + raw + '?autoplay=1&playsinline=1&controls=1&modestbranding=1&rel=0',
           pageUrl: 'https://www.youtube.com/watch?v=' + raw
         };
       }
@@ -377,7 +377,7 @@ createApp({
         return {
           id: handle,
           type: 'handle',
-          embedUrl: 'https://www.youtube.com/embed/live_stream?channel=' + encodeURIComponent(handle) + '&autoplay=1&controls=1&modestbranding=1&rel=0',
+          embedUrl: 'https://www.youtube.com/embed/live_stream?channel=' + encodeURIComponent(handle) + '&autoplay=1&playsinline=1&controls=1&modestbranding=1&rel=0',
           pageUrl: 'https://www.youtube.com/' + handle
         };
       }
@@ -386,7 +386,7 @@ createApp({
       return {
         id: channelId,
         type: 'channel',
-        embedUrl: 'https://www.youtube.com/embed/live_stream?channel=' + encodeURIComponent(channelId) + '&autoplay=1&controls=1&modestbranding=1&rel=0',
+        embedUrl: 'https://www.youtube.com/embed/live_stream?channel=' + encodeURIComponent(channelId) + '&autoplay=1&playsinline=1&controls=1&modestbranding=1&rel=0',
         pageUrl: 'https://www.youtube.com/channel/' + encodeURIComponent(channelId)
       };
     },
