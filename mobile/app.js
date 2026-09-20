@@ -637,7 +637,7 @@ createApp({
       this.liveError='';
       this.loadChat();
       this.loadLiveNotice();
-      this.$nextTick(()=>{ this.setupLivePlayer(false); this.sendPresence(false); });
+      this.$nextTick(()=>{ this.setupLivePlayer(true); this.sendPresence(false); });
       const body = new URLSearchParams({
         fullname:member.name,
         email:member.email,
@@ -711,6 +711,8 @@ createApp({
       video.setAttribute('playsinline', '');
       video.setAttribute('webkit-playsinline', '');
       video.setAttribute('x-webkit-airplay', 'allow');
+      video.muted = true;
+      this.muted = true;
       video.preload='auto';
 
       if(!video._stallRecoveryAttached){
@@ -742,7 +744,7 @@ createApp({
 
         video.addEventListener('playing', () => {
           clearTimeout(stallTimer);
-          this.liveStatus = 'live';
+          this.liveStatus = video.muted ? 'tap for sound' : 'live';
           this.isPlaying = true;
           this.acquireWakeLock();
         });
@@ -759,24 +761,7 @@ createApp({
         const hls = new Hls({
           enableWorker: true,
           lowLatencyMode: false,
-          maxBufferLength: 15,
-          maxMaxBufferLength: 30,
-          liveSyncDurationCount: 3,
-          liveMaxLatencyDurationCount: 6,
-          maxLiveSyncPlaybackRate: 1.0,
-          maxBufferHole: 0.5,
-          maxFragLookUpTolerance: 0.25,
-          liveDurationInfinity: true,
-          manifestLoadingTimeOut: 15000,
-          manifestLoadingMaxRetry: 6,
-          levelLoadingTimeOut: 15000,
-          levelLoadingMaxRetry: 6,
-          fragLoadingTimeOut: 20000,
-          fragLoadingMaxRetry: 8,
-          startFragPrefetch: true,
-          backBufferLength: 10,
-          nudgeOffset: 0.1,
-          nudgeMaxRetry: 5
+          backBufferLength: 10
         });
 
         hls.loadSource(this.liveFeedUrl);
@@ -844,13 +829,17 @@ createApp({
       if(!video){ return; }
       this._userManuallyPaused = false;
       this.acquireWakeLock();
+      if(video.muted !== false && this.muted){
+        video.muted = true;
+        this.muted = true;
+      }
       const playPromise = video.play();
       if(playPromise !== undefined && playPromise.catch){
         playPromise.then(() => {
           this.isPlaying = true;
-          this.liveStatus = 'live';
+          this.liveStatus = video.muted ? 'tap for sound' : 'live';
         }).catch((err) => {
-          console.warn('Direct unmuted play blocked, retrying muted:', err);
+          console.warn('Direct play failed, falling back to muted play:', err);
           if(!allowMutedRetry){
             this.isPlaying = false;
             this.liveStatus = 'tap play';
@@ -862,7 +851,7 @@ createApp({
             this.isPlaying = true;
             this.liveStatus = 'tap for sound';
           }).catch((err2) => {
-            console.warn('Muted play blocked:', err2);
+            console.warn('Muted play also blocked:', err2);
             this.isPlaying = false;
             this.liveStatus = 'tap play';
           });
@@ -907,7 +896,7 @@ createApp({
     },
     onVideoPlay(){
       this.isPlaying = true;
-      this.liveStatus = 'live';
+      this.liveStatus = (this.$refs.liveVideo && this.$refs.liveVideo.muted) ? 'tap for sound' : 'live';
       this.acquireWakeLock();
     },
     onVideoPause(){
@@ -917,23 +906,52 @@ createApp({
     toggleLivePlay(){
       const video=this.$refs.liveVideo;
       if(!video){ return; }
-      this.setupLivePlayer(false);
-      if(video.muted){
-        this.unmuteLive();
-        return;
+      if(video.paused){
+        this._userManuallyPaused = false;
+        video.muted = false;
+        this.muted = false;
+        video.volume = 1;
+        const playPromise = video.play();
+        if(playPromise !== undefined && playPromise.catch){
+          playPromise.then(() => {
+            this.isPlaying = true;
+            this.liveStatus = 'live';
+            this.acquireWakeLock();
+          }).catch(err => {
+            console.warn('Play with audio blocked, playing muted:', err);
+            video.muted = true;
+            this.muted = true;
+            video.play().then(() => {
+              this.isPlaying = true;
+              this.liveStatus = 'tap for sound';
+              this.acquireWakeLock();
+            }).catch(() => {
+              this.isPlaying = false;
+              this.liveStatus = 'tap play';
+            });
+          });
+        }
+      } else {
+        this._userManuallyPaused = true;
+        video.pause();
+        this.isPlaying = false;
+        this.releaseWakeLock();
       }
-      if(video.paused){ this.playLiveVideo(true); } else { video.pause(); }
     },
     unmuteLive(){
       const video=this.$refs.liveVideo;
       if(!video){ return; }
-      if(video.muted){
-        video.muted=false;
-        this.muted=false;
+      video.muted = false;
+      this.muted = false;
+      video.volume = 1;
+      this.liveStatus = 'live';
+      if(video.paused){
+        this._userManuallyPaused = false;
+        video.play().then(() => {
+          this.isPlaying = true;
+          this.acquireWakeLock();
+        }).catch(() => {});
       }
-      video.volume=1;
-      if(video.paused){ this.playLiveVideo(false); }
-      this.liveStatus='live';
     },
     toggleLiveMute(){
       const video=this.$refs.liveVideo;

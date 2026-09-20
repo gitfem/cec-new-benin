@@ -524,24 +524,7 @@ const LivePage = {
         const hls=new Hls({
           enableWorker:true,
           lowLatencyMode:false,
-          maxBufferLength:15,
-          maxMaxBufferLength:30,
-          liveSyncDurationCount:3,
-          liveMaxLatencyDurationCount:6,
-          maxLiveSyncPlaybackRate:1.0,
-          maxBufferHole:0.5,
-          maxFragLookUpTolerance:0.25,
-          liveDurationInfinity:true,
-          manifestLoadingTimeOut:15000,
-          manifestLoadingMaxRetry:6,
-          levelLoadingTimeOut:15000,
-          levelLoadingMaxRetry:6,
-          fragLoadingTimeOut:20000,
-          fragLoadingMaxRetry:8,
-          startFragPrefetch:true,
-          backBufferLength:10,
-          nudgeOffset:0.1,
-          nudgeMaxRetry:5
+          backBufferLength:10
         });
 
         hls.loadSource(this.hlsUrl);
