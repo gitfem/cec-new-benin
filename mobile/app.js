@@ -781,6 +781,12 @@ createApp({
 
         hls.loadSource(this.liveFeedUrl);
         hls.attachMedia(video);
+        hls.on(Hls.Events.MANIFEST_PARSED, () => {
+          this.liveStatus = 'live';
+          if(autoplay){
+            this.playLiveVideo(true);
+          }
+        });
         hls.on(Hls.Events.ERROR, (event, data) => {
           if(!data) return;
           if(data.details === Hls.ErrorDetails.BUFFER_STALLED_ERROR || data.details === Hls.ErrorDetails.BUFFER_NUDGE_ON_STALL){
@@ -813,9 +819,6 @@ createApp({
         });
         this.hls = hls;
         video.dataset.hlsReady = this.liveFeedUrl;
-        if(autoplay){
-          this.playLiveVideo(true);
-        }
         return Promise.resolve(true);
       } else if(video.canPlayType('application/vnd.apple.mpegurl')){
         video.src = this.liveFeedUrl;
@@ -841,13 +844,28 @@ createApp({
       if(!video){ return; }
       this._userManuallyPaused = false;
       this.acquireWakeLock();
-      const playPromise=video.play();
-      if(playPromise && playPromise.catch){
-        playPromise.catch(() => {
-          if(!allowMutedRetry){ return; }
-          video.muted=true;
-          this.muted=true;
-          video.play().then(()=>{ this.liveStatus='tap for sound'; }).catch(()=>{ this.liveStatus='tap play'; });
+      const playPromise = video.play();
+      if(playPromise !== undefined && playPromise.catch){
+        playPromise.then(() => {
+          this.isPlaying = true;
+          this.liveStatus = 'live';
+        }).catch((err) => {
+          console.warn('Direct unmuted play blocked, retrying muted:', err);
+          if(!allowMutedRetry){
+            this.isPlaying = false;
+            this.liveStatus = 'tap play';
+            return;
+          }
+          video.muted = true;
+          this.muted = true;
+          video.play().then(() => {
+            this.isPlaying = true;
+            this.liveStatus = 'tap for sound';
+          }).catch((err2) => {
+            console.warn('Muted play blocked:', err2);
+            this.isPlaying = false;
+            this.liveStatus = 'tap play';
+          });
         });
       }
     },
