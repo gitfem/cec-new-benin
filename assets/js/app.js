@@ -2,8 +2,8 @@ const { createApp } = Vue;
 
 const OLD = {
   hls: '',
-  youtube: 'https://www.youtube.com/embed/live_stream?channel=UCLFScmpsKP4jlJXD8McBGgQ&autoplay=1&controls=1&modestbranding=1&rel=0',
-  youtubePage: 'https://www.youtube.com/channel/UCLFScmpsKP4jlJXD8McBGgQ',
+  youtube: '',
+  youtubePage: '',
   status: 'oldwebsite/cache.php',
   attendancePost: 'bridge_live_login.php',
   liveNotices: 'bridge_live_notices.php',
@@ -304,8 +304,12 @@ const LivePage = {
     helpLine(){ return (this.cms && this.cms.site && this.cms.site.help) ? this.cms.site.help : ''; },
     liveSettings(){ return (this.cms && this.cms.live) ? this.cms.live : {}; },
     hlsUrl(){ return this.liveSettings.hls_url || OLD.hls; },
+    hasYoutubeLive(){
+      return !!(this.youtubeData && this.youtubeData.embedUrl);
+    },
     youtubeData(){
-      const raw = String((this.liveSettings && (this.liveSettings.youtube_channel_id || this.liveSettings.youtube_url || this.liveSettings.youtube_video_id)) || '').trim() || 'UCLFScmpsKP4jlJXD8McBGgQ';
+      const raw = String((this.liveSettings && (this.liveSettings.youtube_channel_id || this.liveSettings.youtube_url || this.liveSettings.youtube_video_id)) || '').trim();
+      if(!raw) return null;
       const vidMatch = raw.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?(?:.*&)?v=|live\/|embed\/|v\/))([a-zA-Z0-9_-]{11})/i);
       if(vidMatch){
         const id = vidMatch[1];
@@ -336,6 +340,7 @@ const LivePage = {
       }
       const chMatch = raw.match(/(?:youtube\.com\/(?:channel\/|c\/))?(UC[a-zA-Z0-9_-]{21,22})/i);
       const channelId = chMatch ? chMatch[1] : (raw.startsWith('UC') ? raw : raw);
+      if(!channelId) return null;
       return {
         id: channelId,
         type: 'channel',
@@ -343,9 +348,9 @@ const LivePage = {
         pageUrl: 'https://www.youtube.com/channel/' + encodeURIComponent(channelId)
       };
     },
-    youtubeChannelId(){ return this.youtubeData.id; },
-    youtubeUrl(){ return this.youtubeData.embedUrl; },
-    youtubePage(){ return this.youtubeData.pageUrl; },
+    youtubeChannelId(){ return this.youtubeData ? this.youtubeData.id : ''; },
+    youtubeUrl(){ return this.youtubeData ? this.youtubeData.embedUrl : ''; },
+    youtubePage(){ return this.youtubeData ? this.youtubeData.pageUrl : ''; },
     isAudioStream(){ return /\.(mp3|m4a|aac|ogg|oga|wav)(\?.*)?$/i.test(this.hlsUrl); },
     announcementHtml(){
       const items = this.cms && this.cms.home && Array.isArray(this.cms.home.member_announcements) ? this.cms.home.member_announcements : [];
@@ -838,7 +843,7 @@ const LivePage = {
         <div class="member-main">
           <div class="stream-tabs stream-tabs-links">
             <a href="#/live/player" :class="{active:activeStream==='player'}" @click.prevent="switchStream('player')"><i class="fa-solid fa-play me-2"></i> Player</a>
-            <a href="#/live/youtube" :class="{active:activeStream==='youtube'}" @click.prevent="switchStream('youtube')"><i class="fa-brands fa-youtube me-2"></i> YouTube</a>
+            <a v-if="hasYoutubeLive" href="#/live/youtube" :class="{active:activeStream==='youtube'}" @click.prevent="switchStream('youtube')"><i class="fa-brands fa-youtube me-2"></i> YouTube</a>
           </div>
 
           <div v-if="activeStream==='player'" class="stream-player native-player" ref="playerBox" style="position:relative;">
@@ -848,7 +853,7 @@ const LivePage = {
               <i class="fa-solid fa-tower-broadcast" style="font-size:2.8rem; color:#94a3b8; margin-bottom:14px;"></i>
               <h4 style="color:#ffffff; font-weight:700; margin:0 0 8px; font-size:1.35rem;">Live Broadcast Offline</h4>
               <p style="color:#cbd5e1; font-size:0.95rem; margin:0 0 18px; max-width:440px; line-height:1.6;">The live service stream has concluded or is on standby. You can switch to our YouTube Live stream or watch recent service messages.</p>
-              <button type="button" class="btn-brand" @click="switchStream('youtube')"><i class="fa-brands fa-youtube me-2"></i> Watch on YouTube Live</button>
+              <button v-if="hasYoutubeLive" type="button" class="btn-brand" @click="switchStream('youtube')"><i class="fa-brands fa-youtube me-2"></i> Watch on YouTube Live</button>
             </div>
             <div v-if="isPlaying && (soundBlocked || muted)" class="sound-unmute-badge" @click="toggleMute" style="position: absolute; top: 15px; right: 15px; background: rgba(11,17,32,0.92); color: #fbbf24; border: 1px solid #fbbf24; padding: 7px 16px; border-radius: 999px; font-size: 0.85rem; font-weight: 700; cursor: pointer; z-index: 20; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 18px rgba(0,0,0,0.6);">
               <i class="fa-solid fa-volume-xmark text-warning"></i> Click for Sound / Unmute
@@ -856,7 +861,13 @@ const LivePage = {
           </div>
 
           <div v-else class="youtube-panel">
-            <div class="youtube-frame"><iframe :src="youtubeUrl" :title="siteName ? siteName + ' YouTube Live' : 'YouTube Live'" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen style="width:100%; aspect-ratio:16/9; border:0; border-radius:14px;"></iframe></div>
+            <div v-if="hasYoutubeLive" class="youtube-frame"><iframe :src="youtubeUrl" :title="siteName ? siteName + ' YouTube Live' : 'YouTube Live'" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen style="width:100%; aspect-ratio:16/9; border:0; border-radius:14px;"></iframe></div>
+            <div v-else class="p-4 text-center rounded" style="background:#0f172a; border:1px solid #1e293b; color:#94a3b8; border-radius:14px;">
+              <i class="fa-brands fa-youtube mb-3" style="font-size:2.8rem; color:#ef4444; display:block;"></i>
+              <h4 style="color:#ffffff; font-weight:700;">No YouTube Live Stream Configured</h4>
+              <p class="small mb-3" style="max-width:380px; margin:0 auto 14px;">There is currently no external YouTube live stream configured for this service.</p>
+              <button type="button" class="btn-brand" @click="switchStream('player')"><i class="fa-solid fa-play me-2"></i> Watch on Player</button>
+            </div>
           </div>
 
           <div class="live-service-info mt-3 p-4 rounded" style="background: #ffffff; border: 1px solid #e2e8f0; box-shadow: 0 4px 20px rgba(0,0,0,0.05); border-radius: 14px;">

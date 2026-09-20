@@ -1,7 +1,6 @@
 /* ==========================================================================
    CHRIST EMBASSY NEW BENIN — OFFICIAL DIGITAL PORTAL STYLESHEET
    Church of Excellence | Pastor Joseph Atibi-Brown
-   Design Reference Benchmark: https://cebeninzone1.org/
    ========================================================================== */
 
 /* 1. CSS VARIABLES & THEME TOKENS */
@@ -1377,7 +1376,7 @@ button {
   gap: 8px;
 }
 
-/* 15. STORIES & TESTIMONIES (MODELED DIRECTLY AFTER cebeninzone1.org) */
+/* 15. STORIES & TESTIMONIES */
 .stories-section {
   background: linear-gradient(180deg, #ffffff 0%, #ffffff 110px, var(--royal-navy) 110px, var(--royal-deep) 100%);
   padding: 64px 0 96px;

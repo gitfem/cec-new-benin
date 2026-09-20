@@ -4,7 +4,7 @@ const API_URL = '../assets/data/content.json';
 const STORY_COMMENT_URL = '../bridge_story_comment.php';
 const LIVE = {
   hls:'',
-  youtubeChannel:'UCLFScmpsKP4jlJXD8McBGgQ',
+  youtubeChannel:'',
   status:'../oldwebsite/cache.php',
   attendancePost:'../bridge_live_login.php',
   liveNotices:'../bridge_live_notices.php',
@@ -351,8 +351,12 @@ createApp({
         return '<div class="announcement-item mb-3 pb-3" style="border-bottom:1px solid #e2e8f0;">' + h + '</div>';
       }).join('');
     },
+    hasYoutubeLive(){
+      return !!(this.youtubeData && this.youtubeData.embedUrl);
+    },
     youtubeData(){
-      const raw = String((this.cms.live && (this.cms.live.youtube_channel_id || this.cms.live.youtube_url || this.cms.live.youtube_video_id)) || '').trim() || LIVE.youtubeChannel;
+      const raw = String((this.cms.live && (this.cms.live.youtube_channel_id || this.cms.live.youtube_url || this.cms.live.youtube_video_id)) || '').trim();
+      if(!raw) return null;
       const vidMatch = raw.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?(?:.*&)?v=|live\/|embed\/|v\/))([a-zA-Z0-9_-]{11})/i);
       if(vidMatch){
         const id = vidMatch[1];
@@ -383,6 +387,7 @@ createApp({
       }
       const chMatch = raw.match(/(?:youtube\.com\/(?:channel\/|c\/))?(UC[a-zA-Z0-9_-]{21,22})/i);
       const channelId = chMatch ? chMatch[1] : (raw.startsWith('UC') ? raw : raw);
+      if(!channelId) return null;
       return {
         id: channelId,
         type: 'channel',
@@ -390,9 +395,9 @@ createApp({
         pageUrl: 'https://www.youtube.com/channel/' + encodeURIComponent(channelId)
       };
     },
-    youtubeChannelId(){ return this.youtubeData.id; },
-    youtubeUrl(){ return this.youtubeData.embedUrl; },
-    youtubePage(){ return this.youtubeData.pageUrl; },
+    youtubeChannelId(){ return this.youtubeData ? this.youtubeData.id : ''; },
+    youtubeUrl(){ return this.youtubeData ? this.youtubeData.embedUrl : ''; },
+    youtubePage(){ return this.youtubeData ? this.youtubeData.pageUrl : ''; },
     showMiniLive(){ return this.member && this.miniLiveEnabled && !this.miniLiveClosed && this.route !== 'live'; },
     paypalRecipient(){ return (this.cms.site && this.cms.site.paypal_email) ? this.cms.site.paypal_email.trim() : ''; },
     paypalMeUrl(){

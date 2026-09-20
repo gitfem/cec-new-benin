@@ -277,7 +277,7 @@ const CEC_CONFIG = {
     }
   ],
 
-  // 9. STORIES & TESTIMONIES (Inspired by cebeninzone1.org format)
+  // 9. STORIES & TESTIMONIES
   stories: {
     sectionHeading: "Stories & Testimonies",
     sectionSubheading: "Celebrating what God is doing in the lives of our church family.",
