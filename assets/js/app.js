@@ -458,63 +458,82 @@ const LivePage = {
     setupHls(){
       const v=this.$refs.liveVideo;
       if(!v || !this.hlsUrl){ this.liveStatus='offline'; return; }
+      if(this.cms && this.cms.live && this.cms.live.is_live === false){
+        this.liveStatus = 'offline';
+        this.isPlaying = false;
+        if(this.hls){ this.hls.destroy(); this.hls = null; }
+        return;
+      }
       if(v.dataset.hlsReady === this.hlsUrl){ return; }
       if(this.hls){ this.hls.destroy(); this.hls=null; }
       if(this.isAudioStream){ v.src=this.hlsUrl; v.dataset.hlsReady=this.hlsUrl; v.load(); return; }
 
-      // Auto-recovery watcher on the video element (handles buffer underruns, waiting stalls, pauses without needing screen tap)
+      v.loop = false;
+      v.removeAttribute('loop');
+
+      // Auto-recovery watcher on the video element (handles buffer underruns, waiting stalls without looping on stream end)
       if(!v._stallRecoveryAttached){
         v._stallRecoveryAttached = true;
         let stallTimer = null;
 
+        const checkStreamEnded = () => {
+          const bEnd = (v.buffered && v.buffered.length > 0) ? v.buffered.end(v.buffered.length - 1) : 0;
+          return (bEnd > 0 && v.currentTime >= bEnd - 0.6);
+        };
+
         const tryResume = () => {
-          if(!this._userManuallyPaused && this.activeStream === 'player'){
-            if(v.buffered && v.buffered.length > 0){
-              for(let i = 0; i < v.buffered.length; i++){
-                const bStart = v.buffered.start(i);
-                const bEnd = v.buffered.end(i);
-                if(v.currentTime >= bStart && v.currentTime < bEnd - 0.25){
-                  v.currentTime = Math.min(v.currentTime + 0.2, bEnd - 0.05);
-                  break;
-                } else if(v.currentTime < bStart && bStart - v.currentTime < 1.0){
-                  v.currentTime = bStart + 0.05;
-                  break;
-                }
-              }
+          if(this._userManuallyPaused || this.activeStream !== 'player'){
+            return;
+          }
+          if(checkStreamEnded()){
+            if(this._stalePollCount >= 1 || v.ended){
+              this.isPlaying = false;
+              this.liveStatus = 'offline';
+              v.pause();
+              this.releaseWakeLock();
+              if(this.hls){ this.hls.stopLoad(); }
+              return;
             }
-            if(this.hls){
-              this.hls.startLoad();
-            }
-            if(v.paused){
-              v.play().catch(()=>{});
-            }
+          }
+          if(this.hls){
+            this.hls.startLoad();
+          }
+          if(v.paused && !checkStreamEnded()){
+            v.play().catch(()=>{});
           }
         };
 
         v.addEventListener('waiting', () => {
+          if(checkStreamEnded() && this._stalePollCount >= 1){
+            this.isPlaying = false;
+            this.liveStatus = 'offline';
+            v.pause();
+            return;
+          }
           clearTimeout(stallTimer);
           stallTimer = setTimeout(tryResume, 1000);
         });
         v.addEventListener('stalled', () => {
+          if(checkStreamEnded() && this._stalePollCount >= 1){
+            this.isPlaying = false;
+            this.liveStatus = 'offline';
+            v.pause();
+            return;
+          }
           clearTimeout(stallTimer);
           stallTimer = setTimeout(tryResume, 1200);
-        });
-        v.addEventListener('pause', () => {
-          if(this.isPlaying && !this._userManuallyPaused){
-            setTimeout(() => {
-              if(this.isPlaying && !this._userManuallyPaused && v.paused){
-                v.play().catch(()=>{});
-              }
-            }, 400);
-          }
         });
         v.addEventListener('playing', () => {
           clearTimeout(stallTimer);
           this.acquireWakeLock();
         });
         v.addEventListener('ended', () => {
-          if(this.isPlaying && !this._userManuallyPaused){
-            tryResume();
+          this.isPlaying = false;
+          this.liveStatus = 'offline';
+          this.releaseWakeLock();
+          v.pause();
+          if(this.hls){
+            this.hls.stopLoad();
           }
         });
       }
@@ -527,12 +546,43 @@ const LivePage = {
           backBufferLength:10
         });
 
+        this._lastMediaSeq = -1;
+        this._stalePollCount = 0;
+        hls.on(Hls.Events.LEVEL_UPDATED, (event, data) => {
+          if(!data || !data.details) return;
+          if(data.details.live){
+            if(data.details.mediaSequence === this._lastMediaSeq){
+              this._stalePollCount = (this._stalePollCount || 0) + 1;
+              const bEnd = (v.buffered && v.buffered.length > 0) ? v.buffered.end(v.buffered.length - 1) : 0;
+              if(this._stalePollCount >= 2 && bEnd > 0 && v.currentTime >= bEnd - 0.8){
+                this.isPlaying = false;
+                this.liveStatus = 'offline';
+                v.pause();
+                hls.stopLoad();
+              }
+            } else {
+              this._lastMediaSeq = data.details.mediaSequence;
+              this._stalePollCount = 0;
+            }
+          }
+        });
+
         hls.loadSource(this.hlsUrl);
         hls.attachMedia(v);
         hls.on(Hls.Events.ERROR, (event, data) => {
           if(data){
             if(data.details === Hls.ErrorDetails.BUFFER_STALLED_ERROR || data.details === Hls.ErrorDetails.BUFFER_NUDGE_ON_STALL){
-              if(v && !this._userManuallyPaused){
+              const bEnd = (v.buffered && v.buffered.length > 0) ? v.buffered.end(v.buffered.length - 1) : 0;
+              if(bEnd > 0 && v.currentTime >= bEnd - 0.6){
+                if(this._stalePollCount >= 1){
+                  this.isPlaying = false;
+                  this.liveStatus = 'offline';
+                  v.pause();
+                  if(hls){ hls.stopLoad(); }
+                  return;
+                }
+              }
+              if(v && !this._userManuallyPaused && (bEnd === 0 || v.currentTime < bEnd - 0.6)){
                 if(hls){
                   hls.startLoad();
                 }
@@ -590,6 +640,11 @@ const LivePage = {
     togglePlay(){
       const v = this.$refs.liveVideo;
       if (!v) return;
+      if(this.liveStatus === 'offline'){
+        this.liveStatus = 'checking';
+        this.setupHls();
+        return;
+      }
       this.setupHls();
       if (v.paused) {
         this._userManuallyPaused = false;
@@ -786,9 +841,15 @@ const LivePage = {
             <a href="#/live/youtube" :class="{active:activeStream==='youtube'}" @click.prevent="switchStream('youtube')"><i class="fa-brands fa-youtube me-2"></i> YouTube</a>
           </div>
 
-          <div v-if="activeStream==='player'" class="stream-player native-player" ref="playerBox">
+          <div v-if="activeStream==='player'" class="stream-player native-player" ref="playerBox" style="position:relative;">
             <video ref="liveVideo" class="native-live-video" preload="auto" controls playsinline @loadedmetadata="markStreamReady" @canplay="markStreamReady" @playing="markStreamReady" @error="markStreamError" @play="isPlaying=true" @pause="isPlaying=false" @volumechange="onVolumeChange"></video>
-            <button v-if="!isPlaying" type="button" class="native-big-play" @click="togglePlay" aria-label="Play live stream"><i class="fa-solid fa-play"></i></button>
+            <button v-if="!isPlaying && liveStatus !== 'offline'" type="button" class="native-big-play" @click="togglePlay" aria-label="Play live stream"><i class="fa-solid fa-play"></i></button>
+            <div v-if="liveStatus === 'offline' && !isPlaying" class="stream-offline-card" style="position:absolute; inset:0; background:rgba(15,23,42,0.92); display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:24px; z-index:25; border-radius:14px;">
+              <i class="fa-solid fa-tower-broadcast" style="font-size:2.8rem; color:#94a3b8; margin-bottom:14px;"></i>
+              <h4 style="color:#ffffff; font-weight:700; margin:0 0 8px; font-size:1.35rem;">Live Broadcast Offline</h4>
+              <p style="color:#cbd5e1; font-size:0.95rem; margin:0 0 18px; max-width:440px; line-height:1.6;">The live service stream has concluded or is on standby. You can switch to our YouTube Live stream or watch recent service messages.</p>
+              <button type="button" class="btn-brand" @click="switchStream('youtube')"><i class="fa-brands fa-youtube me-2"></i> Watch on YouTube Live</button>
+            </div>
             <div v-if="isPlaying && (soundBlocked || muted)" class="sound-unmute-badge" @click="toggleMute" style="position: absolute; top: 15px; right: 15px; background: rgba(11,17,32,0.92); color: #fbbf24; border: 1px solid #fbbf24; padding: 7px 16px; border-radius: 999px; font-size: 0.85rem; font-weight: 700; cursor: pointer; z-index: 20; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 18px rgba(0,0,0,0.6);">
               <i class="fa-solid fa-volume-xmark text-warning"></i> Click for Sound / Unmute
             </div>

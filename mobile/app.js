@@ -705,12 +705,20 @@ createApp({
       }
 
       this.liveStatus='checking';
+      if(this.cms && this.cms.live && this.cms.live.is_live === false){
+        this.liveStatus = 'offline';
+        this.isPlaying = false;
+        if(this.hls){ this.hls.destroy(); this.hls = null; }
+        return Promise.resolve(false);
+      }
       if(this.hls){ this.hls.destroy(); this.hls=null; }
       video.dataset.hlsReady='';
       this.hlsReadyPromise=null;
       video.setAttribute('playsinline', '');
       video.setAttribute('webkit-playsinline', '');
       video.setAttribute('x-webkit-airplay', 'allow');
+      video.loop = false;
+      video.removeAttribute('loop');
       video.muted = true;
       this.muted = true;
       video.preload='auto';
@@ -719,24 +727,52 @@ createApp({
         video._stallRecoveryAttached = true;
         let stallTimer = null;
 
+        const checkStreamEnded = () => {
+          const bEnd = (video.buffered && video.buffered.length > 0) ? video.buffered.end(video.buffered.length - 1) : 0;
+          return (bEnd > 0 && video.currentTime >= bEnd - 0.6);
+        };
+
         const tryResume = () => {
-          if(!this._userManuallyPaused && this.activeStream === 'player' && this.route === 'live'){
-            if(this.hls){
-              this.hls.startLoad();
+          if(this._userManuallyPaused || this.activeStream !== 'player' || this.route !== 'live'){
+            return;
+          }
+          if(checkStreamEnded()){
+            if(this._stalePollCount >= 1 || video.ended){
+              this.isPlaying = false;
+              this.liveStatus = 'offline';
+              video.pause();
+              this.releaseWakeLock();
+              if(this.hls){ this.hls.stopLoad(); }
+              return;
             }
-            if(video.paused){
-              video.play().catch(()=>{});
-            }
+          }
+          if(this.hls){
+            this.hls.startLoad();
+          }
+          if(video.paused && !checkStreamEnded()){
+            video.play().catch(()=>{});
           }
         };
 
         video.addEventListener('waiting', () => {
+          if(checkStreamEnded() && this._stalePollCount >= 1){
+            this.isPlaying = false;
+            this.liveStatus = 'offline';
+            video.pause();
+            return;
+          }
           this.liveStatus = 'buffering';
           clearTimeout(stallTimer);
           stallTimer = setTimeout(tryResume, 1500);
         });
 
         video.addEventListener('stalled', () => {
+          if(checkStreamEnded() && this._stalePollCount >= 1){
+            this.isPlaying = false;
+            this.liveStatus = 'offline';
+            video.pause();
+            return;
+          }
           this.liveStatus = 'buffering';
           clearTimeout(stallTimer);
           stallTimer = setTimeout(tryResume, 2000);
@@ -750,8 +786,12 @@ createApp({
         });
 
         video.addEventListener('ended', () => {
-          if(!this._userManuallyPaused){
-            tryResume();
+          this.isPlaying = false;
+          this.liveStatus = 'offline';
+          this.releaseWakeLock();
+          video.pause();
+          if(this.hls){
+            this.hls.stopLoad();
           }
         });
       }
@@ -762,6 +802,27 @@ createApp({
           enableWorker: true,
           lowLatencyMode: false,
           backBufferLength: 10
+        });
+
+        this._lastMediaSeq = -1;
+        this._stalePollCount = 0;
+        hls.on(Hls.Events.LEVEL_UPDATED, (event, data) => {
+          if(!data || !data.details) return;
+          if(data.details.live){
+            if(data.details.mediaSequence === this._lastMediaSeq){
+              this._stalePollCount = (this._stalePollCount || 0) + 1;
+              const bEnd = (video.buffered && video.buffered.length > 0) ? video.buffered.end(video.buffered.length - 1) : 0;
+              if(this._stalePollCount >= 2 && bEnd > 0 && video.currentTime >= bEnd - 0.8){
+                this.isPlaying = false;
+                this.liveStatus = 'offline';
+                video.pause();
+                hls.stopLoad();
+              }
+            } else {
+              this._lastMediaSeq = data.details.mediaSequence;
+              this._stalePollCount = 0;
+            }
+          }
         });
 
         hls.loadSource(this.liveFeedUrl);
@@ -775,7 +836,17 @@ createApp({
         hls.on(Hls.Events.ERROR, (event, data) => {
           if(!data) return;
           if(data.details === Hls.ErrorDetails.BUFFER_STALLED_ERROR || data.details === Hls.ErrorDetails.BUFFER_NUDGE_ON_STALL){
-            if(video && !this._userManuallyPaused){
+            const bEnd = (video.buffered && video.buffered.length > 0) ? video.buffered.end(video.buffered.length - 1) : 0;
+            if(bEnd > 0 && video.currentTime >= bEnd - 0.6){
+              if(this._stalePollCount >= 1){
+                this.isPlaying = false;
+                this.liveStatus = 'offline';
+                video.pause();
+                if(hls){ hls.stopLoad(); }
+                return;
+              }
+            }
+            if(video && !this._userManuallyPaused && (bEnd === 0 || video.currentTime < bEnd - 0.6)){
               if(hls){
                 hls.startLoad();
               }
@@ -906,6 +977,11 @@ createApp({
     toggleLivePlay(){
       const video=this.$refs.liveVideo;
       if(!video){ return; }
+      if(this.liveStatus === 'offline'){
+        this.liveStatus = 'checking';
+        this.setupLivePlayer(true);
+        return;
+      }
       if(video.paused){
         this._userManuallyPaused = false;
         video.muted = false;
