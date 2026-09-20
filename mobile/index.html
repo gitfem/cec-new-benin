@@ -172,7 +172,7 @@
           <button type="button" :class="{active:activeStream==='youtube'}" @click="switchStream('youtube')"><i class="fa-brands fa-youtube"></i> YouTube Live</button>
         </div>
         <div v-if="activeStream==='player'" class="player-card native-mobile-player">
-          <video ref="liveVideo" preload="auto" controls playsinline webkit-playsinline x-webkit-airplay="allow" @loadedmetadata="markStreamReady" @canplay="markStreamReady" @playing="markStreamReady" @waiting="handleLiveStall" @stalled="handleLiveStall" @ended="handleLiveStall" @error="markStreamError" @play="onVideoPlay" @pause="onVideoPause"></video>
+          <video ref="liveVideo" preload="auto" controls playsinline webkit-playsinline x-webkit-airplay="allow" @loadedmetadata="markStreamReady" @canplay="markStreamReady" @playing="markStreamReady" @error="markStreamError" @play="onVideoPlay" @pause="onVideoPause"></video>
           <button v-if="!isPlaying" type="button" class="native-big-play" @click="toggleLivePlay" aria-label="Play live stream"><i class="fa-solid fa-play"></i></button>
         </div>
         <div v-else class="player-card" style="margin-bottom:14px;">
@@ -986,6 +986,6 @@
 
 <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/hls.js@1"></script>
-<script src="app.js?v=60"></script>
+<script src="app.js?v=61"></script>
 </body>
 </html>

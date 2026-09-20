@@ -594,7 +594,7 @@ createApp({
       this.$nextTick(()=>{
         if(this.route === 'live' && this.member && this.activeStream === 'player'){
           const video = this.$refs.liveVideo;
-          if(!video || video.dataset.hlsReady !== this.liveFeedUrl){
+          if(!video || !video.dataset.hlsReady){
             this.setupLivePlayer(true);
           }
         }
@@ -719,29 +719,11 @@ createApp({
 
         const tryResume = () => {
           if(!this._userManuallyPaused && this.activeStream === 'player' && this.route === 'live'){
-            if(video.buffered && video.buffered.length > 0){
-              for(let i = 0; i < video.buffered.length; i++){
-                const bStart = video.buffered.start(i);
-                const bEnd = video.buffered.end(i);
-                if(video.currentTime >= bStart && video.currentTime < bEnd - 0.25){
-                  video.currentTime = Math.min(video.currentTime + 0.2, bEnd - 0.05);
-                  break;
-                } else if(video.currentTime < bStart && bStart - video.currentTime < 1.0){
-                  video.currentTime = bStart + 0.05;
-                  break;
-                }
-              }
-            }
             if(this.hls){
               this.hls.startLoad();
             }
             if(video.paused){
-              video.play().then(() => {
-                this.liveStatus = 'live';
-                this.isPlaying = true;
-              }).catch(()=>{});
-            } else {
-              this.liveStatus = 'live';
+              video.play().catch(()=>{});
             }
           }
         };
@@ -749,23 +731,13 @@ createApp({
         video.addEventListener('waiting', () => {
           this.liveStatus = 'buffering';
           clearTimeout(stallTimer);
-          stallTimer = setTimeout(tryResume, 1000);
+          stallTimer = setTimeout(tryResume, 1500);
         });
 
         video.addEventListener('stalled', () => {
           this.liveStatus = 'buffering';
           clearTimeout(stallTimer);
-          stallTimer = setTimeout(tryResume, 1200);
-        });
-
-        video.addEventListener('pause', () => {
-          if(this.isPlaying && !this._userManuallyPaused){
-            setTimeout(() => {
-              if(this.isPlaying && !this._userManuallyPaused && video.paused){
-                video.play().catch(()=>{});
-              }
-            }, 400);
-          }
+          stallTimer = setTimeout(tryResume, 2000);
         });
 
         video.addEventListener('playing', () => {
@@ -776,7 +748,7 @@ createApp({
         });
 
         video.addEventListener('ended', () => {
-          if(this.isPlaying && !this._userManuallyPaused){
+          if(!this._userManuallyPaused){
             tryResume();
           }
         });
@@ -833,21 +805,22 @@ createApp({
                 hls.recoverMediaError();
                 break;
               default:
-                console.error('Fatal HLS error, re-initializing...', data);
-                hls.destroy();
-                this.hls = null;
-                video.dataset.hlsReady = '';
-                setTimeout(() => {
-                  if(!this._userManuallyPaused && this.activeStream === 'player' && this.route === 'live'){
-                    this.setupLivePlayer(true);
-                  }
-                }, 1000);
+                console.error('Fatal HLS error:', data);
+                this.markStreamError();
                 break;
             }
           }
         });
         this.hls = hls;
         video.dataset.hlsReady = this.liveFeedUrl;
+        if(autoplay){
+          this.playLiveVideo(true);
+        }
+        return Promise.resolve(true);
+      } else if(video.canPlayType('application/vnd.apple.mpegurl')){
+        video.src = this.liveFeedUrl;
+        video.dataset.hlsReady = this.liveFeedUrl;
+        video.load();
         if(autoplay){
           this.playLiveVideo(true);
         }
@@ -897,19 +870,6 @@ createApp({
       clearTimeout(this._stallRecoveryTimer);
       this._stallRecoveryTimer = setTimeout(() => {
         if(video && !this._userManuallyPaused && this.activeStream === 'player'){
-          if(video.buffered && video.buffered.length > 0){
-            for(let i = 0; i < video.buffered.length; i++){
-              const bStart = video.buffered.start(i);
-              const bEnd = video.buffered.end(i);
-              if(video.currentTime >= bStart && video.currentTime < bEnd - 0.25){
-                video.currentTime = Math.min(video.currentTime + 0.2, bEnd - 0.05);
-                break;
-              } else if(video.currentTime < bStart && bStart - video.currentTime < 1.0){
-                video.currentTime = bStart + 0.05;
-                break;
-              }
-            }
-          }
           if(this.hls){
             this.hls.startLoad();
           }
@@ -922,7 +882,7 @@ createApp({
             this.liveStatus = 'live';
           }
         }
-      }, 1000);
+      }, 1500);
       if(video.error && this.hls){
         this.hls.recoverMediaError();
       }
@@ -933,22 +893,8 @@ createApp({
       this.acquireWakeLock();
     },
     onVideoPause(){
-      if(this._userManuallyPaused){
-        this.isPlaying = false;
-        this.releaseWakeLock();
-      } else {
-        setTimeout(() => {
-          const video = this.$refs.liveVideo;
-          if(video && video.paused && !this._userManuallyPaused && this.activeStream === 'player' && this.route === 'live'){
-            video.play().then(() => {
-              this.isPlaying = true;
-              this.liveStatus = 'live';
-            }).catch(() => {
-              this.isPlaying = false;
-            });
-          }
-        }, 300);
-      }
+      this.isPlaying = false;
+      this.releaseWakeLock();
     },
     toggleLivePlay(){
       const video=this.$refs.liveVideo;
