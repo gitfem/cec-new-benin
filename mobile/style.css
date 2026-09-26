@@ -22,8 +22,8 @@ img{max-width:100%;display:block}
 .brand-mark.has-logo{background:transparent;border:0;padding:0;overflow:visible}
 .brand-mark img{width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 3px 8px rgba(0,0,0,.4))}
 .brand-copy{display:flex;flex-direction:column;text-transform:uppercase;line-height:.95;letter-spacing:-.04em;min-width:0}
-.brand-copy b,.brand-copy em{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:205px}
-.brand-copy em{font-style:normal;font-weight:400}
+.brand-copy b{font-size:.92rem;font-weight:900;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:calc(100vw - 84px)}
+.brand-copy em{font-size:.76rem;font-style:normal;font-weight:800;color:#d9ad62;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:calc(100vw - 84px)}
 .icon-button{width:44px;height:44px;border:1px solid rgba(255,255,255,.2);border-radius:50%;display:grid;place-items:center;background:transparent;color:#fff;font-size:1.2rem}
 .drawer{position:fixed;inset:72px 0 86px 0;z-index:35;background:#050505;color:#fff;padding:18px 20px;transform:translateY(-110%);transition:.28s ease;overflow:auto}
 .menu-open .drawer{transform:translateY(0)}
@@ -318,7 +318,8 @@ h1,h2,h3,p{margin-top:0}
 .bottom-nav a.active{color:#fff}
 .bottom-nav a.active i{color:var(--teal)}
 @media(max-width:360px){
-  .brand-copy b,.brand-copy em{max-width:165px}
+  .brand-copy b{font-size:.84rem}
+  .brand-copy em{font-size:.68rem}
   .quick-grid{grid-template-columns:repeat(2,1fr)}
   .mobile-payment-methods{grid-template-columns:1fr}
 }

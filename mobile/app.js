@@ -127,11 +127,12 @@ createApp({
     brandInitial(){ return this.siteName.trim().charAt(0).toUpperCase() || 'C'; },
     brandParts(){
       const name = this.siteName.trim();
-      if(/^ce\s+new\s+benin$/i.test(name) || /^christ\s+embassy\s+new\s+benin$/i.test(name)){
-        return ['CE', 'New Benin'];
+      if(/^ce\s+new\s+benin/i.test(name) || /^christ\s+embassy\s+new\s+benin/i.test(name)){
+        return ['CE', 'New Benin MidWest Zone'];
       }
       const words = name.split(/\s+/).filter(Boolean);
-      return words.length > 1 ? [words.slice(0,-1).join(' '), words[words.length-1]] : [name, ''];
+      if(words.length < 2){ return [name, '']; }
+      return [words[0], words.slice(1).join(' ')];
     },
     brandMain(){ return this.brandParts[0]; },
     brandSuffix(){ return this.brandParts[1]; },
@@ -641,7 +642,7 @@ createApp({
         const data = await response.json();
         Object.assign(this.cms, data);
         if(data.site && data.site.title){ document.title = data.site.title; }
-        else if(data.site && data.site.name){ document.title = data.site.name + ' - Midwest Zone | Church of Excellence'; }
+        else if(data.site && data.site.name){ document.title = data.site.name + ' | Church of Excellence'; }
       }catch(error){}
       this.ready = true;
       this.$nextTick(()=>{

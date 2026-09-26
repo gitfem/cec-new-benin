@@ -1,6 +1,6 @@
 {
   "site": {
-    "name": "CE New Benin",
+    "name": "CE New Benin MidWest Zone",
     "logo": "assets/uploaded_media/cec_newbenin_church_logo_1_web.png",
     "logo_full": "assets/uploaded_media/cec_newbenin_church_logo_1.png",
     "logo_icon": "assets/uploaded_media/cec_newbenin_church_logo_icon.png",
@@ -40,8 +40,8 @@
     "paypal_email": "[— To Be Supplied]",
     "bank_transfer_details": "Bank: [— To Be Supplied]\nAccount Name: Christ Embassy New Benin\nAccount Number: [— To Be Supplied]",
     "help": "08024700454",
-    "zone": "Midwest Zone",
-    "title": "CE New Benin - Midwest Zone | Church of Excellence"
+    "zone": "MidWest Zone",
+    "title": "CE New Benin MidWest Zone | Church of Excellence"
   },
   "home": {
     "welcome_header": "Welcome to CE New Benin",
