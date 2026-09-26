@@ -284,21 +284,36 @@ def clear_all_chats():
 
 # CMS content operations
 def get_cms_content():
+    content_file = os.path.join(DATA_DIR, 'content.json')
+    file_data = None
+    if os.path.exists(content_file):
+        try:
+            with open(content_file, 'r', encoding='utf-8') as f:
+                file_data = json.load(f)
+        except Exception:
+            pass
+
     conn = get_db()
     c = conn.cursor()
     c.execute('SELECT data FROM cms_content WHERE key = ?', ('main',))
     row = c.fetchone()
     conn.close()
+
+    if file_data and isinstance(file_data, dict) and file_data:
+        # Keep SQLite synced if it was missing or stale
+        try:
+            if not row or json.loads(row['data']) != file_data:
+                save_cms_content(file_data)
+        except Exception:
+            pass
+        return file_data
+
     if row:
         try:
             return json.loads(row['data'])
         except Exception:
             pass
-    # Fallback to content.json
-    content_file = os.path.join(DATA_DIR, 'content.json')
-    if os.path.exists(content_file):
-        with open(content_file, 'r', encoding='utf-8') as f:
-            return json.load(f)
+
     return {}
 
 def save_cms_content(content_dict):

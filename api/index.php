@@ -56,6 +56,12 @@ if (!file_exists($chatFile)) {
 // Determine route
 $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 $method = $_SERVER['REQUEST_METHOD'];
+$routeParam = $_GET['route'] ?? $_GET['action'] ?? '';
+
+$matchRoute = function($name) use ($uri, $routeParam) {
+    if ($routeParam === $name) return true;
+    return (strpos($uri, '/api/' . $name) !== false) || (strpos($uri, '/' . $name) !== false);
+};
 
 // Helper to get request payload (JSON or form-urlencoded)
 function getPayload() {
@@ -64,22 +70,31 @@ function getPayload() {
         $json = json_decode($raw, true);
         if (is_array($json)) return $json;
     }
+    if (!empty($_POST['data'])) {
+        $json = json_decode($_POST['data'], true);
+        if (is_array($json)) return $json;
+    }
     return !empty($_POST) ? $_POST : [];
 }
 
 // -------------------------------------------------------------
 // 1. CMS CONTENT
 // -------------------------------------------------------------
-if ($method === 'GET' && (strpos($uri, '/api/content') !== false)) {
+if ($method === 'GET' && ($matchRoute('content') || strpos($uri, 'save_content.php') !== false)) {
     if (file_exists($contentFile)) {
         echo file_get_contents($contentFile);
     } else {
-        echo json_encode(['site' => ['name' => 'Christ Embassy New Benin']]);
+        echo json_encode(['site' => ['name' => 'CE New Benin', 'zone' => 'Midwest Zone']]);
     }
     exit;
 }
 
-if ($method === 'POST' && (strpos($uri, '/api/save') !== false || strpos($uri, '/api/save_content') !== false)) {
+if ($method === 'GET' && (strpos($uri, '/api/youtube/live') !== false || strpos($uri, '/api/youtube_live') !== false || $routeParam === 'youtube_live')) {
+    require __DIR__ . '/youtube_live.php';
+    exit;
+}
+
+if ($method === 'POST' && ($matchRoute('save') || $matchRoute('save_content') || strpos($uri, 'save_content.php') !== false)) {
     $data = getPayload();
     if (empty($data)) {
         http_response_code(400);
@@ -87,12 +102,14 @@ if ($method === 'POST' && (strpos($uri, '/api/save') !== false || strpos($uri, '
         exit;
     }
     
+    $jsonString = json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+
     // Save to content.json
-    file_put_contents($contentFile, json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+    $saved = file_put_contents($contentFile, $jsonString);
     
     // Sync bridge_b73c9_pages.php
     $bridgePages = $baseDir . '/bridge_b73c9_pages.php';
-    file_put_contents($bridgePages, json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+    @file_put_contents($bridgePages, $jsonString);
     
     // Sync live notices if present
     if (!empty($data['live_notice'])) {
@@ -105,7 +122,26 @@ if ($method === 'POST' && (strpos($uri, '/api/save') !== false || strpos($uri, '
                 'message' => $notice['message'] ?? ''
             ] : null
         ];
-        file_put_contents($baseDir . '/bridge_live_notices.php', json_encode($noticeObj, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+        @file_put_contents($baseDir . '/bridge_live_notices.php', json_encode($noticeObj, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+    }
+
+    // Sync SQLite church.db if available
+    try {
+        if (extension_loaded('pdo_sqlite') || class_exists('PDO')) {
+            $pdo = new PDO('sqlite:' . $dbFile);
+            $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+            $pdo->exec("CREATE TABLE IF NOT EXISTS cms_content (id INTEGER PRIMARY KEY AUTOINCREMENT, key TEXT UNIQUE, data TEXT NOT NULL, updated_at DATETIME DEFAULT CURRENT_TIMESTAMP)");
+            $stmt = $pdo->prepare("INSERT OR REPLACE INTO cms_content (key, data, updated_at) VALUES ('main', :data, datetime('now'))");
+            $stmt->execute([':data' => $jsonString]);
+        }
+    } catch (Exception $e) {
+        // Non-fatal, content.json is primary
+    }
+
+    if ($saved === false) {
+        http_response_code(500);
+        echo json_encode(['ok' => false, 'error' => 'Permission denied: unable to write to content.json']);
+        exit;
     }
 
     echo json_encode(['ok' => true, 'message' => 'Content saved successfully!']);

@@ -6,16 +6,16 @@
   <meta name="theme-color" content="#050505">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="CE New Benin">
-  <title>CE New Benin | Church of Excellence</title>
-  <meta name="description" content="Welcome to CE New Benin with Pastor Joseph Atibi-Brown — Church of Excellence.">
+  <meta name="apple-mobile-web-app-title" content="CE New Benin - Midwest Zone">
+  <title>CE New Benin - Midwest Zone | Church of Excellence</title>
+  <meta name="description" content="Welcome to CE New Benin, Midwest Zone with Pastor Joseph Atibi-Brown — Church of Excellence.">
   <link rel="icon" type="image/png" href="../favicon.png">
   <link rel="apple-touch-icon" href="../assets/uploaded_media/cec_newbenin_church_logo_icon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
-  <link href="style.css?v=66" rel="stylesheet">
+  <link href="style.css?v=68" rel="stylesheet">
 </head>
 <body>
 <div id="app" :class="{ready: ready, 'menu-open': menuOpen}">
@@ -187,9 +187,49 @@
             <i class="fa-solid fa-volume-xmark"></i> Tap for Sound
           </div>
         </div>
-        <div v-else class="player-card" style="margin-bottom:14px;">
-          <iframe v-if="hasYoutubeLive" :src="youtubeUrl" title="YouTube Live Stream" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen style="width:100%; aspect-ratio:16/9; border:0; display:block;"></iframe>
-          <div v-else style="background:#0f172a; padding:32px 16px; text-align:center; border-radius:14px;">
+        <div v-else class="player-card youtube-panel" style="margin-bottom:14px; position:relative; aspect-ratio:16/9; border-radius:14px; overflow:hidden; background:#000;">
+          <template v-if="hasYoutubeLive">
+            <!-- MODE 1: Custom Controls Mode (YouTube IFrame API with zero YouTube branding/links, 100% on-site controls) -->
+            <div v-if="ytResolvedVideoId" class="youtube-custom-container" ref="ytContainer" @mousemove="showYtControls" @mouseleave="hideYtControlsDelayed">
+              <div id="yt-custom-player-mount-mobile" class="yt-player-mount"></div>
+              <!-- Interceptor surface for play/pause toggle without touching YouTube branding -->
+              <div class="yt-click-surface" @click="toggleYtPlay">
+                <transition name="fade">
+                  <div v-if="!ytIsPlaying && !ytIsBuffering" class="yt-center-play-btn" @click.stop="toggleYtPlay">
+                    <i class="fa-solid fa-play" style="margin-left:4px;"></i>
+                  </div>
+                </transition>
+                <div v-if="ytIsBuffering" class="spinner-border text-danger" role="status" style="width:2.5rem; height:2.5rem;"></div>
+              </div>
+              <!-- Church-Branded Controls Bar -->
+              <div class="yt-custom-controls" :class="{visible: ytControlsVisible || !ytIsPlaying}">
+                <div style="display:flex; align-items:center; gap:10px;">
+                  <button type="button" class="btn-ctrl" @click.stop="toggleYtPlay" :aria-label="ytIsPlaying ? 'Pause' : 'Play'">
+                    <i :class="ytIsPlaying ? 'fa-solid fa-pause' : 'fa-solid fa-play'"></i>
+                  </button>
+                  <div style="display:flex; align-items:center; gap:6px;">
+                    <button type="button" class="btn-ctrl" @click.stop="toggleYtMute" :aria-label="ytIsMuted ? 'Unmute' : 'Mute'">
+                      <i :class="ytIsMuted || ytVolume == 0 ? 'fa-solid fa-volume-xmark text-warning' : (ytVolume < 50 ? 'fa-solid fa-volume-low' : 'fa-solid fa-volume-high')"></i>
+                    </button>
+                  </div>
+                  <span class="yt-live-pill"><i class="fa-solid fa-circle" style="font-size:0.45rem; margin-right:4px;"></i> LIVE</span>
+                </div>
+                <div style="display:flex; align-items:center; gap:8px;">
+                  <button type="button" class="btn-ctrl" @click.stop="toggleYtFullscreen" aria-label="Toggle Fullscreen">
+                    <i :class="isYtFullscreen ? 'fa-solid fa-compress' : 'fa-solid fa-expand'"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- MODE 2: Channel ID Standby Embed (Best-Effort Containment with Precision Shields) -->
+            <div v-else style="position:relative; width:100%; height:100%; aspect-ratio:16/9; border-radius:14px; overflow:hidden; background:#000;">
+              <iframe :src="youtubeUrl" title="YouTube Live Stream" sandbox="allow-scripts allow-same-origin allow-presentation allow-forms" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen style="position:absolute; inset:0; width:100%; height:100%; border:0; display:block;"></iframe>
+              <div class="yt-shield-top" title="" @click.prevent.stop></div>
+              <div class="yt-shield-watermark" title="" @click.prevent.stop></div>
+            </div>
+          </template>
+          <div v-else style="background:#0f172a; padding:32px 16px; text-align:center; border-radius:14px; width:100%; height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center;">
             <i class="fa-brands fa-youtube" style="font-size:2.4rem; color:#ef4444; margin-bottom:8px; display:block;"></i>
             <h4 style="color:#ffffff; font-weight:700; margin:0 0 6px; font-size:1.05rem;">No YouTube Stream Configured</h4>
             <p style="color:#94a3b8; font-size:0.85rem; margin:0 0 14px; line-height:1.45;">There is currently no external YouTube stream configured for this service.</p>
@@ -1004,6 +1044,6 @@
 
 <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/hls.js@1"></script>
-<script src="app.js?v=66"></script>
+<script src="app.js?v=68"></script>
 </body>
 </html>

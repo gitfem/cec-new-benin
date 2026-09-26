@@ -1,13 +1,13 @@
 {
   "site": {
-    "name": "Christ Embassy New Benin",
+    "name": "CE New Benin",
     "logo": "assets/uploaded_media/cec_newbenin_church_logo_1_web.png",
     "logo_full": "assets/uploaded_media/cec_newbenin_church_logo_1.png",
     "logo_icon": "assets/uploaded_media/cec_newbenin_church_logo_icon.png",
-    "email": "[— To Be Supplied]",
-    "phone": "[— To Be Supplied]",
-    "support_phone": "[— To Be Supplied]",
-    "address": "[— To Be Supplied], Benin City, Edo State, Nigeria",
+    "email": "Christembassynewbenin@gmail.com",
+    "phone": "08024700454",
+    "support_phone": "08024700454",
+    "address": "23 Ivbiye Street, off New Lagos Road, New Benin, Benin City",
     "office_hours": "Sunday: [— To Be Supplied] | Wednesday: [— To Be Supplied]",
     "facebook": "https://facebook.com/christembassy",
     "twitter": "https://twitter.com/christembassy",
@@ -39,15 +39,17 @@
     ],
     "paypal_email": "[— To Be Supplied]",
     "bank_transfer_details": "Bank: [— To Be Supplied]\nAccount Name: Christ Embassy New Benin\nAccount Number: [— To Be Supplied]",
-    "help": "[— To Be Supplied]"
+    "help": "08024700454",
+    "zone": "Midwest Zone",
+    "title": "CE New Benin - Midwest Zone | Church of Excellence"
   },
   "home": {
-    "welcome_header": "Welcome to Christ Embassy New Benin",
+    "welcome_header": "Welcome to CE New Benin",
     "welcome_text": "Church of Excellence with Pastor Joseph Atibi-Brown. A family of faith demonstrating the supernatural character of the Spirit.",
     "slides": [
       {
         "id": "1",
-        "title": "Welcome to Christ Embassy New Benin",
+        "title": "Welcome to CE New Benin",
         "subtitle": "Church of Excellence — Pastored by Pastor Joseph Atibi-Brown",
         "link_url": "#/visit",
         "link_text": "Plan a Visit",
@@ -257,7 +259,7 @@
         "id": "1",
         "eyebrow": "Main Church Auditorium",
         "title": "Christ Embassy New Benin (Church of Excellence)",
-        "subtitle": "13, Eghosa Street, Off Stadium Road, Opposite UNIBEN Ekehuan Campus Main Gate, Benin City, Edo State",
+        "subtitle": "23 Ivbiye Street, off New Lagos Road, New Benin, Benin City",
         "body": "Welcome to Christ Embassy New Benin. Experience uplifting worship, divine wisdom, and warm fellowship with Pastor Joseph Atibi-Brown. Service times: Sunday 8:00 AM & 10:00 AM | Wednesday Midweek 6:00 PM | Friday Prayer 6:00 PM.",
         "meta_text": "Benin City, Edo State • Pastor Joseph Atibi-Brown",
         "image_url": "assets/uploaded_media/WhatsApp_Image_2026-09-17_at_4.27.50_PM.jpeg"
@@ -805,7 +807,7 @@
   },
   "pages": {
     "about": {
-      "title": "About Christ Embassy New Benin",
+      "title": "About CE New Benin",
       "subtitle": "Church of Excellence - Living the Higher Life in Christ",
       "eyebrow": "Welcome to Church of Excellence",
       "hero": "assets/uploaded_media/about_hero_banner.jpg",

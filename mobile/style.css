@@ -1016,10 +1016,310 @@ h1,h2,h3,p{margin-top:0}
 .announcement-card div ol,
 .announcement-card div ul {
   color: #0f172a !important;
+  width: 105px !important;
+  min-width: 105px !important;
+  aspect-ratio: 16/10 !important;
+  border-radius: 8px !important;
+  overflow: hidden !important;
+  background: #000 !important;
+}
+
+.m-card-thumb {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  display: block !important;
+}
+
+.m-card-duration {
+  position: absolute !important;
+  bottom: 4px !important;
+  right: 4px !important;
+  background: rgba(0, 0, 0, 0.8) !important;
+  color: #fff !important;
+  font-size: 0.62rem !important;
+  font-weight: 700 !important;
+  padding: 1px 4px !important;
+  border-radius: 3px !important;
+}
+
+.m-card-content {
+  flex-grow: 1 !important;
+  min-width: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: center !important;
+}
+
+.m-card-title {
+  font-size: 0.94rem !important;
+  font-weight: 700 !important;
+  line-height: 1.3 !important;
+  color: #ffffff !important;
+  margin: 3px 0 !important;
+}
+
+.m-card-sub {
+  font-size: 0.78rem !important;
+  color: #94a3b8 !important;
+  line-height: 1.4 !important;
+  margin-bottom: 6px !important;
+  display: -webkit-box !important;
+  -webkit-line-clamp: 2 !important;
+  -webkit-box-orient: vertical !important;
+  overflow: hidden !important;
+}
+
+.m-card-meta {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  font-size: 0.72rem !important;
+}
+
+.m-meta-scripture {
+  color: #38bdf8 !important;
+  font-weight: 700 !important;
+}
+
+.m-meta-speaker {
+  color: #64748b !important;
+}
+
+/* Standby Poster and Study box in Detail */
+.mobile-poster-placeholder {
+  position: relative !important;
+  width: 100% !important;
+  aspect-ratio: 16/9 !important;
+  overflow: hidden !important;
+}
+
+.mobile-poster-placeholder img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+}
+
+.m-youtube-stream-btn {
+  position: absolute !important;
+  inset: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background: rgba(0, 0, 0, 0.45) !important;
+  color: #ffffff !important;
+  font-weight: 700 !important;
+  font-size: 0.9rem !important;
+  text-decoration: none !important;
+}
+
+.mobile-study-box {
+  background: rgba(23, 122, 135, 0.12) !important;
+  border: 1px solid rgba(23, 122, 135, 0.3) !important;
+}
+
+/* ==========================================================================
+   MOBILE HIGH-CONTRAST & READABILITY ENHANCEMENTS
+   ========================================================================== */
+
+/* 1. Mobile Text & Descriptions on Dark Backgrounds */
+.list-card p,
+.story-mobile-card p,
+.visit-info-card p,
+.empty-card {
+  color: #e2e8f0 !important;
+  font-weight: 500 !important;
+}
+
+.give-note {
+  color: #cbd5e1 !important;
+  font-weight: 500 !important;
+}
+
+.m-feat-sub,
+.m-card-sub,
+.story-home-card small,
+.mobile-watch-live-bar .live-bar-content small,
+.icon-tile .tile-copy p {
+  color: #cbd5e1 !important;
+  font-size: 0.82rem !important;
+  line-height: 1.45 !important;
+}
+
+.m-meta-speaker,
+.mobile-comment small {
+  color: #64748b !important;
+  font-weight: 600 !important;
+}
+.chat-msg small {
+  color: #64748b !important;
+  font-weight: 600 !important;
+  font-size: 0.76rem !important;
+}
+
+/* 2. Mobile Filter & Search Input Visibility */
+.mobile-filter-bar .filter-inner i.fa-magnifying-glass {
+  color: rgba(255, 255, 255, 0.85) !important;
+}
+.mobile-filter-bar .filter-input::placeholder {
+  color: rgba(255, 255, 255, 0.75) !important;
+  opacity: 1 !important;
+}
+.mobile-filter-bar .filter-input {
+  color: #ffffff !important;
+}
+
+/* 3. Mobile Labels & Inputs */
+.live-login-card label,
+.mobile-give-card label {
+  color: #f8fafc !important;
+  font-weight: 700 !important;
+}
+.live-login-card label span {
+  color: #cbd5e1 !important;
+}
+
+/* 4. Chat, Comments & Announcements Crystal Clear Styling */
+.chat-msg {
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 12px !important;
+  padding: 12px 14px !important;
+  margin-bottom: 10px !important;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.04) !important;
+}
+.chat-msg b {
+  color: #1e3a8a !important;
+  font-size: 0.94rem !important;
+  font-weight: 700 !important;
+}
+.chat-msg p {
+  color: #0f172a !important;
+  font-size: 0.96rem !important;
+  line-height: 1.5 !important;
+  font-weight: 500 !important;
+  margin: 4px 0 0 !important;
+}
+.mobile-comment p {
+  color: #1e293b !important;
+  line-height: 1.5 !important;
+  font-size: 0.94rem !important;
+}
+.announcement-card div,
+.announcement-card div p,
+.announcement-card div li,
+.announcement-card div ol,
+.announcement-card div ul {
+  color: #0f172a !important;
   line-height: 1.65 !important;
   font-size: 0.95rem !important;
   font-weight: 500 !important;
 }
 
+/* YouTube Player Click Shield Overlays */
+.yt-shield-top {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 48px;
+  z-index: 4;
+  background: transparent;
+  pointer-events: auto;
+}
+.yt-shield-watermark {
+  position: absolute;
+  bottom: 0;
+  right: 46px;
+  width: 95px;
+  height: 46px;
+  z-index: 4;
+  background: transparent;
+  pointer-events: auto;
+}
 
-
+/* YouTube Custom Player & Controls (Mobile) */
+.youtube-custom-container {
+  position: relative;
+  aspect-ratio: 16/9;
+  background: #000;
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+}
+.youtube-custom-container iframe,
+.yt-player-mount iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  pointer-events: none !important;
+}
+.yt-click-surface {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+}
+.yt-center-play-btn {
+  width: 62px;
+  height: 62px;
+  border-radius: 50%;
+  background: rgba(220, 38, 38, 0.9);
+  color: #fff;
+  display: grid;
+  place-items: center;
+  font-size: 1.5rem;
+  box-shadow: 0 6px 24px rgba(0,0,0,0.6);
+}
+.yt-custom-controls {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 10;
+  background: linear-gradient(transparent, rgba(15,23,42,0.95));
+  padding: 10px 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+.yt-custom-controls.visible,
+.youtube-custom-container:hover .yt-custom-controls {
+  opacity: 1;
+  pointer-events: auto;
+}
+.yt-custom-controls .btn-ctrl {
+  background: transparent;
+  border: 0;
+  color: #ffffff;
+  font-size: 1.15rem;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+.yt-live-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: rgba(239, 68, 68, 0.2);
+  border: 1px solid rgba(239, 68, 68, 0.45);
+  color: #ef4444;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+}

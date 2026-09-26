@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin Portal — Christ Embassy New Benin</title>
+  <title>Admin Portal — Christ Embassy New Benin (Midwest Zone)</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Cormorant+Garamond:wght@600;700&display=swap" rel="stylesheet">
@@ -1163,21 +1163,41 @@
 
               <div class="col-md-12 mt-3">
                 <div class="p-3 rounded border" style="background: rgba(230, 33, 23, 0.05); border-color: rgba(230, 33, 23, 0.25) !important;">
-                  <label class="form-label fw-bold d-flex align-items-center gap-2">
-                    <i class="fa-brands fa-youtube text-danger fs-5"></i>
-                    <span>YouTube Live Stream Fallback (Second Option for Viewers)</span>
-                  </label>
+                  <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-2">
+                    <label class="form-label fw-bold d-flex align-items-center gap-2 mb-0">
+                      <i class="fa-brands fa-youtube text-danger fs-5"></i>
+                      <span>YouTube Live Stream Fallback (Live Switcher Option)</span>
+                    </label>
+                    <span class="badge" :class="youtubeFallbackInfo.badgeClass">{{ youtubeFallbackInfo.label }}</span>
+                  </div>
+                  
                   <div class="input-group">
                     <span class="input-group-text bg-dark border-secondary text-danger"><i class="fa-brands fa-youtube"></i></span>
-                    <input type="text" v-model="cms.live.youtube_channel_id" class="form-control" placeholder="Paste YouTube Live URL, Video ID, or Channel ID (e.g. https://www.youtube.com/watch?v=... or @christembassynewbenin)">
+                    <input type="text" v-model="cms.live.youtube_channel_id" class="form-control" placeholder="Paste YouTube Live URL, Video ID, Playlist, or Channel ID (starts with UC...)">
+                    <a v-if="youtubeFallbackInfo.previewUrl" :href="youtubeFallbackInfo.previewUrl" target="_blank" rel="noopener noreferrer" class="btn btn-outline-danger" title="Open YouTube URL in new tab">
+                      <i class="fa-solid fa-arrow-up-right-from-square me-1"></i> Preview
+                    </a>
                   </div>
+
+                  <!-- Real-time Status Explanation -->
+                  <div v-if="youtubeFallbackInfo.status !== 'empty'" class="mt-2 p-2 rounded small" style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.08);">
+                    <div class="d-flex align-items-start gap-2">
+                      <i class="fa-solid fa-circle-info text-info mt-1"></i>
+                      <span class="text-light">{{ youtubeFallbackInfo.description }}</span>
+                    </div>
+                  </div>
+
                   <div class="form-text text-muted mt-2">
-                    <div class="fw-bold text-light mb-1"><i class="fa-solid fa-circle-question text-warning me-1"></i> How to set this up:</div>
-                    <ul class="mb-1 ps-3 small text-muted">
-                      <li><b>Option A (Recommended for specific services):</b> Paste the exact YouTube Live link (e.g. <code>https://www.youtube.com/watch?v=...</code>, <code>https://youtu.be/...</code>, or <code>https://www.youtube.com/live/...</code>).</li>
-                      <li><b>Option B (Channel Live Stream):</b> Enter your church's YouTube Channel ID or handle (e.g. <code>@christembassynewbenin</code>). Leave blank if not broadcasting on YouTube.</li>
+                    <div class="fw-bold text-light mb-1"><i class="fa-solid fa-circle-question text-warning me-1"></i> Three Ways to Choose Your Fallback:</div>
+                    <ul class="mb-2 ps-3 small text-muted">
+                      <li class="mb-1"><b class="text-light">Choice 1 — Specific Live Broadcast / Video (Recommended):</b> Paste the exact YouTube Live link or video ID (e.g. <code>https://www.youtube.com/watch?v=...</code>, <code>https://youtu.be/...</code>, or <code>https://www.youtube.com/live/...</code>). <em>100% reliable for active or scheduled services!</em></li>
+                      <li class="mb-1"><b class="text-light">Choice 2 — Channel 24-Char ID (Auto Live Broadcast):</b> Enter your channel ID starting with <code>UC...</code> (e.g. <code>UC_x5XG1OV2P6uZZ5FSM9Ttw</code>). When your church streams to YouTube, the site automatically detects and plays the live broadcast.</li>
+                      <li class="mb-1"><b class="text-light">Choice 3 — Continuous Sermons Playlist:</b> Paste a YouTube Playlist link (e.g. <code>https://www.youtube.com/playlist?list=PL...</code>) to loop recorded messages whenever no live broadcast is active.</li>
                     </ul>
-                    <span class="text-info small"><i class="fa-solid fa-check text-success me-1"></i> Viewers can switch instantly between the HD Player and YouTube at any time with 1 tap.</span>
+                    <div class="d-flex align-items-center gap-2 text-info small">
+                      <i class="fa-solid fa-check text-success"></i>
+                      <span>Viewers on both desktop and mobile can freely toggle between the <b>HD Player</b> and <b>YouTube</b> with 1 tap. Leave blank if you only want the HD Player.</span>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -3162,9 +3182,17 @@
           <div class="admin-card">
             <div class="card-title-lg">Official Church Branding & Logo</div>
             <div class="row g-3">
-              <div class="col-md-12">
+              <div class="col-md-4">
                 <label class="form-label">Official Church Name</label>
-                <input type="text" v-model="cms.site.name" class="form-control">
+                <input type="text" v-model="cms.site.name" class="form-control" placeholder="CE New Benin">
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Church Zone / Region</label>
+                <input type="text" v-model="cms.site.zone" class="form-control" placeholder="Midwest Zone">
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Website Browser Title</label>
+                <input type="text" v-model="cms.site.title" class="form-control" placeholder="CE New Benin - Midwest Zone | Church of Excellence">
               </div>
               <!-- Church Logo Uploader -->
               <div class="col-12">
@@ -4271,6 +4299,75 @@ createApp({
         'Christ Embassy Okhoro'
       ];
     },
+    youtubeFallbackInfo() {
+      const raw = String((this.cms && this.cms.live && this.cms.live.youtube_channel_id) || '').trim();
+      if (!raw) {
+        return {
+          status: 'empty',
+          label: 'Single Player Mode (No YouTube Fallback)',
+          badgeClass: 'bg-secondary text-light',
+          description: 'Viewers will only see the primary HD Player. The YouTube fallback tab is hidden.'
+        };
+      }
+      const vidMatch = raw.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?(?:.*&)?v=|live\/|embed\/|v\/))([a-zA-Z0-9_-]{11})/i);
+      if (vidMatch || /^[a-zA-Z0-9_-]{11}$/.test(raw)) {
+        const id = vidMatch ? vidMatch[1] : raw;
+        return {
+          status: 'video',
+          id: id,
+          label: 'Choice 1: Specific Live Video / Stream',
+          badgeClass: 'bg-success text-light',
+          previewUrl: 'https://www.youtube.com/watch?v=' + id,
+          embedUrl: 'https://www.youtube.com/embed/' + id,
+          description: 'Plays this exact video or scheduled live broadcast ID (' + id + '). 100% reliable for specific services!'
+        };
+      }
+      const listMatch = raw.match(/[?&]list=([a-zA-Z0-9_-]+)/i) || raw.match(/^(PL[a-zA-Z0-9_-]+)$/i);
+      if (listMatch) {
+        const listId = listMatch[1];
+        return {
+          status: 'playlist',
+          id: listId,
+          label: 'Choice 3: Continuous Sermons Playlist',
+          badgeClass: 'bg-primary text-light',
+          previewUrl: 'https://www.youtube.com/playlist?list=' + listId,
+          embedUrl: 'https://www.youtube.com/embed/videoseries?list=' + listId,
+          description: 'Plays and loops this playlist of sermons or worship when no live service is active.'
+        };
+      }
+      const chMatch = raw.match(/(?:youtube\.com\/(?:channel\/|c\/))?(UC[a-zA-Z0-9_-]{21,22})/i);
+      if (chMatch || (raw.startsWith('UC') && raw.length >= 22)) {
+        const channelId = chMatch ? chMatch[1] : raw;
+        return {
+          status: 'channel',
+          id: channelId,
+          label: 'Choice 2: Channel Live Stream (Auto-Detect)',
+          badgeClass: 'bg-info text-dark',
+          previewUrl: 'https://www.youtube.com/channel/' + channelId,
+          embedUrl: 'https://www.youtube.com/embed/live_stream?channel=' + channelId,
+          description: 'Automatically detects and embeds any live broadcast currently streaming on channel (' + channelId + ').'
+        };
+      }
+      const handleMatch = raw.match(/(?:youtube\.com\/)?(@[a-zA-Z0-9_.-]+)/i);
+      if (handleMatch) {
+        const handle = handleMatch[1];
+        return {
+          status: 'handle',
+          id: handle,
+          label: 'Channel Handle (' + handle + ')',
+          badgeClass: 'bg-warning text-dark',
+          previewUrl: 'https://www.youtube.com/' + handle,
+          description: 'Notice: YouTube embeds require your 24-character Channel ID (starts with UC...) or a live video link to embed in the website player.'
+        };
+      }
+      return {
+        status: 'custom',
+        id: raw,
+        label: 'Custom YouTube Input',
+        badgeClass: 'bg-secondary text-light',
+        description: 'Input will be passed to player.'
+      };
+    },
     uniqueChatSenders() {
       const set = new Set();
       (this.chatMessages || []).forEach(m => { if (m.name) set.add(m.name); });
@@ -4585,38 +4682,64 @@ createApp({
       setTimeout(() => { this.toastMessage = ''; }, 3500);
     },
     loadContent() {
-      fetch('/api/content?t=' + Date.now())
-        .then(r => r.json())
-        .then(data => {
-          Object.assign(this.cms, data);
-          if (data.live_notice) Object.assign(this.liveNotice, data.live_notice);
-          if (!this.cms.pages) this.cms.pages = {};
-          if (!this.cms.pages.about) this.cms.pages.about = {};
-          if (!this.cms.pages.watch) this.cms.pages.watch = { hero: 'assets/uploaded_media/watch_hero_banner.jpg', title: 'Watch & Listen Online', subtitle: '', featured_sermon_id: '1', categories: [] };
-          if (!this.cms.pages.events) this.cms.pages.events = { hero: 'assets/uploaded_media/plan_visit_hero_banner.jpg', title: 'Events & Services', subtitle: '', eyebrow: 'Church Calendar & Gatherings' };
-          if (!this.cms.pages.ministries) this.cms.pages.ministries = { hero: 'assets/uploaded_media/ministries_hero_banner.jpg', title: 'Our Vibrant Ministries', subtitle: '', eyebrow: 'Kingdom Service & Expressions' };
-          if (!this.cms.pages.stories) this.cms.pages.stories = { hero: 'assets/uploaded_media/reachout_world_banner.jpg', title: 'Testimonies & Stories of Faith', subtitle: '', eyebrow: 'Stories of Grace & Victory' };
-          if (!this.cms.pages.visit) this.cms.pages.visit = { hero: 'assets/uploaded_media/plan_visit_hero_banner.jpg', title: 'Plan Your Visit', subtitle: '', eyebrow: 'Plan Your Visit', services: [], faqs: [] };
-          if (!this.cms.pages.locations) this.cms.pages.locations = { hero: 'assets/uploaded_media/about_hero_banner.jpg', title: 'Church Locations & Sanctuaries', subtitle: 'Find a church location near you', eyebrow: 'Locations' };
-          if (!this.cms.pages.groups) this.cms.pages.groups = { hero: 'assets/uploaded_media/about_hero_banner.jpg', title: 'Join a Fellowship Group', subtitle: 'Find a group where you can grow and belong', eyebrow: 'Join a Group' };
-          if (!this.cms.pages.store) this.cms.pages.store = { hero: 'assets/uploaded_media/about_hero_banner.jpg', title: 'Store & Christian Resources', subtitle: 'Browse available church resources', eyebrow: 'Store' };
-          if (!this.cms.home) this.cms.home = {};
-          if (!Array.isArray(this.cms.home.locations)) this.cms.home.locations = [];
-          if (!Array.isArray(this.cms.home.groups)) this.cms.home.groups = [];
-          if (!Array.isArray(this.cms.home.ministries)) this.cms.home.ministries = [];
-          if (!Array.isArray(this.cms.home.stories)) this.cms.home.stories = [];
-          if (!Array.isArray(this.cms.home.member_announcements)) this.cms.home.member_announcements = [];
-          if (!this.cms.pages.give) this.cms.pages.give = {};
-          if (!Array.isArray(this.cms.pages.give.categories)) this.cms.pages.give.categories = ['Tithe', 'Partnership', 'Building Fund', 'General Offering'];
-          if (!Array.isArray(this.cms.pages.give.bank_details)) this.cms.pages.give.bank_details = [];
-          if (!this.cms.pages.watch) this.cms.pages.watch = { hero: 'assets/uploaded_media/sermons_hero_banner.jpg', title: 'Latest Videos & Sermons', subtitle: '', featured_sermon_id: '1' };
-        })
-        .catch(() => {
-          fetch('../assets/data/content.json?t=' + Date.now())
-            .then(r => r.json())
-            .then(data => { Object.assign(this.cms, data); })
-            .catch(() => { this.showToast('Using local cached data.'); });
-        });
+      const endpoints = [
+        '../api/save_content.php?t=' + Date.now(),
+        '/api/content?t=' + Date.now(),
+        '../api/index.php?route=content&t=' + Date.now(),
+        '../assets/data/content.json?t=' + Date.now()
+      ];
+
+      const applyData = (data) => {
+        Object.assign(this.cms, data);
+        if (data.live_notice) Object.assign(this.liveNotice, data.live_notice);
+        if (!this.cms.site) this.cms.site = {};
+        if (!this.cms.pages) this.cms.pages = {};
+        if (!this.cms.pages.about) this.cms.pages.about = {};
+        if (!this.cms.pages.watch) this.cms.pages.watch = { hero: 'assets/uploaded_media/watch_hero_banner.jpg', title: 'Watch & Listen Online', subtitle: '', featured_sermon_id: '1', categories: [] };
+        if (!this.cms.pages.events) this.cms.pages.events = { hero: 'assets/uploaded_media/plan_visit_hero_banner.jpg', title: 'Events & Services', subtitle: '', eyebrow: 'Church Calendar & Gatherings' };
+        if (!this.cms.pages.ministries) this.cms.pages.ministries = { hero: 'assets/uploaded_media/ministries_hero_banner.jpg', title: 'Our Vibrant Ministries', subtitle: '', eyebrow: 'Kingdom Service & Expressions' };
+        if (!this.cms.pages.stories) this.cms.pages.stories = { hero: 'assets/uploaded_media/reachout_world_banner.jpg', title: 'Testimonies & Stories of Faith', subtitle: '', eyebrow: 'Stories of Grace & Victory' };
+        if (!this.cms.pages.visit) this.cms.pages.visit = { hero: 'assets/uploaded_media/plan_visit_hero_banner.jpg', title: 'Plan Your Visit', subtitle: '', eyebrow: 'Plan Your Visit', services: [], faqs: [] };
+        if (!this.cms.pages.locations) this.cms.pages.locations = { hero: 'assets/uploaded_media/about_hero_banner.jpg', title: 'Church Locations & Sanctuaries', subtitle: 'Find a church location near you', eyebrow: 'Locations' };
+        if (!this.cms.pages.groups) this.cms.pages.groups = { hero: 'assets/uploaded_media/about_hero_banner.jpg', title: 'Join a Fellowship Group', subtitle: 'Find a group where you can grow and belong', eyebrow: 'Join a Group' };
+        if (!this.cms.pages.store) this.cms.pages.store = { hero: 'assets/uploaded_media/about_hero_banner.jpg', title: 'Store & Christian Resources', subtitle: 'Browse available church resources', eyebrow: 'Store' };
+        if (!this.cms.home) this.cms.home = {};
+        if (!Array.isArray(this.cms.home.locations)) this.cms.home.locations = [];
+        if (!Array.isArray(this.cms.home.groups)) this.cms.home.groups = [];
+        if (!Array.isArray(this.cms.home.ministries)) this.cms.home.ministries = [];
+        if (!Array.isArray(this.cms.home.stories)) this.cms.home.stories = [];
+        if (!Array.isArray(this.cms.home.member_announcements)) this.cms.home.member_announcements = [];
+        if (!this.cms.pages.give) this.cms.pages.give = {};
+        if (!Array.isArray(this.cms.pages.give.categories)) this.cms.pages.give.categories = ['Tithe', 'Partnership', 'Building Fund', 'General Offering'];
+        if (!Array.isArray(this.cms.pages.give.bank_details)) this.cms.pages.give.bank_details = [];
+        if (!this.cms.pages.watch) this.cms.pages.watch = { hero: 'assets/uploaded_media/sermons_hero_banner.jpg', title: 'Latest Videos & Sermons', subtitle: '', featured_sermon_id: '1' };
+      };
+
+      const tryNext = (idx) => {
+        if (idx >= endpoints.length) {
+          const cached = localStorage.getItem('cec_cms_content');
+          if (cached) {
+            try { applyData(JSON.parse(cached)); this.showToast('Loaded from browser cache.'); return; } catch(e){}
+          }
+          this.showToast('Using local cached data.');
+          return;
+        }
+        fetch(endpoints[idx])
+          .then(r => {
+            if (!r.ok) throw new Error('HTTP ' + r.status);
+            return r.json();
+          })
+          .then(data => {
+            if (data && typeof data === 'object') {
+              applyData(data);
+            } else {
+              tryNext(idx + 1);
+            }
+          })
+          .catch(() => tryNext(idx + 1));
+      };
+
+      tryNext(0);
     },
     loadAttendance() {
       fetch('/api/attendance?t=' + Date.now())
@@ -5191,32 +5314,40 @@ createApp({
       if (!file) return;
 
       const reader = new FileReader();
-      reader.onload = (e) => {
+      reader.onload = async (e) => {
         const dataUrl = e.target.result;
         targetObj[keyName] = dataUrl;
 
         this.uploading = true;
         this.showToast('Uploading ' + file.name + ' from PC...');
 
-        fetch('/api/upload', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ filename: file.name, data: dataUrl })
-        })
-        .then(r => r.json())
-        .then(res => {
-          if (res.ok && res.url) {
-            targetObj[keyName] = res.url;
-            this.showToast('Image uploaded successfully: ' + res.url);
-          }
-        })
-        .catch(() => {
+        const uploadEndpoints = ['../api/upload.php', '../api/index.php?route=upload', '/api/upload'];
+        let uploaded = false;
+
+        for (const ep of uploadEndpoints) {
+          try {
+            const r = await fetch(ep, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ filename: file.name, data: dataUrl })
+            });
+            if (r.ok) {
+              const res = await r.json().catch(() => null);
+              if (res && res.ok && res.url) {
+                targetObj[keyName] = res.url;
+                this.showToast('Image uploaded successfully: ' + res.url);
+                uploaded = true;
+                break;
+              }
+            }
+          } catch (err) {}
+        }
+
+        if (!uploaded) {
           this.showToast('Image preview loaded.');
-        })
-        .finally(() => {
-          this.uploading = false;
-          event.target.value = '';
-        });
+        }
+        this.uploading = false;
+        event.target.value = '';
       };
       reader.readAsDataURL(file);
     },
@@ -5289,32 +5420,52 @@ createApp({
       if (!url) return false;
       return /\.(mp4|mov|webm|mkv|avi|m4v)(\?.*)?$/i.test(url) || (url.startsWith('assets/uploaded_media/') && !this.isAudioUrl(url));
     },
-    saveToServer() {
+    async saveToServer() {
       this.saving = true;
       if (this.cms && this.cms.site && this.cms.site.admin_pin) {
         localStorage.setItem('cec_admin_custom_pin', String(this.cms.site.admin_pin).trim());
       }
       const payload = Object.assign({}, this.cms, { live_notice: this.liveNotice });
-      fetch('/api/save', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      })
-      .then(r => r.json())
-      .then(res => {
-        if (res.ok) {
-          this.showToast('All changes saved to server successfully!');
-        } else {
-          this.showToast('Saved locally in browser.');
-        }
-      })
-      .catch(() => {
-        localStorage.setItem('cec_cms_content', JSON.stringify(payload));
-        this.showToast('Saved to browser storage! You can download JSON to commit.');
-      })
-      .finally(() => {
-        this.saving = false;
-      });
+      const payloadStr = JSON.stringify(payload);
+
+      const endpoints = [
+        '../api/save_content.php',
+        '../api/index.php?route=save',
+        '/api/save',
+        '/api/save_content',
+        'api/save_content.php'
+      ];
+
+      let savedOk = false;
+
+      for (const endpoint of endpoints) {
+        try {
+          const res = await fetch(endpoint, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: payloadStr
+          });
+          if (res.ok) {
+            const data = await res.json().catch(() => null);
+            if (data && data.ok) {
+              savedOk = true;
+              break;
+            }
+          }
+        } catch (err) {}
+      }
+
+      if (savedOk) {
+        localStorage.setItem('cec_cms_content', payloadStr);
+        localStorage.setItem('cec_cms_last_saved', Date.now().toString());
+        localStorage.removeItem('cec_cms_pending_sync');
+        this.showToast('All changes saved to server successfully!');
+      } else {
+        localStorage.setItem('cec_cms_content', payloadStr);
+        localStorage.setItem('cec_cms_pending_sync', 'true');
+        this.showToast('Saved to browser storage! (Server endpoint was unreachable)');
+      }
+      this.saving = false;
     },
     downloadBackup() {
       const payload = Object.assign({}, this.cms, { live_notice: this.liveNotice });

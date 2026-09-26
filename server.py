@@ -47,7 +47,7 @@ class ChurchPortalHandler(http.server.SimpleHTTPRequestHandler):
             return
 
         # 3. API: CMS Content
-        if path == '/api/content':
+        if path in ('/api/content', '/api/content.php', '/api/save_content.php') or path.endswith('/api/content') or path.endswith('/save_content.php'):
             content = db.get_cms_content()
             self.send_response(200)
             self.send_header('Content-Type', 'application/json; charset=utf-8')
@@ -161,7 +161,7 @@ class ChurchPortalHandler(http.server.SimpleHTTPRequestHandler):
                 return
 
         # 2. Admin Save Content API (Database + JSON Sync)
-        if path == '/api/save' or path == '/api/save_content':
+        if path in ('/api/save', '/api/save_content', '/api/save_content.php') or path.endswith('/api/save') or path.endswith('/save_content.php'):
             length = int(self.headers.get('Content-Length', 0))
             body = self.rfile.read(length)
             try:

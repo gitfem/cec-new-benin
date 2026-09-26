@@ -28,6 +28,16 @@ if ($providedSecret !== $SECRET_KEY) {
 $repoDir = __DIR__;
 chdir($repoDir);
 
+// Preserve runtime CMS data files before reset
+$contentFile = $repoDir . '/assets/data/content.json';
+$contentBackup = file_exists($contentFile) ? file_get_contents($contentFile) : null;
+$dbFile = $repoDir . '/assets/data/church.db';
+$dbBackup = file_exists($dbFile) ? file_get_contents($dbFile) : null;
+$attFile = $repoDir . '/assets/data/attendance.json';
+$attBackup = file_exists($attFile) ? file_get_contents($attFile) : null;
+$chatFile = $repoDir . '/assets/data/chat_messages.json';
+$chatBackup = file_exists($chatFile) ? file_get_contents($chatFile) : null;
+
 // Execute git fetch and reset to match origin main
 $commands = [
     'git config user.name "CEC Benin Deployment"',
@@ -47,6 +57,23 @@ foreach ($commands as $cmd) {
     if ($returnCode !== 0 && strpos($cmd, 'git reset') !== false) {
         $returnVar = $returnCode;
     }
+}
+
+// Restore active runtime data if backup had custom content
+if ($contentBackup) {
+    $existing = json_decode($contentBackup, true);
+    if ($existing && !empty($existing['site']['address']) && strpos($existing['site']['address'], 'To Be Supplied') === false) {
+        file_put_contents($contentFile, $contentBackup);
+    }
+}
+if ($dbBackup && (!file_exists($dbFile) || filesize($dbFile) === 0)) {
+    file_put_contents($dbFile, $dbBackup);
+}
+if ($attBackup) {
+    file_put_contents($attFile, $attBackup);
+}
+if ($chatBackup) {
+    file_put_contents($chatFile, $chatBackup);
 }
 
 // Preserve/ensure permissions for dynamic data dirs
