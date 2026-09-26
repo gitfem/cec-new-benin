@@ -142,12 +142,13 @@ body{font-family:var(--friendly-sans);font-size:16px;line-height:1.65}.hero-cont
   --kh-teal-2:#62d6e6;
   --kh-sand:#f4eee6;
 }
-.hero-home{min-height:100svh;align-items:flex-start;}
-.hero-content{padding:clamp(150px,18vh,210px) 22px 260px!important;max-width:1120px;}
-.hero-content h1{font-size:clamp(2.75rem,5.35vw,5.65rem)!important;line-height:1.02!important;letter-spacing:-.045em!important;margin:0 auto;}
-.hero-actions{margin-top:28px!important;}
-.ways-wrap{bottom:34px!important;}
-.ways-title{margin-bottom:18px!important;font-size:clamp(1.35rem,2vw,2rem)!important;}
+.hero-home{min-height:100svh;display:flex!important;flex-direction:column!important;justify-content:space-between!important;align-items:center!important;overflow-x:hidden!important;padding:0!important;}
+.hero-content{padding:clamp(100px,13vh,135px) 22px 0!important;max-width:1120px;position:relative!important;z-index:3!important;margin:0 auto!important;}
+.hero-content h1{font-size:clamp(2.5rem,4.8vw,5.2rem)!important;line-height:1.02!important;letter-spacing:-.045em!important;margin:0 auto;}
+.hero-actions{margin-top:24px!important;margin-bottom:0!important;}
+.hero-dots{margin-top:16px!important;margin-bottom:0!important;}
+.ways-wrap{position:relative!important;z-index:4!important;left:auto!important;right:auto!important;top:auto!important;bottom:auto!important;width:100%!important;max-width:min(1880px,94vw)!important;margin-top:clamp(42px,6vh,72px)!important;margin-bottom:34px!important;padding:0 var(--container)!important;text-align:center!important;}
+.ways-title{margin-top:0!important;margin-bottom:18px!important;font-size:clamp(1.35rem,2vw,2rem)!important;}
 .ways-grid.feature-image-grid{gap:20px!important;}
 .way-card-image,.way-card-overlay{min-height:185px!important;border-radius:14px!important;}
 .way-card-overlay{padding:22px 24px!important;}
@@ -216,7 +217,7 @@ body{font-family:var(--friendly-sans);font-size:16px;line-height:1.65}.hero-cont
 .help-card p{margin-bottom:0;color:#334155;}
 
 @media(max-width:1200px){
-  .hero-content{padding-top:140px!important;padding-bottom:275px!important;}
+  .hero-content{padding-top:clamp(95px,12vh,125px)!important;padding-bottom:0!important;}
   .hero-content h1{font-size:clamp(2.65rem,6.2vw,5.15rem)!important;}
   .ways-grid.feature-image-grid{grid-template-columns:repeat(4,1fr)!important;}
   .way-card-image,.way-card-overlay{min-height:165px!important;}
@@ -225,7 +226,7 @@ body{font-family:var(--friendly-sans);font-size:16px;line-height:1.65}.hero-cont
   .hero-home{min-height:auto;display:block;padding-bottom:0;}
   .hero-content{padding:130px 20px 60px!important;min-height:560px;display:flex;flex-direction:column;align-items:center;justify-content:center;}
   .hero-content h1{font-size:clamp(2.45rem,8vw,4.6rem)!important;}
-  .ways-wrap{position:relative!important;left:auto!important;right:auto!important;bottom:auto!important;padding:0 var(--container) 30px!important;margin-top:-20px;}
+  .ways-wrap{position:relative!important;left:auto!important;right:auto!important;bottom:auto!important;padding:0 var(--container) 30px!important;margin-top:20px!important;}
   .ways-grid.feature-image-grid{grid-template-columns:repeat(2,1fr)!important;}
   .way-card-image,.way-card-overlay{min-height:180px!important;}
   .member-layout{grid-template-columns:1fr!important;}
