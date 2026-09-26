@@ -60,9 +60,18 @@ foreach ($commands as $cmd) {
 }
 
 // Restore active runtime data if backup had custom content
-if ($contentBackup) {
+if ($contentBackup && file_exists($contentFile)) {
     $existing = json_decode($contentBackup, true);
-    if ($existing && !empty($existing['site']['address']) && strpos($existing['site']['address'], 'To Be Supplied') === false) {
+    $gitContent = json_decode(file_get_contents($contentFile), true);
+    if ($existing && is_array($existing) && $gitContent && is_array($gitContent)) {
+        $merged = array_replace_recursive($gitContent, $existing);
+        if (!empty($gitContent['site']['name']) && stripos($gitContent['site']['name'], 'MidWest') !== false) {
+            $merged['site']['name'] = $gitContent['site']['name'];
+            $merged['site']['title'] = $gitContent['site']['title'];
+            $merged['site']['zone'] = $gitContent['site']['zone'];
+        }
+        file_put_contents($contentFile, json_encode($merged, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
+    } elseif ($existing && !empty($existing['site']['address']) && strpos($existing['site']['address'], 'To Be Supplied') === false) {
         file_put_contents($contentFile, $contentBackup);
     }
 }
