@@ -94,6 +94,80 @@ if ($method === 'GET' && (strpos($uri, '/api/youtube/live') !== false || strpos(
     exit;
 }
 
+// -------------------------------------------------------------
+// STREAM LIVE STATUS PROBE
+// -------------------------------------------------------------
+if ($method === 'GET' && ($matchRoute('stream_status') || $matchRoute('live_status') || $routeParam === 'stream_status')) {
+    $url = $_GET['url'] ?? '';
+    if (empty($url) && file_exists($contentFile)) {
+        $contentData = json_decode(file_get_contents($contentFile), true);
+        $url = $contentData['live']['hls_url'] ?? '';
+    }
+    if (empty($url)) {
+        echo json_encode(['ok' => false, 'is_live' => false, 'error' => 'No stream URL provided']);
+        exit;
+    }
+
+    // Fast HEAD request to the HLS URL to verify manifest freshness
+    $ch = curl_init($url);
+    curl_setopt_array($ch, [
+        CURLOPT_NOBODY => true,
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_HEADER => true,
+        CURLOPT_TIMEOUT => 3,
+        CURLOPT_FOLLOWLOCATION => true,
+        CURLOPT_SSL_VERIFYPEER => false,
+        CURLOPT_USERAGENT => 'CEC-Benin-LiveProbe/1.0'
+    ]);
+    $resp = curl_exec($ch);
+    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+
+    if ($httpCode !== 200 || empty($resp)) {
+        echo json_encode(['ok' => true, 'is_live' => false, 'http_code' => $httpCode, 'reason' => 'Stream offline or unreachable']);
+        exit;
+    }
+
+    $lastModified = null;
+    if (preg_match('/Last-Modified:\s*([^\r\n]+)/i', $resp, $m)) {
+        $lastModified = trim($m[1]);
+    }
+
+    $age = null;
+    $isLive = false;
+    if ($lastModified) {
+        $ts = strtotime($lastModified);
+        if ($ts !== false) {
+            $age = time() - $ts;
+            // Active live stream updates manifest every segment (4-7s).
+            // If manifest hasn't updated in > 25 seconds, broadcast has stopped!
+            $isLive = ($age <= 25);
+        }
+    } else {
+        // Fallback: fetch manifest body
+        $ch2 = curl_init($url);
+        curl_setopt_array($ch2, [
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_TIMEOUT => 3,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_SSL_VERIFYPEER => false,
+            CURLOPT_USERAGENT => 'CEC-Benin-LiveProbe/1.0'
+        ]);
+        $body = curl_exec($ch2);
+        curl_close($ch2);
+        $isLive = ($body && strpos($body, '#EXT-X-ENDLIST') === false && strpos($body, '.ts') !== false);
+    }
+
+    echo json_encode([
+        'ok' => true,
+        'is_live' => $isLive,
+        'age_seconds' => $age,
+        'last_modified' => $lastModified,
+        'http_code' => $httpCode
+    ]);
+    exit;
+}
+
 if ($method === 'POST' && ($matchRoute('save') || $matchRoute('save_content') || strpos($uri, 'save_content.php') !== false)) {
     $data = getPayload();
     if (empty($data)) {

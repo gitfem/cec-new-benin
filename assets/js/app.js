@@ -743,133 +743,198 @@ const LivePage = {
       this.ytPlayer = null;
       this.ytIsPlaying = false;
     },
-    setupHls(){
-      const v=this.$refs.liveVideo;
-      if(!v || !this.hlsUrl){ this.liveStatus='offline'; return; }
-      if(this.cms && this.cms.live && this.cms.live.is_live === false){
-        this.liveStatus = 'offline';
-        this.isPlaying = false;
-        if(this.hls){ this.hls.destroy(); this.hls = null; }
+    teardownStream(status = 'offline') {
+      this.isPlaying = false;
+      this.liveStatus = status;
+      this.releaseWakeLock();
+      if (this._liveDriftTimer) {
+        clearInterval(this._liveDriftTimer);
+        this._liveDriftTimer = null;
+      }
+      if (this._nativeHlsTimer) {
+        clearInterval(this._nativeHlsTimer);
+        this._nativeHlsTimer = null;
+      }
+      if (this.hls) {
+        try {
+          this.hls.stopLoad();
+          this.hls.destroy();
+        } catch(e) {}
+        this.hls = null;
+      }
+      const v = this.$refs.liveVideo;
+      if (v) {
+        try { v.pause(); } catch(e) {}
+        v.removeAttribute('src');
+        try { v.load(); } catch(e) {}
+        v.dataset.hlsReady = '';
+      }
+      if (this.$root && typeof this.$root.stopFloatingLive === 'function') {
+        this.$root.stopFloatingLive();
+      }
+    },
+    async checkStreamLiveFreshness(url) {
+      if (!url) return false;
+      // 1. Direct HEAD request to check Last-Modified header
+      try {
+        const res = await fetch(url, { method: 'HEAD', cache: 'no-store' });
+        if (!res.ok) return false;
+        const lastMod = res.headers.get('last-modified');
+        if (lastMod) {
+          const age = (Date.now() - new Date(lastMod).getTime()) / 1000;
+          // If manifest hasn't updated in > 25 seconds, encoder stopped streaming
+          if (age > 25) {
+            return false;
+          }
+          return true;
+        }
+      } catch(e) {}
+
+      // 2. Server-side probe fallback
+      try {
+        const probe = await fetch('api/index.php?route=stream_status&url=' + encodeURIComponent(url), { cache: 'no-store' }).then(r => r.json()).catch(() => null);
+        if (probe && typeof probe.is_live === 'boolean') {
+          return probe.is_live;
+        }
+      } catch(e2) {}
+
+      return true;
+    },
+    async setupHls(autoplay = false){
+      const v = this.$refs.liveVideo;
+      if (!v || !this.hlsUrl) { this.teardownStream('offline'); return; }
+
+      if (this.cms && this.cms.live && this.cms.live.is_live === false) {
+        this.teardownStream('offline');
         return;
       }
-      if(v.dataset.hlsReady === this.hlsUrl){ return; }
-      if(this.hls){ this.hls.destroy(); this.hls=null; }
-      if(this.isAudioStream){ v.src=this.hlsUrl; v.dataset.hlsReady=this.hlsUrl; v.load(); return; }
 
+      this.liveStatus = 'checking';
+
+      // Pre-flight check: is the live stream actively broadcasting right now?
+      const isFresh = await this.checkStreamLiveFreshness(this.hlsUrl);
+      if (!isFresh) {
+        this.teardownStream('offline');
+        return;
+      }
+
+      if (v.dataset.hlsReady === this.hlsUrl && (this.hls || v.src)) {
+        if (autoplay && v.paused && !this._userManuallyPaused) {
+          v.play().catch(() => {});
+        }
+        return;
+      }
+
+      if (this.hls) {
+        try { this.hls.destroy(); } catch(e) {}
+        this.hls = null;
+      }
+
+      v.dataset.hlsReady = '';
       v.loop = false;
       v.removeAttribute('loop');
 
-      // Auto-recovery watcher on the video element (handles buffer underruns, waiting stalls without looping on stream end)
-      if(!v._stallRecoveryAttached){
+      if (this.isAudioStream) {
+        v.src = this.hlsUrl;
+        v.dataset.hlsReady = this.hlsUrl;
+        v.load();
+        if (autoplay) { v.play().catch(() => {}); }
+        return;
+      }
+
+      // Auto-recovery watcher on the video element
+      if (!v._stallRecoveryAttached) {
         v._stallRecoveryAttached = true;
         let stallTimer = null;
 
         const checkStreamEnded = () => {
           const bEnd = (v.buffered && v.buffered.length > 0) ? v.buffered.end(v.buffered.length - 1) : 0;
-          return (bEnd > 0 && v.currentTime >= bEnd - 0.6);
+          return (bEnd > 0 && v.currentTime >= bEnd - 0.8);
         };
 
-        const tryResume = () => {
-          if(this._userManuallyPaused || this.activeStream !== 'player'){
+        const handleStall = () => {
+          if (this._userManuallyPaused || this.activeStream !== 'player') return;
+          if (checkStreamEnded() && this._stalePollCount >= 1) {
+            this.teardownStream('offline');
             return;
           }
-          if(checkStreamEnded()){
-            if(this._stalePollCount >= 1 || v.ended){
-              this.isPlaying = false;
-              this.liveStatus = 'offline';
-              v.pause();
-              this.releaseWakeLock();
-              if(this.hls){ this.hls.stopLoad(); }
-              return;
-            }
-          }
-          if(this.hls){
+          if (this.hls) {
             this.hls.startLoad();
           }
-          if(v.paused && !checkStreamEnded()){
-            v.play().catch(()=>{});
+          if (v.paused && !checkStreamEnded()) {
+            v.play().catch(() => {});
           }
         };
 
         v.addEventListener('waiting', () => {
-          if(checkStreamEnded() && this._stalePollCount >= 1){
-            this.isPlaying = false;
-            this.liveStatus = 'offline';
-            v.pause();
+          if (checkStreamEnded() && this._stalePollCount >= 1) {
+            this.teardownStream('offline');
             return;
           }
           clearTimeout(stallTimer);
-          stallTimer = setTimeout(tryResume, 1000);
+          stallTimer = setTimeout(handleStall, 1200);
         });
+
         v.addEventListener('stalled', () => {
-          if(checkStreamEnded() && this._stalePollCount >= 1){
-            this.isPlaying = false;
-            this.liveStatus = 'offline';
-            v.pause();
+          if (checkStreamEnded() && this._stalePollCount >= 1) {
+            this.teardownStream('offline');
             return;
           }
           clearTimeout(stallTimer);
-          stallTimer = setTimeout(tryResume, 1200);
+          stallTimer = setTimeout(handleStall, 1500);
         });
+
         v.addEventListener('playing', () => {
           clearTimeout(stallTimer);
           this.acquireWakeLock();
         });
+
         v.addEventListener('ended', () => {
-          this.isPlaying = false;
-          this.liveStatus = 'offline';
-          this.releaseWakeLock();
-          v.pause();
-          if(this.hls){
-            this.hls.stopLoad();
-          }
+          this.teardownStream('offline');
         });
       }
 
       const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-      if(!isIOS && window.Hls && Hls.isSupported()){
+      if (!isIOS && window.Hls && Hls.isSupported()) {
         const hls = new Hls({
           enableWorker: true,
-          lowLatencyMode: true,
-          liveSyncDuration: 3.5,
-          liveMaxLatencyDuration: 6.5,
-          maxLiveSyncPlaybackRate: 1.15,
+          lowLatencyMode: false,
+          liveSyncDurationCount: 3,
+          liveMaxLatencyDurationCount: 6,
+          maxLiveSyncPlaybackRate: 1.0,
           liveDurationInfinity: true,
-          maxBufferLength: 8,
-          maxMaxBufferLength: 16,
-          backBufferLength: 5,
-          highBufferWatchdogPeriod: 1,
+          maxBufferLength: 30,
+          maxMaxBufferLength: 60,
+          backBufferLength: 10,
+          highBufferWatchdogPeriod: 2,
           nudgeMaxRetry: 5,
           nudgeOffset: 0.1,
-          manifestLoadingTimeOut: 8000,
-          levelLoadingTimeOut: 8000,
-          fragLoadingTimeOut: 10000
+          manifestLoadingTimeOut: 10000,
+          levelLoadingTimeOut: 10000,
+          fragLoadingTimeOut: 15000
         });
 
-        // Continuous live-edge drift monitor (every 3s)
-        if(this._liveDriftTimer){ clearInterval(this._liveDriftTimer); }
+        // Continuous live-edge drift monitor (every 4s)
+        if (this._liveDriftTimer) { clearInterval(this._liveDriftTimer); }
         this._liveDriftTimer = setInterval(() => {
           if (this.isPlaying && this.activeStream === 'player' && hls && hls.liveSyncPosition) {
             const drift = hls.liveSyncPosition - v.currentTime;
-            if (drift > 8 && !v.seeking) {
-              v.currentTime = hls.liveSyncPosition;
+            if (drift > 12 && !v.seeking) {
+              try { v.currentTime = hls.liveSyncPosition; } catch(e) {}
             }
           }
-        }, 3000);
+        }, 4000);
 
         this._lastMediaSeq = -1;
         this._stalePollCount = 0;
         hls.on(Hls.Events.LEVEL_UPDATED, (event, data) => {
-          if(!data || !data.details) return;
-          if(data.details.live){
-            if(data.details.mediaSequence === this._lastMediaSeq){
+          if (!data || !data.details) return;
+          if (data.details.live) {
+            if (data.details.mediaSequence === this._lastMediaSeq) {
               this._stalePollCount = (this._stalePollCount || 0) + 1;
-              const bEnd = (v.buffered && v.buffered.length > 0) ? v.buffered.end(v.buffered.length - 1) : 0;
-              if(this._stalePollCount >= 3 && bEnd > 0 && v.currentTime >= bEnd - 0.6){
-                this.isPlaying = false;
-                this.liveStatus = 'offline';
-                v.pause();
-                hls.stopLoad();
+              // If manifest has not updated for 2 polls (~8-12s), encoder stopped streaming
+              if (this._stalePollCount >= 2) {
+                this.teardownStream('offline');
               }
             } else {
               this._lastMediaSeq = data.details.mediaSequence;
@@ -880,31 +945,29 @@ const LivePage = {
 
         hls.loadSource(this.hlsUrl);
         hls.attachMedia(v);
+        hls.on(Hls.Events.MANIFEST_PARSED, () => {
+          this.liveStatus = 'live';
+          if (autoplay) {
+            v.play().catch(() => {});
+          }
+        });
+
         hls.on(Hls.Events.ERROR, (event, data) => {
-          if(data){
-            if(data.details === Hls.ErrorDetails.BUFFER_STALLED_ERROR || data.details === Hls.ErrorDetails.BUFFER_NUDGE_ON_STALL){
+          if (data) {
+            if (data.details === Hls.ErrorDetails.BUFFER_STALLED_ERROR || data.details === Hls.ErrorDetails.BUFFER_NUDGE_ON_STALL) {
               const bEnd = (v.buffered && v.buffered.length > 0) ? v.buffered.end(v.buffered.length - 1) : 0;
-              if(bEnd > 0 && v.currentTime >= bEnd - 0.6){
-                if(this._stalePollCount >= 1){
-                  this.isPlaying = false;
-                  this.liveStatus = 'offline';
-                  v.pause();
-                  if(hls){ hls.stopLoad(); }
-                  return;
-                }
+              if (bEnd > 0 && v.currentTime >= bEnd - 0.8 && this._stalePollCount >= 1) {
+                this.teardownStream('offline');
+                return;
               }
-              if(v && !this._userManuallyPaused && (bEnd === 0 || v.currentTime < bEnd - 0.6)){
-                if(hls){
-                  hls.startLoad();
-                }
-                if(v.paused){
-                  v.play().catch(()=>{});
-                }
+              if (v && !this._userManuallyPaused && (bEnd === 0 || v.currentTime < bEnd - 0.8)) {
+                if (hls) { hls.startLoad(); }
+                if (v.paused) { v.play().catch(() => {}); }
               }
               return;
             }
-            if(data.fatal){
-              switch(data.type){
+            if (data.fatal) {
+              switch (data.type) {
                 case Hls.ErrorTypes.NETWORK_ERROR:
                   console.warn('HLS Network stall, attempting recovery...', data);
                   hls.startLoad();
@@ -915,48 +978,69 @@ const LivePage = {
                   break;
                 default:
                   console.error('Fatal HLS error:', data);
-                  this.markStreamError();
+                  this.teardownStream('offline');
                   break;
               }
             }
           }
         });
-        this.hls=hls;
-        v.dataset.hlsReady=this.hlsUrl;
-      } else if(v.canPlayType('application/vnd.apple.mpegurl')){
-        v.src=this.hlsUrl;
-        v.dataset.hlsReady=this.hlsUrl;
+
+        this.hls = hls;
+        v.dataset.hlsReady = this.hlsUrl;
+      } else if (v.canPlayType('application/vnd.apple.mpegurl')) {
+        v.src = this.hlsUrl;
+        v.dataset.hlsReady = this.hlsUrl;
         v.load();
+        if (autoplay) {
+          v.play().catch(() => {});
+        }
+        // Periodic stream heartbeat for native iOS player
+        if (this._nativeHlsTimer) clearInterval(this._nativeHlsTimer);
+        this._nativeHlsTimer = setInterval(async () => {
+          if (this.activeStream !== 'player' || this.liveStatus === 'offline') return;
+          const stillLive = await this.checkStreamLiveFreshness(this.hlsUrl);
+          if (!stillLive) {
+            this.teardownStream('offline');
+          }
+        }, 10000);
       }
     },
 
     autoplayPlayer(){
-      this.activeStream='player';
-      this.liveStatus='checking';
-      this.soundBlocked=false;
-      this.setupHls();
-      const v=this.$refs.liveVideo;
-      if(!v) return;
-      v.autoplay=false;
-      v.playsInline=true;
-      v.preload='auto';
-      v.defaultMuted=false;
-      v.muted=false;
-      v.volume=parseFloat(this.volume || this.$root.liveFloatVolume || 0.85);
-      this.muted=false;
-      this.$root.liveFloatMuted=false;
-    },
-    markStreamReady(){ this.liveStatus='live'; this.$root.enableFloatingLive(false); },
-    markStreamError(){ if(this.activeStream==='player'){ this.liveStatus='offline'; this.isPlaying=false; } },
-    togglePlay(){
+      this.activeStream = 'player';
+      this.liveStatus = 'checking';
+      this.soundBlocked = false;
+      this.setupHls(true);
       const v = this.$refs.liveVideo;
       if (!v) return;
-      if(this.liveStatus === 'offline'){
+      v.autoplay = false;
+      v.playsInline = true;
+      v.preload = 'auto';
+      v.defaultMuted = false;
+      v.muted = false;
+      v.volume = parseFloat(this.volume || this.$root.liveFloatVolume || 0.85);
+      this.muted = false;
+      this.$root.liveFloatMuted = false;
+    },
+    markStreamReady(){
+      if (this.liveStatus !== 'offline') {
+        this.liveStatus = 'live';
+        this.$root.enableFloatingLive(false);
+      }
+    },
+    markStreamError(){
+      if (this.activeStream === 'player') {
+        this.teardownStream('offline');
+      }
+    },
+    async togglePlay(){
+      const v = this.$refs.liveVideo;
+      if (!v) return;
+      if (this.liveStatus === 'offline') {
         this.liveStatus = 'checking';
-        this.setupHls();
+        await this.setupHls(true);
         return;
       }
-      this.setupHls();
       if (v.paused) {
         this._userManuallyPaused = false;
         v.muted = false;
