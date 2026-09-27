@@ -399,8 +399,20 @@ const LivePage = {
       return null;
     },
     youtubeChannelId(){ return this.youtubeData ? this.youtubeData.id : ''; },
-    youtubeUrl(){ return this.youtubeData ? this.youtubeData.embedUrl : ''; },
-    youtubePage(){ return this.youtubeData ? this.youtubeData.pageUrl : ''; },
+    youtubeUrl(){
+      const vid = this.ytResolvedVideoId || (this.youtubeData && this.youtubeData.type === 'video' ? this.youtubeData.id : '');
+      if(vid){
+        return 'https://www.youtube-nocookie.com/embed/' + encodeURIComponent(vid) + '?autoplay=1&playsinline=1&controls=1&rel=0&modestbranding=1';
+      }
+      return this.youtubeData ? this.youtubeData.embedUrl : '';
+    },
+    youtubePage(){
+      const vid = this.ytResolvedVideoId || (this.youtubeData && this.youtubeData.type === 'video' ? this.youtubeData.id : '');
+      if(vid){
+        return 'https://www.youtube.com/watch?v=' + encodeURIComponent(vid);
+      }
+      return this.youtubeData ? this.youtubeData.pageUrl : '';
+    },
     isAudioStream(){ return /\.(mp3|m4a|aac|ogg|oga|wav)(\?.*)?$/i.test(this.hlsUrl); },
     announcementHtml(){
       const items = this.cms && this.cms.home && Array.isArray(this.cms.home.member_announcements) ? this.cms.home.member_announcements : [];
@@ -578,9 +590,6 @@ const LivePage = {
       }
       if(this.youtubeData.type === 'video'){
         this.ytResolvedVideoId = this.youtubeData.id;
-        if(this.activeStream === 'youtube'){
-          this.$nextTick(() => { this.mountYtCustomPlayer(); });
-        }
         return;
       }
       const target = this.youtubeData.id;
@@ -589,19 +598,10 @@ const LivePage = {
         .then(r => r.json())
         .then(res => {
           if(res && res.ok && res.video_id){
-            if(this.ytResolvedVideoId !== res.video_id){
-              this.ytResolvedVideoId = res.video_id;
-              if(this.activeStream === 'youtube'){
-                this.$nextTick(() => { this.mountYtCustomPlayer(); });
-              }
-            }
-          } else {
-            this.ytResolvedVideoId = '';
+            this.ytResolvedVideoId = res.video_id;
           }
         })
-        .catch(() => {
-          this.ytResolvedVideoId = '';
-        });
+        .catch(() => {});
     },
     mountYtCustomPlayer(){
       if(!this.ytResolvedVideoId || this.activeStream !== 'youtube') return;
@@ -926,20 +926,10 @@ const LivePage = {
         }, 4000);
 
         this._lastMediaSeq = -1;
-        this._stalePollCount = 0;
         hls.on(Hls.Events.LEVEL_UPDATED, (event, data) => {
           if (!data || !data.details) return;
           if (data.details.live) {
-            if (data.details.mediaSequence === this._lastMediaSeq) {
-              this._stalePollCount = (this._stalePollCount || 0) + 1;
-              // If manifest has not updated for 2 polls (~8-12s), encoder stopped streaming
-              if (this._stalePollCount >= 2) {
-                this.teardownStream('offline');
-              }
-            } else {
-              this._lastMediaSeq = data.details.mediaSequence;
-              this._stalePollCount = 0;
-            }
+            this._lastMediaSeq = data.details.mediaSequence;
           }
         });
 
@@ -955,14 +945,9 @@ const LivePage = {
         hls.on(Hls.Events.ERROR, (event, data) => {
           if (data) {
             if (data.details === Hls.ErrorDetails.BUFFER_STALLED_ERROR || data.details === Hls.ErrorDetails.BUFFER_NUDGE_ON_STALL) {
-              const bEnd = (v.buffered && v.buffered.length > 0) ? v.buffered.end(v.buffered.length - 1) : 0;
-              if (bEnd > 0 && v.currentTime >= bEnd - 0.8 && this._stalePollCount >= 1) {
-                this.teardownStream('offline');
-                return;
-              }
-              if (v && !this._userManuallyPaused && (bEnd === 0 || v.currentTime < bEnd - 0.8)) {
-                if (hls) { hls.startLoad(); }
-                if (v.paused) { v.play().catch(() => {}); }
+              if (hls) { hls.startLoad(); }
+              if (v && !this._userManuallyPaused && v.paused) {
+                v.play().catch(() => {});
               }
               return;
             }
@@ -1252,45 +1237,11 @@ const LivePage = {
 
           <div v-else class="youtube-panel">
             <div v-if="hasYoutubeLive" class="youtube-wrapper">
-              <!-- MODE 1: Custom Controls Mode (YouTube IFrame API with zero YouTube branding/links, 100% on-site controls) -->
-              <div v-if="ytResolvedVideoId" class="youtube-custom-container" ref="ytContainer" @mousemove="showYtControls" @mouseleave="hideYtControlsDelayed">
-                <div id="yt-custom-player-mount" class="yt-player-mount"></div>
-                <!-- Interceptor surface for play/pause toggle without touching YouTube branding -->
-                <div class="yt-click-surface" @click="toggleYtPlay">
-                  <transition name="fade">
-                    <div v-if="!ytIsPlaying && !ytIsBuffering" class="yt-center-play-btn" @click.stop="toggleYtPlay">
-                      <i class="fa-solid fa-play" style="margin-left:4px;"></i>
-                    </div>
-                  </transition>
-                  <div v-if="ytIsBuffering" class="spinner-border text-danger" role="status" style="width:3rem; height:3rem;"></div>
+              <div class="youtube-frame" style="position:relative; aspect-ratio:16/9; border-radius:14px; overflow:hidden; background:#000;">
+                <iframe v-if="youtubeUrl" :src="youtubeUrl" :title="siteName ? siteName + ' YouTube Live' : 'YouTube Live'" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen style="position:absolute; inset:0; width:100%; height:100%; border:0; border-radius:14px; display:block;"></iframe>
+                <div v-else class="d-flex align-items-center justify-content-center text-white" style="position:absolute; inset:0;">
+                  <div class="spinner-border text-danger me-2"></div> Loading YouTube Live Stream...
                 </div>
-                <!-- Church-Branded Controls Bar -->
-                <div class="yt-custom-controls" :class="{visible: ytControlsVisible || !ytIsPlaying}">
-                  <div class="d-flex align-items-center gap-3">
-                    <button type="button" class="btn-ctrl" @click.stop="toggleYtPlay" :aria-label="ytIsPlaying ? 'Pause' : 'Play'">
-                      <i :class="ytIsPlaying ? 'fa-solid fa-pause' : 'fa-solid fa-play'"></i>
-                    </button>
-                    <div class="d-flex align-items-center gap-2">
-                      <button type="button" class="btn-ctrl" @click.stop="toggleYtMute" :aria-label="ytIsMuted ? 'Unmute' : 'Mute'">
-                        <i :class="ytIsMuted || ytVolume == 0 ? 'fa-solid fa-volume-xmark text-warning' : (ytVolume < 50 ? 'fa-solid fa-volume-low' : 'fa-solid fa-volume-high')"></i>
-                      </button>
-                      <input type="range" class="yt-vol-slider" min="0" max="100" v-model="ytVolume" @input="onYtVolumeInput">
-                    </div>
-                    <span class="yt-live-pill"><i class="fa-solid fa-circle me-1" style="font-size:0.5rem;"></i> LIVE</span>
-                  </div>
-                  <div class="d-flex align-items-center gap-2">
-                    <button type="button" class="btn-ctrl" @click.stop="toggleYtFullscreen" aria-label="Toggle Fullscreen">
-                      <i :class="isYtFullscreen ? 'fa-solid fa-compress' : 'fa-solid fa-expand'"></i>
-                    </button>
-                  </div>
-                </div>
-              </div>
-
-              <!-- MODE 2: Channel ID Standby Embed (Best-Effort Containment with Precision Shields) -->
-              <div v-else class="youtube-frame" style="position:relative; aspect-ratio:16/9; border-radius:14px; overflow:hidden; background:#000;">
-                <iframe :src="youtubeUrl" :title="siteName ? siteName + ' YouTube Live' : 'YouTube Live'" sandbox="allow-scripts allow-same-origin allow-presentation allow-forms" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen style="position:absolute; inset:0; width:100%; height:100%; border:0; border-radius:14px; display:block;"></iframe>
-                <div class="yt-shield-top" title="" @click.prevent.stop></div>
-                <div class="yt-shield-watermark" title="" @click.prevent.stop></div>
               </div>
             </div>
             <div v-else class="p-4 text-center rounded" style="background:#0f172a; border:1px solid #1e293b; color:#94a3b8; border-radius:14px;">

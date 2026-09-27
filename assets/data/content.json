@@ -789,13 +789,13 @@
     ]
   },
   "live": {
-    "hls_url": "https://zstream.zentrinet.com/api/playback/hls/d9fefff4-a5ac-4973-8f60-fefa151765fc/index.m3u8",
+    "hls_url": "https://zstream.zentrinet.com/api/playback/hls/45dcf90e-aaeb-4555-8f2d-273bb5148350/index.m3u8",
     "youtube_channel_id": "UC-Yv3op33YuDQ4aKDtmo_4w",
     "title": "Sunday Service of Excellence",
     "description": "Welcome to our live service from Christ Embassy New Benin Sanctuary with Pastor Joseph Atibi-Brown. Receive divine transformation through the Word.",
     "minister": "Pastor Joseph Atibi-Brown",
     "theme": "Walking in Divine Excellence | 1 Peter 2:9",
-    "is_live": false,
+    "is_live": true,
     "service_groups": [
       "Christ Embassy Lagos Street",
       "Christ Embassy Upper Mission 2",

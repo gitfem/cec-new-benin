@@ -444,8 +444,20 @@ createApp({
       return null;
     },
     youtubeChannelId(){ return this.youtubeData ? this.youtubeData.id : ''; },
-    youtubeUrl(){ return this.youtubeData ? this.youtubeData.embedUrl : ''; },
-    youtubePage(){ return this.youtubeData ? this.youtubeData.pageUrl : ''; },
+    youtubeUrl(){
+      const vid = this.ytResolvedVideoId || (this.youtubeData && this.youtubeData.type === 'video' ? this.youtubeData.id : '');
+      if(vid){
+        return 'https://www.youtube-nocookie.com/embed/' + encodeURIComponent(vid) + '?autoplay=1&playsinline=1&controls=1&rel=0&modestbranding=1';
+      }
+      return this.youtubeData ? this.youtubeData.embedUrl : '';
+    },
+    youtubePage(){
+      const vid = this.ytResolvedVideoId || (this.youtubeData && this.youtubeData.type === 'video' ? this.youtubeData.id : '');
+      if(vid){
+        return 'https://www.youtube.com/watch?v=' + encodeURIComponent(vid);
+      }
+      return this.youtubeData ? this.youtubeData.pageUrl : '';
+    },
     showMiniLive(){ return this.member && this.miniLiveEnabled && !this.miniLiveClosed && this.route !== 'live'; },
     paypalRecipient(){ return (this.cms.site && this.cms.site.paypal_email) ? this.cms.site.paypal_email.trim() : ''; },
     paypalMeUrl(){
@@ -753,30 +765,19 @@ createApp({
       }
       if(this.youtubeData.type === 'video'){
         this.ytResolvedVideoId = this.youtubeData.id;
-        if(this.activeStream === 'youtube'){
-          this.$nextTick(() => { this.mountYtCustomPlayer(); });
-        }
         return;
       }
       const target = this.youtubeData.id;
       if(!target) return;
-      fetch('../api/youtube_live.php?channel=' + encodeURIComponent(target) + '&t=' + Date.now())
+      const apiUrl = (window.location.pathname.includes('/mobile') ? '../api/youtube_live.php' : 'api/youtube_live.php') + '?channel=' + encodeURIComponent(target) + '&t=' + Date.now();
+      fetch(apiUrl)
         .then(r => r.json())
         .then(res => {
           if(res && res.ok && res.video_id){
-            if(this.ytResolvedVideoId !== res.video_id){
-              this.ytResolvedVideoId = res.video_id;
-              if(this.activeStream === 'youtube'){
-                this.$nextTick(() => { this.mountYtCustomPlayer(); });
-              }
-            }
-          } else {
-            this.ytResolvedVideoId = '';
+            this.ytResolvedVideoId = res.video_id;
           }
         })
-        .catch(() => {
-          this.ytResolvedVideoId = '';
-        });
+        .catch(() => {});
     },
     mountYtCustomPlayer(){
       if(!this.ytResolvedVideoId || this.activeStream !== 'youtube') return;
@@ -1119,20 +1120,10 @@ createApp({
         }, 4000);
 
         this._lastMediaSeq = -1;
-        this._stalePollCount = 0;
         hls.on(Hls.Events.LEVEL_UPDATED, (event, data) => {
           if (!data || !data.details) return;
           if (data.details.live) {
-            if (data.details.mediaSequence === this._lastMediaSeq) {
-              this._stalePollCount = (this._stalePollCount || 0) + 1;
-              // If manifest has not updated for 2 polls (~8-12s), encoder stopped streaming
-              if (this._stalePollCount >= 2) {
-                this.teardownStream('offline');
-              }
-            } else {
-              this._lastMediaSeq = data.details.mediaSequence;
-              this._stalePollCount = 0;
-            }
+            this._lastMediaSeq = data.details.mediaSequence;
           }
         });
 
@@ -1147,14 +1138,9 @@ createApp({
         hls.on(Hls.Events.ERROR, (event, data) => {
           if (!data) return;
           if (data.details === Hls.ErrorDetails.BUFFER_STALLED_ERROR || data.details === Hls.ErrorDetails.BUFFER_NUDGE_ON_STALL) {
-            const bEnd = (video.buffered && video.buffered.length > 0) ? video.buffered.end(video.buffered.length - 1) : 0;
-            if (bEnd > 0 && video.currentTime >= bEnd - 0.8 && this._stalePollCount >= 1) {
-              this.teardownStream('offline');
-              return;
-            }
-            if (video && !this._userManuallyPaused && (bEnd === 0 || video.currentTime < bEnd - 0.8)) {
-              if (hls) { hls.startLoad(); }
-              if (video.paused) { video.play().catch(() => {}); }
+            if (hls) { hls.startLoad(); }
+            if (video && !this._userManuallyPaused && video.paused) {
+              video.play().catch(() => {});
             }
             return;
           }
