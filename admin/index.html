@@ -591,98 +591,90 @@
       </div>
 
       <nav class="admin-nav">
-        <!-- 1. CORE MANAGEMENT -->
-        <div class="nav-section-title"><span>Core Portal</span></div>
+        <!-- 1. DASHBOARD & WEBSITE PAGES -->
+        <div class="nav-section-title"><span>Website & Pages</span></div>
         <button class="nav-link-btn" :class="{active: tab==='dashboard'}" @click="setTab('dashboard')" title="Dashboard Overview">
           <i class="fa-solid fa-chart-pie text-info"></i>
-          <span class="nav-btn-text">Overview</span>
+          <span class="nav-btn-text">Dashboard Overview</span>
         </button>
-        <button class="nav-link-btn" :class="{active: tab==='settings'}" @click="setTab('settings')" title="Church Settings & Branding">
-          <i class="fa-solid fa-gear text-warning"></i>
-          <span class="nav-btn-text">Church Settings</span>
-          <span class="badge bg-warning text-dark ms-auto nav-badge">Core</span>
+        <button class="nav-link-btn" :class="{active: tab==='homepage' || tab==='slides'}" @click="setTab('homepage')" title="Edit Home Page (Headline, Cards, Upcoming Event, Slides)">
+          <i class="fa-solid fa-house-chimney text-warning"></i>
+          <span class="nav-btn-text">Home Page Editor</span>
+          <span class="badge bg-warning text-dark ms-auto nav-badge">Home</span>
         </button>
         <button class="nav-link-btn" :class="{active: tab==='pages'}" @click="setTab('pages')" title="All Website Pages Directory">
-          <i class="fa-solid fa-file-lines text-warning"></i>
+          <i class="fa-solid fa-file-lines text-info"></i>
           <span class="nav-btn-text">All Website Pages</span>
-        </button>
-        <button class="nav-link-btn" :class="{active: tab==='navigation'}" @click="setTab('navigation')" title="Menu Navigation Links">
-          <i class="fa-solid fa-bars text-gold"></i>
-          <span class="nav-btn-text">Menu Navigation</span>
+          <span class="badge bg-secondary ms-auto nav-badge">{{ allPagesList.length }}</span>
         </button>
 
-        <!-- 2. BROADCAST & CONGREGATION -->
-        <div class="nav-section-title"><span>Broadcast & Fellowship</span></div>
-        <button class="nav-link-btn" :class="{active: tab==='live'}" @click="setTab('live')" title="Live Stream & Broadcast">
+        <!-- 2. BROADCAST & FELLOWSHIP -->
+        <div class="nav-section-title"><span>Live Sanctuary</span></div>
+        <button class="nav-link-btn" :class="{active: tab==='live' || tab==='livechat'}" @click="setTab('live')" title="Live Stream & Broadcast">
           <i class="fa-solid fa-video text-danger"></i>
           <span class="nav-btn-text">Live Broadcast</span>
           <span v-if="cms.live && cms.live.is_live" class="badge bg-danger ms-auto nav-badge">LIVE</span>
         </button>
         <button class="nav-link-btn" :class="{active: tab==='attendance'}" @click="setTab('attendance')" title="Live Attendance Register & Souls">
           <i class="fa-solid fa-clipboard-user text-info"></i>
-          <span class="nav-btn-text">Attendance Register</span>
-        </button>
-        <button class="nav-link-btn" :class="{active: tab==='livechat'}" @click="setTab('livechat')" title="Live Chat Moderation">
-          <i class="fa-solid fa-comments text-success"></i>
-          <span class="nav-btn-text">Live Chat Moderation</span>
+          <span class="nav-btn-text">Attendance & Souls</span>
         </button>
         <button class="nav-link-btn" :class="{active: tab==='announcements'}" @click="setTab('announcements')" title="Announcements & Alerts">
           <i class="fa-solid fa-bullhorn text-warning"></i>
           <span class="nav-btn-text">Announcements</span>
         </button>
 
-        <!-- 3. MEDIA & CONTENT -->
-        <div class="nav-section-title"><span>Media & Content</span></div>
+        <!-- 3. MEDIA & TEACHINGS -->
+        <div class="nav-section-title"><span>Media & Teachings</span></div>
         <button class="nav-link-btn" :class="{active: tab==='sermons'}" @click="setTab('sermons')" title="Sermons & Media Library">
           <i class="fa-solid fa-book-bible text-primary"></i>
           <span class="nav-btn-text">Sermons & Media</span>
-        </button>
-        <button class="nav-link-btn" :class="{active: tab==='slides'}" @click="setTab('slides')" title="Hero Carousel & Slides">
-          <i class="fa-solid fa-images text-info"></i>
-          <span class="nav-btn-text">Hero & Slides</span>
-        </button>
-        <button class="nav-link-btn" :class="{active: tab==='homepage'}" @click="setTab('homepage')" title="Experience Cards & Home">
-          <i class="fa-solid fa-layer-group text-warning"></i>
-          <span class="nav-btn-text">Experience Cards</span>
         </button>
         <button class="nav-link-btn" :class="{active: tab==='stories'}" @click="setTab('stories')" title="Testimonies & Stories">
           <i class="fa-solid fa-quote-left text-rose"></i>
           <span class="nav-btn-text">Testimonies & Stories</span>
         </button>
 
-        <!-- 4. CHURCH MINISTRIES & GIVING -->
-        <div class="nav-section-title"><span>Ministries & Giving</span></div>
+        <!-- 4. CHURCH LIFE & PORTALS -->
+        <div class="nav-section-title"><span>Church Life & Portals</span></div>
+        <button class="nav-link-btn" :class="{active: tab==='events'}" @click="setTab('events')" title="Events & Church Calendar">
+          <i class="fa-solid fa-calendar-day text-warning"></i>
+          <span class="nav-btn-text">Events & Services</span>
+        </button>
         <button class="nav-link-btn" :class="{active: tab==='giving'}" @click="setTab('giving')" title="Online Giving & Bank Accounts">
           <i class="fa-solid fa-hand-holding-dollar text-success"></i>
           <span class="nav-btn-text">Giving & Accounts</span>
         </button>
-        <button class="nav-link-btn" :class="{active: tab==='events'}" @click="setTab('events')" title="Events & Church Calendar">
-          <i class="fa-solid fa-calendar-day text-warning"></i>
-          <span class="nav-btn-text">Events & Services</span>
+        <button class="nav-link-btn" :class="{active: tab==='about'}" @click="setTab('about')" title="About Us & Leadership Vision">
+          <i class="fa-solid fa-circle-info text-info"></i>
+          <span class="nav-btn-text">About Us & Vision</span>
+        </button>
+        <button class="nav-link-btn" :class="{active: tab==='visit'}" @click="setTab('visit')" title="Plan a Visit Page">
+          <i class="fa-solid fa-map-location-dot text-success"></i>
+          <span class="nav-btn-text">Plan a Visit</span>
         </button>
         <button class="nav-link-btn" :class="{active: tab==='ministries'}" @click="setTab('ministries')" title="Ministries & Departments">
           <i class="fa-solid fa-people-group text-info"></i>
           <span class="nav-btn-text">Ministries & Groups</span>
         </button>
-        <button class="nav-link-btn" :class="{active: tab==='visit'}" @click="setTab('visit')" title="Plan a Visit Page">
-          <i class="fa-solid fa-map-location-dot text-success"></i>
-          <span class="nav-btn-text">Plan a Visit Page</span>
-        </button>
-        <button class="nav-link-btn" :class="{active: tab==='locations'}" @click="setTab('locations')" title="Church Locations & Sanctuaries">
+        <button class="nav-link-btn" :class="{active: tab==='locations' || tab==='groups'}" @click="setTab('locations')" title="Church Locations & Fellowship Centers">
           <i class="fa-solid fa-location-dot text-danger"></i>
-          <span class="nav-btn-text">Church Locations</span>
-        </button>
-        <button class="nav-link-btn" :class="{active: tab==='groups'}" @click="setTab('groups')" title="Fellowship Centers">
-          <i class="fa-solid fa-users-rectangle text-primary"></i>
-          <span class="nav-btn-text">Fellowship Centers</span>
+          <span class="nav-btn-text">Locations & Centers</span>
         </button>
         <button class="nav-link-btn" :class="{active: tab==='store'}" @click="setTab('store')" title="Store & Christian Resources">
           <i class="fa-solid fa-store text-warning"></i>
-          <span class="nav-btn-text">Store & Resources</span>
+          <span class="nav-btn-text">Christian Store</span>
         </button>
-        <button class="nav-link-btn" :class="{active: tab==='about'}" @click="setTab('about')" title="About Us & Leadership Vision">
-          <i class="fa-solid fa-circle-info text-info"></i>
-          <span class="nav-btn-text">About Us & Vision</span>
+
+        <!-- 5. CONFIGURATION -->
+        <div class="nav-section-title"><span>Settings</span></div>
+        <button class="nav-link-btn" :class="{active: tab==='settings'}" @click="setTab('settings')" title="Church Settings & Branding">
+          <i class="fa-solid fa-gear text-warning"></i>
+          <span class="nav-btn-text">Church Settings</span>
+        </button>
+        <button class="nav-link-btn" :class="{active: tab==='navigation'}" @click="setTab('navigation')" title="Menu Navigation Links">
+          <i class="fa-solid fa-bars text-gold"></i>
+          <span class="nav-btn-text">Menu Navigation</span>
         </button>
       </nav>
 
@@ -710,6 +702,33 @@
             <i class="fa-solid" :class="sidebarCollapsed ? 'fa-bars-staggered' : 'fa-bars'"></i>
           </button>
           <h5 class="m-0 fw-bold">{{ tabTitles[tab] || 'Dashboard' }}</h5>
+
+          <!-- QUICK PAGE SWITCHER DROPDOWN -->
+          <div class="dropdown d-none d-md-block">
+            <button class="btn btn-sm btn-outline-secondary dropdown-toggle d-flex align-items-center gap-2" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="border-color: rgba(255,255,255,0.18); color: #f1f5f9; background: rgba(255,255,255,0.04);">
+              <i class="fa-solid fa-compass text-warning"></i>
+              <span class="small fw-semibold">Edit Page...</span>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-dark shadow-lg" style="border: 1px solid var(--card-border); font-size: 0.88rem; min-width: 230px;">
+              <li><h6 class="dropdown-header text-uppercase text-warning fw-bold" style="font-size: 0.72rem; letter-spacing: 0.05em;">Website Pages</h6></li>
+              <li><a class="dropdown-item d-flex align-items-center gap-2" href="javascript:void(0)" @click="setTab('homepage')"><i class="fa-solid fa-house text-warning"></i> Home Page Editor</a></li>
+              <li><a class="dropdown-item d-flex align-items-center gap-2" href="javascript:void(0)" @click="setTab('pages')"><i class="fa-solid fa-file-lines text-info"></i> All Pages Directory</a></li>
+              <li><a class="dropdown-item d-flex align-items-center gap-2" href="javascript:void(0)" @click="setTab('slides')"><i class="fa-solid fa-images text-info"></i> Hero Carousel Slides</a></li>
+              <li><hr class="dropdown-divider border-secondary opacity-25"></li>
+              <li><a class="dropdown-item d-flex align-items-center gap-2" href="javascript:void(0)" @click="setTab('sermons')"><i class="fa-solid fa-book-bible text-primary"></i> Watch & Sermons</a></li>
+              <li><a class="dropdown-item d-flex align-items-center gap-2" href="javascript:void(0)" @click="setTab('live')"><i class="fa-solid fa-video text-danger"></i> Live Broadcast</a></li>
+              <li><a class="dropdown-item d-flex align-items-center gap-2" href="javascript:void(0)" @click="setTab('about')"><i class="fa-solid fa-circle-info text-info"></i> About Us & Vision</a></li>
+              <li><a class="dropdown-item d-flex align-items-center gap-2" href="javascript:void(0)" @click="setTab('events')"><i class="fa-solid fa-calendar-day text-warning"></i> Events & Calendar</a></li>
+              <li><a class="dropdown-item d-flex align-items-center gap-2" href="javascript:void(0)" @click="setTab('visit')"><i class="fa-solid fa-map-location-dot text-success"></i> Plan a Visit</a></li>
+              <li><a class="dropdown-item d-flex align-items-center gap-2" href="javascript:void(0)" @click="setTab('giving')"><i class="fa-solid fa-hand-holding-dollar text-success"></i> Giving & Accounts</a></li>
+              <li><a class="dropdown-item d-flex align-items-center gap-2" href="javascript:void(0)" @click="setTab('ministries')"><i class="fa-solid fa-people-group text-info"></i> Ministries & Groups</a></li>
+              <li><a class="dropdown-item d-flex align-items-center gap-2" href="javascript:void(0)" @click="setTab('locations')"><i class="fa-solid fa-location-dot text-danger"></i> Locations</a></li>
+              <li><a class="dropdown-item d-flex align-items-center gap-2" href="javascript:void(0)" @click="setTab('groups')"><i class="fa-solid fa-users-rectangle text-primary"></i> Fellowship Groups</a></li>
+              <li><a class="dropdown-item d-flex align-items-center gap-2" href="javascript:void(0)" @click="setTab('stories')"><i class="fa-solid fa-quote-left text-warning"></i> Stories & Testimonies</a></li>
+              <li><a class="dropdown-item d-flex align-items-center gap-2" href="javascript:void(0)" @click="setTab('store')"><i class="fa-solid fa-store text-info"></i> Christian Store</a></li>
+            </ul>
+          </div>
+
           <span v-if="cms.live && cms.live.is_live" class="badge-live"><i class="fa-solid fa-circle fa-fade"></i> BROADCASTING LIVE</span>
           <span v-else class="badge-offline">STREAM OFFLINE</span>
         </div>
@@ -736,6 +755,303 @@
 
         <!-- TAB: DASHBOARD OVERVIEW -->
         <section v-if="tab==='dashboard'">
+
+          <!-- 1. PROMINENT WEBSITE PAGES & HOME PAGE MANAGER HUB -->
+          <div class="admin-card border-warning border-opacity-50 mb-4" style="background: linear-gradient(180deg, #101524 0%, #0c101a 100%);">
+            <div class="d-flex align-items-center justify-content-between flex-wrap gap-3 mb-3 pb-3 border-bottom border-secondary border-opacity-25">
+              <div class="d-flex align-items-center gap-3">
+                <div class="p-3 rounded-3" style="background: rgba(230, 167, 25, 0.15); border: 1px solid rgba(230, 167, 25, 0.3);">
+                  <i class="fa-solid fa-house-chimney-window text-warning fs-3"></i>
+                </div>
+                <div>
+                  <div class="d-flex align-items-center gap-2">
+                    <h4 class="fw-bold m-0 text-white">Website Pages & Home Page Editor</h4>
+                    <span class="badge bg-warning text-dark fw-bold">Live CMS</span>
+                  </div>
+                  <p class="text-muted small m-0 mt-1">Manage and update your Home Page, Hero Carousel, Event Banners, and all website subpages directly from here.</p>
+                </div>
+              </div>
+              <div class="d-flex align-items-center gap-2 flex-wrap">
+                <button type="button" class="btn btn-outline-gold btn-sm d-flex align-items-center gap-2" @click="setTab('pages')">
+                  <i class="fa-solid fa-file-lines"></i> All Website Pages ({{ allPagesList.length }})
+                </button>
+                <button type="button" class="btn btn-gold btn-sm d-flex align-items-center gap-2" @click="setTab('homepage')">
+                  <i class="fa-solid fa-pen-to-square"></i> Open Home Page Editor
+                </button>
+                <a href="../#/" target="_blank" class="btn btn-outline-light btn-sm d-flex align-items-center gap-1" title="View live website in new tab">
+                  <i class="fa-solid fa-arrow-up-right-from-square"></i> View Live Site
+                </a>
+              </div>
+            </div>
+
+            <!-- Home Page Spotlight Card -->
+            <div class="p-3 rounded-3 mb-4" style="background: rgba(255,255,255,0.02); border: 1px solid rgba(230, 167, 25, 0.25);">
+              <div class="row align-items-center g-3">
+                <div class="col-lg-7">
+                  <div class="d-flex align-items-center gap-2 mb-1">
+                    <span class="badge bg-gold text-dark fw-bold">Primary Page</span>
+                    <span class="text-warning small fw-bold">Route: christembassynewbenin.org/#/</span>
+                  </div>
+                  <h5 class="fw-bold text-white mb-1">{{ cms.home.welcome_header || 'Welcome to Christ Embassy New Benin' }}</h5>
+                  <p class="text-muted small mb-3">{{ cms.home.welcome_text || 'A family church inspiring people to follow Jesus and discover purpose.' }}</p>
+                  
+                  <div class="d-flex align-items-center gap-3 flex-wrap small">
+                    <span class="badge bg-dark border border-secondary text-light px-2 py-1">
+                      <i class="fa-solid fa-images text-info me-1"></i> {{ (cms.home.slides || []).length }} Hero Slides
+                    </span>
+                    <span class="badge bg-dark border border-secondary text-light px-2 py-1">
+                      <i class="fa-solid fa-layer-group text-warning me-1"></i> {{ (cms.home.feature_banners || []).length }} Experience Cards
+                    </span>
+                    <span class="badge bg-dark border border-secondary text-light px-2 py-1" v-if="cms.home.upcoming_event">
+                      <i class="fa-solid fa-calendar-check text-success me-1"></i> Upcoming Event: {{ cms.home.upcoming_event.title }}
+                    </span>
+                    <span class="badge bg-dark border border-secondary text-light px-2 py-1" v-if="cms.home.about_section">
+                      <i class="fa-solid fa-circle-info text-info me-1"></i> Identity / About Section
+                    </span>
+                  </div>
+                </div>
+                <div class="col-lg-5 text-lg-end">
+                  <div class="d-flex align-items-center justify-content-lg-end gap-2 flex-wrap">
+                    <button type="button" class="btn btn-gold" @click="setTab('homepage')">
+                      <i class="fa-solid fa-sliders me-1"></i> Edit Home Page Content
+                    </button>
+                    <button type="button" class="btn btn-outline-info btn-sm" @click="setTab('slides')">
+                      <i class="fa-solid fa-images me-1"></i> Edit Hero Slides
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Quick Jump Grid: All Pages of the Website -->
+            <div>
+              <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
+                <span class="fw-bold text-white small text-uppercase" style="letter-spacing: 0.05em;">
+                  <i class="fa-solid fa-compass text-warning me-1"></i> Quick Jump to Edit Any Website Page:
+                </span>
+                <span class="text-muted small">Click any page card below to edit its content & hero graphic</span>
+              </div>
+              <div class="row g-3">
+                <!-- Home Page -->
+                <div class="col-6 col-md-4 col-xl-3">
+                  <div class="p-3 rounded-3 h-100 d-flex flex-column justify-content-between" style="background: rgba(230, 167, 25, 0.08); border: 1px solid rgba(230, 167, 25, 0.3); cursor: pointer; transition: 0.2s;" @click="setTab('homepage')" role="button">
+                    <div>
+                      <div class="d-flex align-items-center justify-content-between mb-2">
+                        <i class="fa-solid fa-house-chimney text-warning fs-5"></i>
+                        <span class="badge bg-warning text-dark fw-bold" style="font-size: 0.7rem;">Home</span>
+                      </div>
+                      <div class="fw-bold text-white mb-1">Home Page</div>
+                      <div class="text-muted small" style="font-size: 0.78rem;">Headline, cards, upcoming event banner, and identity.</div>
+                    </div>
+                    <div class="mt-3 pt-2 border-top border-secondary border-opacity-25 d-flex align-items-center justify-content-between text-warning small fw-bold">
+                      <span>Edit Home Page</span>
+                      <i class="fa-solid fa-arrow-right"></i>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Watch & Sermons -->
+                <div class="col-6 col-md-4 col-xl-3">
+                  <div class="p-3 rounded-3 h-100 d-flex flex-column justify-content-between" style="background: rgba(255,255,255,0.02); border: 1px solid var(--card-border); cursor: pointer; transition: 0.2s;" @click="setTab('sermons')" role="button">
+                    <div>
+                      <div class="d-flex align-items-center justify-content-between mb-2">
+                        <i class="fa-solid fa-book-bible text-primary fs-5"></i>
+                        <span class="badge bg-primary" style="font-size: 0.7rem;">#/watch</span>
+                      </div>
+                      <div class="fw-bold text-white mb-1">Watch & Sermons</div>
+                      <div class="text-muted small" style="font-size: 0.78rem;">Video library, categories, teachings, and media hero.</div>
+                    </div>
+                    <div class="mt-3 pt-2 border-top border-secondary border-opacity-25 d-flex align-items-center justify-content-between text-info small fw-bold">
+                      <span>Edit Sermons</span>
+                      <i class="fa-solid fa-arrow-right"></i>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Live Broadcast -->
+                <div class="col-6 col-md-4 col-xl-3">
+                  <div class="p-3 rounded-3 h-100 d-flex flex-column justify-content-between" style="background: rgba(255,255,255,0.02); border: 1px solid var(--card-border); cursor: pointer; transition: 0.2s;" @click="setTab('live')" role="button">
+                    <div>
+                      <div class="d-flex align-items-center justify-content-between mb-2">
+                        <i class="fa-solid fa-video text-danger fs-5"></i>
+                        <span class="badge bg-danger" style="font-size: 0.7rem;">#/live</span>
+                      </div>
+                      <div class="fw-bold text-white mb-1">Live Broadcast</div>
+                      <div class="text-muted small" style="font-size: 0.78rem;">HLS stream, YouTube live, theme, and service notice.</div>
+                    </div>
+                    <div class="mt-3 pt-2 border-top border-secondary border-opacity-25 d-flex align-items-center justify-content-between text-danger small fw-bold">
+                      <span>Manage Broadcast</span>
+                      <i class="fa-solid fa-arrow-right"></i>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- About Us -->
+                <div class="col-6 col-md-4 col-xl-3">
+                  <div class="p-3 rounded-3 h-100 d-flex flex-column justify-content-between" style="background: rgba(255,255,255,0.02); border: 1px solid var(--card-border); cursor: pointer; transition: 0.2s;" @click="setTab('about')" role="button">
+                    <div>
+                      <div class="d-flex align-items-center justify-content-between mb-2">
+                        <i class="fa-solid fa-circle-info text-info fs-5"></i>
+                        <span class="badge bg-info text-dark" style="font-size: 0.7rem;">#/about</span>
+                      </div>
+                      <div class="fw-bold text-white mb-1">About Us & Vision</div>
+                      <div class="text-muted small" style="font-size: 0.78rem;">Leadership vision, church history, and values.</div>
+                    </div>
+                    <div class="mt-3 pt-2 border-top border-secondary border-opacity-25 d-flex align-items-center justify-content-between text-info small fw-bold">
+                      <span>Edit About Page</span>
+                      <i class="fa-solid fa-arrow-right"></i>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Events & Calendar -->
+                <div class="col-6 col-md-4 col-xl-3">
+                  <div class="p-3 rounded-3 h-100 d-flex flex-column justify-content-between" style="background: rgba(255,255,255,0.02); border: 1px solid var(--card-border); cursor: pointer; transition: 0.2s;" @click="setTab('events')" role="button">
+                    <div>
+                      <div class="d-flex align-items-center justify-content-between mb-2">
+                        <i class="fa-solid fa-calendar-day text-warning fs-5"></i>
+                        <span class="badge bg-warning text-dark" style="font-size: 0.7rem;">#/events</span>
+                      </div>
+                      <div class="fw-bold text-white mb-1">Events & Calendar</div>
+                      <div class="text-muted small" style="font-size: 0.78rem;">Upcoming programs, conferences, and service schedule.</div>
+                    </div>
+                    <div class="mt-3 pt-2 border-top border-secondary border-opacity-25 d-flex align-items-center justify-content-between text-warning small fw-bold">
+                      <span>Edit Events</span>
+                      <i class="fa-solid fa-arrow-right"></i>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Plan a Visit -->
+                <div class="col-6 col-md-4 col-xl-3">
+                  <div class="p-3 rounded-3 h-100 d-flex flex-column justify-content-between" style="background: rgba(255,255,255,0.02); border: 1px solid var(--card-border); cursor: pointer; transition: 0.2s;" @click="setTab('visit')" role="button">
+                    <div>
+                      <div class="d-flex align-items-center justify-content-between mb-2">
+                        <i class="fa-solid fa-map-location-dot text-success fs-5"></i>
+                        <span class="badge bg-success" style="font-size: 0.7rem;">#/visit</span>
+                      </div>
+                      <div class="fw-bold text-white mb-1">Plan a Visit Page</div>
+                      <div class="text-muted small" style="font-size: 0.78rem;">Visitor guide, service times, FAQs, and location map.</div>
+                    </div>
+                    <div class="mt-3 pt-2 border-top border-secondary border-opacity-25 d-flex align-items-center justify-content-between text-success small fw-bold">
+                      <span>Edit Visit Page</span>
+                      <i class="fa-solid fa-arrow-right"></i>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Giving & Accounts -->
+                <div class="col-6 col-md-4 col-xl-3">
+                  <div class="p-3 rounded-3 h-100 d-flex flex-column justify-content-between" style="background: rgba(255,255,255,0.02); border: 1px solid var(--card-border); cursor: pointer; transition: 0.2s;" @click="setTab('giving')" role="button">
+                    <div>
+                      <div class="d-flex align-items-center justify-content-between mb-2">
+                        <i class="fa-solid fa-hand-holding-dollar text-success fs-5"></i>
+                        <span class="badge bg-success" style="font-size: 0.7rem;">#/give</span>
+                      </div>
+                      <div class="fw-bold text-white mb-1">Giving & Bank Accounts</div>
+                      <div class="text-muted small" style="font-size: 0.78rem;">Bank transfer accounts, currencies, and online giving.</div>
+                    </div>
+                    <div class="mt-3 pt-2 border-top border-secondary border-opacity-25 d-flex align-items-center justify-content-between text-success small fw-bold">
+                      <span>Edit Giving</span>
+                      <i class="fa-solid fa-arrow-right"></i>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Ministries & Groups -->
+                <div class="col-6 col-md-4 col-xl-3">
+                  <div class="p-3 rounded-3 h-100 d-flex flex-column justify-content-between" style="background: rgba(255,255,255,0.02); border: 1px solid var(--card-border); cursor: pointer; transition: 0.2s;" @click="setTab('ministries')" role="button">
+                    <div>
+                      <div class="d-flex align-items-center justify-content-between mb-2">
+                        <i class="fa-solid fa-people-group text-info fs-5"></i>
+                        <span class="badge bg-info text-dark" style="font-size: 0.7rem;">#/ministries</span>
+                      </div>
+                      <div class="fw-bold text-white mb-1">Ministries & Groups</div>
+                      <div class="text-muted small" style="font-size: 0.78rem;">Departments, youth, choir, and specialized ministries.</div>
+                    </div>
+                    <div class="mt-3 pt-2 border-top border-secondary border-opacity-25 d-flex align-items-center justify-content-between text-info small fw-bold">
+                      <span>Edit Ministries</span>
+                      <i class="fa-solid fa-arrow-right"></i>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Church Locations -->
+                <div class="col-6 col-md-4 col-xl-3">
+                  <div class="p-3 rounded-3 h-100 d-flex flex-column justify-content-between" style="background: rgba(255,255,255,0.02); border: 1px solid var(--card-border); cursor: pointer; transition: 0.2s;" @click="setTab('locations')" role="button">
+                    <div>
+                      <div class="d-flex align-items-center justify-content-between mb-2">
+                        <i class="fa-solid fa-location-dot text-danger fs-5"></i>
+                        <span class="badge bg-danger" style="font-size: 0.7rem;">#/locations</span>
+                      </div>
+                      <div class="fw-bold text-white mb-1">Church Locations</div>
+                      <div class="text-muted small" style="font-size: 0.78rem;">Sanctuary centers, addresses, pastors, and directions.</div>
+                    </div>
+                    <div class="mt-3 pt-2 border-top border-secondary border-opacity-25 d-flex align-items-center justify-content-between text-danger small fw-bold">
+                      <span>Edit Locations</span>
+                      <i class="fa-solid fa-arrow-right"></i>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Fellowship Centers -->
+                <div class="col-6 col-md-4 col-xl-3">
+                  <div class="p-3 rounded-3 h-100 d-flex flex-column justify-content-between" style="background: rgba(255,255,255,0.02); border: 1px solid var(--card-border); cursor: pointer; transition: 0.2s;" @click="setTab('groups')" role="button">
+                    <div>
+                      <div class="d-flex align-items-center justify-content-between mb-2">
+                        <i class="fa-solid fa-users-rectangle text-primary fs-5"></i>
+                        <span class="badge bg-primary" style="font-size: 0.7rem;">#/groups</span>
+                      </div>
+                      <div class="fw-bold text-white mb-1">Fellowship Centers</div>
+                      <div class="text-muted small" style="font-size: 0.78rem;">Cell groups, meeting centers, and fellowship leaders.</div>
+                    </div>
+                    <div class="mt-3 pt-2 border-top border-secondary border-opacity-25 d-flex align-items-center justify-content-between text-primary small fw-bold">
+                      <span>Edit Centers</span>
+                      <i class="fa-solid fa-arrow-right"></i>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Testimonies & Stories -->
+                <div class="col-6 col-md-4 col-xl-3">
+                  <div class="p-3 rounded-3 h-100 d-flex flex-column justify-content-between" style="background: rgba(255,255,255,0.02); border: 1px solid var(--card-border); cursor: pointer; transition: 0.2s;" @click="setTab('stories')" role="button">
+                    <div>
+                      <div class="d-flex align-items-center justify-content-between mb-2">
+                        <i class="fa-solid fa-quote-left text-warning fs-5"></i>
+                        <span class="badge bg-warning text-dark" style="font-size: 0.7rem;">#/stories</span>
+                      </div>
+                      <div class="fw-bold text-white mb-1">Stories & Testimonies</div>
+                      <div class="text-muted small" style="font-size: 0.78rem;">Featured stories, video testimonies, and faith articles.</div>
+                    </div>
+                    <div class="mt-3 pt-2 border-top border-secondary border-opacity-25 d-flex align-items-center justify-content-between text-warning small fw-bold">
+                      <span>Edit Stories</span>
+                      <i class="fa-solid fa-arrow-right"></i>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Christian Store -->
+                <div class="col-6 col-md-4 col-xl-3">
+                  <div class="p-3 rounded-3 h-100 d-flex flex-column justify-content-between" style="background: rgba(255,255,255,0.02); border: 1px solid var(--card-border); cursor: pointer; transition: 0.2s;" @click="setTab('store')" role="button">
+                    <div>
+                      <div class="d-flex align-items-center justify-content-between mb-2">
+                        <i class="fa-solid fa-store text-info fs-5"></i>
+                        <span class="badge bg-info text-dark" style="font-size: 0.7rem;">#/store</span>
+                      </div>
+                      <div class="fw-bold text-white mb-1">Store & Resources</div>
+                      <div class="text-muted small" style="font-size: 0.78rem;">Ministry materials, books, digital downloads, and store items.</div>
+                    </div>
+                    <div class="mt-3 pt-2 border-top border-secondary border-opacity-25 d-flex align-items-center justify-content-between text-info small fw-bold">
+                      <span>Edit Store</span>
+                      <i class="fa-solid fa-arrow-right"></i>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 2. BROADCAST & PORTAL STATS -->
           <div class="row g-4 mb-4">
             <div class="col-md-3">
               <div class="admin-card text-center p-4">
@@ -785,6 +1101,23 @@
 
         <!-- TAB: ALL WEBSITE PAGES MANAGER HUB -->
         <section v-if="tab==='pages'">
+          <!-- Top Sub-Navigation Bar for Pages -->
+          <div class="sub-nav-tabs-bar mb-4 p-2 rounded-3 d-flex align-items-center gap-2 flex-wrap" style="background: rgba(255,255,255,0.03); border: 1px solid var(--card-border);">
+            <span class="small text-muted fw-bold me-2 ps-1 text-uppercase" style="font-size: 0.72rem; letter-spacing: 0.05em;"><i class="fa-solid fa-layer-group text-warning me-1"></i> Website Pages:</span>
+            <button type="button" class="btn btn-sm" :class="tab==='homepage' ? 'btn-gold' : 'btn-outline-secondary text-light'" @click="setTab('homepage')">
+              <i class="fa-solid fa-house me-1"></i> Home Page Editor
+            </button>
+            <button type="button" class="btn btn-sm" :class="tab==='pages' ? 'btn-gold' : 'btn-outline-secondary text-light'" @click="setTab('pages')">
+              <i class="fa-solid fa-file-lines me-1"></i> All Pages Directory ({{ allPagesList.length }})
+            </button>
+            <button type="button" class="btn btn-sm" :class="tab==='slides' ? 'btn-gold' : 'btn-outline-secondary text-light'" @click="setTab('slides')">
+              <i class="fa-solid fa-images me-1"></i> Hero Carousel Slides ({{ (cms.home.slides || []).length }})
+            </button>
+            <button type="button" class="btn btn-sm" :class="tab==='navigation' ? 'btn-gold' : 'btn-outline-secondary text-light'" @click="setTab('navigation')">
+              <i class="fa-solid fa-bars me-1"></i> Menu Navigation Links
+            </button>
+          </div>
+
           <div class="admin-card mb-4">
             <div class="d-flex align-items-center justify-content-between flex-wrap gap-3 mb-3">
               <div>
@@ -860,7 +1193,90 @@
                 <button type="button" class="btn-close btn-close-white" @click="closePageQuickEdit"></button>
               </div>
 
-              <div v-if="activeEditingPage" class="row g-3">
+              <!-- SPECIALIZED HOME PAGE CONTROLS -->
+              <div v-if="activeEditingPage && activeEditingPage.key === 'home'" class="row g-3">
+                <div class="col-12">
+                  <div class="p-3 rounded-3 mb-1" style="background: rgba(230, 167, 25, 0.08); border: 1px solid rgba(230, 167, 25, 0.25);">
+                    <div class="d-flex align-items-center justify-content-between mb-1">
+                      <span class="text-warning fw-bold small"><i class="fa-solid fa-house me-1"></i> Home Page Fast Editor</span>
+                      <button type="button" class="btn btn-xs btn-gold" @click="tab = 'homepage'; closePageQuickEdit();">
+                        <i class="fa-solid fa-sliders me-1"></i> Open Full Home Page Editor
+                      </button>
+                    </div>
+                    <div class="text-muted small">Update your primary welcoming headline, subtitle tagline, and featured upcoming event shown on the Home Page.</div>
+                  </div>
+                </div>
+
+                <div class="col-md-12">
+                  <label class="form-label">Welcome Headline Title</label>
+                  <input type="text" v-model="cms.home.welcome_header" class="form-control" placeholder="Welcome to Christ Embassy New Benin">
+                </div>
+                <div class="col-12">
+                  <label class="form-label">Welcome Subtitle / Tagline</label>
+                  <textarea v-model="cms.home.welcome_text" class="form-control" rows="2" placeholder="Church of Excellence..."></textarea>
+                </div>
+
+                <!-- Hero Slides Quick Jump -->
+                <div class="col-12">
+                  <div class="p-3 rounded-3 d-flex align-items-center justify-content-between flex-wrap gap-2" style="background: rgba(255,255,255,0.02); border: 1px solid var(--card-border);">
+                    <div>
+                      <div class="fw-bold text-white small"><i class="fa-solid fa-images text-info me-1"></i> Hero Carousel Slides</div>
+                      <div class="text-muted small">{{ (cms.home.slides || []).length }} full-screen slides & video banners active on Home Page</div>
+                    </div>
+                    <button type="button" class="btn btn-sm btn-outline-info" @click="tab = 'slides'; closePageQuickEdit();">
+                      <i class="fa-solid fa-pen-to-square me-1"></i> Edit Slides ({{ (cms.home.slides || []).length }})
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Experience Cards Quick Jump -->
+                <div class="col-12">
+                  <div class="p-3 rounded-3 d-flex align-items-center justify-content-between flex-wrap gap-2" style="background: rgba(255,255,255,0.02); border: 1px solid var(--card-border);">
+                    <div>
+                      <div class="fw-bold text-white small"><i class="fa-solid fa-layer-group text-warning me-1"></i> Homepage Experience Cards</div>
+                      <div class="text-muted small">{{ (cms.home.feature_banners || []).length }} interactive cards (Directory, Events, Partner, Watch Live)</div>
+                    </div>
+                    <button type="button" class="btn btn-sm btn-outline-warning" @click="tab = 'homepage'; closePageQuickEdit();">
+                      <i class="fa-solid fa-pen-to-square me-1"></i> Edit Cards ({{ (cms.home.feature_banners || []).length }})
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Upcoming Event Banner Quick Edit -->
+                <div class="col-12" v-if="cms.home.upcoming_event">
+                  <div class="p-3 rounded-3" style="background: rgba(255,255,255,0.02); border: 1px solid var(--card-border);">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                      <span class="text-warning fw-bold small"><i class="fa-solid fa-calendar-check me-1"></i> Featured Upcoming Event Banner</span>
+                      <button type="button" class="btn btn-xs btn-outline-gold" @click="tab = 'homepage'; closePageQuickEdit();">Edit in Full Editor</button>
+                    </div>
+                    <div class="row g-2">
+                      <div class="col-md-6">
+                        <label class="form-label small">Banner Headline</label>
+                        <input type="text" v-model="cms.home.upcoming_event.title" class="form-control form-control-sm">
+                      </div>
+                      <div class="col-md-6">
+                        <label class="form-label small">Date / Schedule</label>
+                        <input type="text" v-model="cms.home.upcoming_event.event_date" class="form-control form-control-sm">
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-12 d-flex align-items-center justify-content-between pt-3 border-top border-secondary border-opacity-25 mt-3">
+                  <button type="button" class="btn btn-outline-secondary" @click="closePageQuickEdit">Cancel</button>
+                  <div class="d-flex gap-2">
+                    <button type="button" class="btn btn-outline-gold" @click="tab = 'homepage'; closePageQuickEdit();">
+                      <i class="fa-solid fa-sliders me-1"></i> Open Full Home Page Editor
+                    </button>
+                    <button type="button" class="btn btn-gold" @click="closePageQuickEdit(); saveToServer();">
+                      <i class="fa-solid fa-check me-1"></i> Save & Apply
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- REGULAR PAGE QUICK EDIT CONTROLS -->
+              <div v-else-if="activeEditingPage" class="row g-3">
                 <div class="col-md-6">
                   <label class="form-label">Page Eyebrow / Category Tag</label>
                   <input type="text" v-model="activeEditingPage.targetObj.eyebrow" class="form-control">
@@ -904,7 +1320,7 @@
                     <button type="button" class="btn btn-outline-gold" @click="tab = activeEditingPage.targetTab; closePageQuickEdit();">
                       <i class="fa-solid fa-arrow-up-right-from-square me-1"></i> Go to Full Section
                     </button>
-                    <button type="button" class="btn-gold" @click="closePageQuickEdit(); saveToServer();">
+                    <button type="button" class="btn btn-gold" @click="closePageQuickEdit(); saveToServer();">
                       <i class="fa-solid fa-check me-1"></i> Save & Apply
                     </button>
                   </div>
@@ -916,6 +1332,26 @@
 
 <!-- TAB: MENU NAVIGATION (HEADER & FOOTER) -->
         <section v-if="tab==='navigation'">
+          <!-- Top Sub-Navigation Bar for Pages -->
+          <div class="sub-nav-tabs-bar mb-4 p-2 rounded-3 d-flex align-items-center gap-2 flex-wrap" style="background: rgba(255,255,255,0.03); border: 1px solid var(--card-border);">
+            <span class="small text-muted fw-bold me-2 ps-1 text-uppercase" style="font-size: 0.72rem; letter-spacing: 0.05em;"><i class="fa-solid fa-layer-group text-warning me-1"></i> Website Pages:</span>
+            <button type="button" class="btn btn-sm" :class="tab==='homepage' ? 'btn-gold' : 'btn-outline-secondary text-light'" @click="setTab('homepage')">
+              <i class="fa-solid fa-house me-1"></i> Home Page Editor
+            </button>
+            <button type="button" class="btn btn-sm" :class="tab==='pages' ? 'btn-gold' : 'btn-outline-secondary text-light'" @click="setTab('pages')">
+              <i class="fa-solid fa-file-lines me-1"></i> All Pages Directory ({{ allPagesList.length }})
+            </button>
+            <button type="button" class="btn btn-sm" :class="tab==='slides' ? 'btn-gold' : 'btn-outline-secondary text-light'" @click="setTab('slides')">
+              <i class="fa-solid fa-images me-1"></i> Hero Carousel Slides ({{ (cms.home.slides || []).length }})
+            </button>
+            <button type="button" class="btn btn-sm" :class="tab==='navigation' ? 'btn-gold' : 'btn-outline-secondary text-light'" @click="setTab('navigation')">
+              <i class="fa-solid fa-bars me-1"></i> Menu Navigation Links
+            </button>
+            <button type="button" class="btn btn-sm" :class="tab==='settings' ? 'btn-gold' : 'btn-outline-secondary text-light'" @click="setTab('settings')">
+              <i class="fa-solid fa-gear me-1"></i> Church Settings
+            </button>
+          </div>
+
           <div class="admin-card mb-4">
             <div class="d-flex align-items-center justify-content-between flex-wrap gap-3 mb-3">
               <div>
@@ -1084,6 +1520,23 @@
 
         <!-- TAB: LIVE STREAM & BROADCAST -->
         <section v-if="tab==='live'">
+          <!-- Top Sub-Navigation Bar for Live Sanctuary -->
+          <div class="sub-nav-tabs-bar mb-4 p-2 rounded-3 d-flex align-items-center gap-2 flex-wrap" style="background: rgba(255,255,255,0.03); border: 1px solid var(--card-border);">
+            <span class="small text-muted fw-bold me-2 ps-1 text-uppercase" style="font-size: 0.72rem; letter-spacing: 0.05em;"><i class="fa-solid fa-tower-broadcast text-danger me-1"></i> Live Sanctuary:</span>
+            <button type="button" class="btn btn-sm" :class="tab==='live' ? 'btn-danger text-white' : 'btn-outline-secondary text-light'" @click="setTab('live')">
+              <i class="fa-solid fa-video me-1"></i> Broadcast Stream
+            </button>
+            <button type="button" class="btn btn-sm" :class="tab==='livechat' ? 'btn-success text-white' : 'btn-outline-secondary text-light'" @click="setTab('livechat')">
+              <i class="fa-solid fa-comments me-1"></i> Live Chat Moderation
+            </button>
+            <button type="button" class="btn btn-sm" :class="tab==='attendance' ? 'btn-info text-dark' : 'btn-outline-secondary text-light'" @click="setTab('attendance')">
+              <i class="fa-solid fa-clipboard-user me-1"></i> Attendance & Souls
+            </button>
+            <button type="button" class="btn btn-sm" :class="tab==='announcements' ? 'btn-warning text-dark' : 'btn-outline-secondary text-light'" @click="setTab('announcements')">
+              <i class="fa-solid fa-bullhorn me-1"></i> Announcements
+            </button>
+          </div>
+
           <div class="admin-card">
             <div class="card-title-lg">
               <span>Live Broadcast Details & Metadata</span>
@@ -1279,6 +1732,23 @@
 
         <!-- TAB: ANNOUNCEMENTS & ALERTS -->
         <section v-if="tab==='announcements'">
+          <!-- Top Sub-Navigation Bar for Live Sanctuary -->
+          <div class="sub-nav-tabs-bar mb-4 p-2 rounded-3 d-flex align-items-center gap-2 flex-wrap" style="background: rgba(255,255,255,0.03); border: 1px solid var(--card-border);">
+            <span class="small text-muted fw-bold me-2 ps-1 text-uppercase" style="font-size: 0.72rem; letter-spacing: 0.05em;"><i class="fa-solid fa-tower-broadcast text-danger me-1"></i> Live Sanctuary:</span>
+            <button type="button" class="btn btn-sm" :class="tab==='live' ? 'btn-danger text-white' : 'btn-outline-secondary text-light'" @click="setTab('live')">
+              <i class="fa-solid fa-video me-1"></i> Broadcast Stream
+            </button>
+            <button type="button" class="btn btn-sm" :class="tab==='livechat' ? 'btn-success text-white' : 'btn-outline-secondary text-light'" @click="setTab('livechat')">
+              <i class="fa-solid fa-comments me-1"></i> Live Chat Moderation
+            </button>
+            <button type="button" class="btn btn-sm" :class="tab==='attendance' ? 'btn-info text-dark' : 'btn-outline-secondary text-light'" @click="setTab('attendance')">
+              <i class="fa-solid fa-clipboard-user me-1"></i> Attendance & Souls
+            </button>
+            <button type="button" class="btn btn-sm" :class="tab==='announcements' ? 'btn-warning text-dark' : 'btn-outline-secondary text-light'" @click="setTab('announcements')">
+              <i class="fa-solid fa-bullhorn me-1"></i> Announcements
+            </button>
+          </div>
+
           <!-- 1. Live Pop-Up Alert Notice -->
           <div class="admin-card border-warning">
             <div class="card-title-lg">
@@ -1389,6 +1859,32 @@
 
         <!-- TAB: GIVING & OFFERING -->
         <section v-if="tab==='giving'">
+          <!-- Top Sub-Navigation Bar for Church Life & Portals -->
+          <div class="sub-nav-tabs-bar mb-4 p-2 rounded-3 d-flex align-items-center gap-2 flex-wrap" style="background: rgba(255,255,255,0.03); border: 1px solid var(--card-border);">
+            <span class="small text-muted fw-bold me-2 ps-1 text-uppercase" style="font-size: 0.72rem; letter-spacing: 0.05em;"><i class="fa-solid fa-church text-warning me-1"></i> Church Life:</span>
+            <button type="button" class="btn btn-sm" :class="tab==='events' ? 'btn-gold' : 'btn-outline-secondary text-light'" @click="setTab('events')">
+              <i class="fa-solid fa-calendar-day me-1"></i> Events
+            </button>
+            <button type="button" class="btn btn-sm" :class="tab==='giving' ? 'btn-gold' : 'btn-outline-secondary text-light'" @click="setTab('giving')">
+              <i class="fa-solid fa-hand-holding-dollar me-1"></i> Giving & Accounts
+            </button>
+            <button type="button" class="btn btn-sm" :class="tab==='about' ? 'btn-gold' : 'btn-outline-secondary text-light'" @click="setTab('about')">
+              <i class="fa-solid fa-circle-info me-1"></i> About Us
+            </button>
+            <button type="button" class="btn btn-sm" :class="tab==='visit' ? 'btn-gold' : 'btn-outline-secondary text-light'" @click="setTab('visit')">
+              <i class="fa-solid fa-map-location-dot me-1"></i> Plan a Visit
+            </button>
+            <button type="button" class="btn btn-sm" :class="tab==='ministries' ? 'btn-gold' : 'btn-outline-secondary text-light'" @click="setTab('ministries')">
+              <i class="fa-solid fa-people-group me-1"></i> Ministries
+            </button>
+            <button type="button" class="btn btn-sm" :class="tab==='locations' ? 'btn-gold' : 'btn-outline-secondary text-light'" @click="setTab('locations')">
+              <i class="fa-solid fa-location-dot me-1"></i> Locations & Centers
+            </button>
+            <button type="button" class="btn btn-sm" :class="tab==='store' ? 'btn-gold' : 'btn-outline-secondary text-light'" @click="setTab('store')">
+              <i class="fa-solid fa-store me-1"></i> Store
+            </button>
+          </div>
+
           <!-- Giving Page Information & Banners -->
           <div class="admin-card">
             <div class="card-title-lg">Giving Page Information & Visual Banners</div>
@@ -1561,6 +2057,23 @@
 
         <!-- TAB: HERO & SLIDES -->
         <section v-if="tab==='slides'">
+          <!-- Top Sub-Navigation Bar for Pages -->
+          <div class="sub-nav-tabs-bar mb-4 p-2 rounded-3 d-flex align-items-center gap-2 flex-wrap" style="background: rgba(255,255,255,0.03); border: 1px solid var(--card-border);">
+            <span class="small text-muted fw-bold me-2 ps-1 text-uppercase" style="font-size: 0.72rem; letter-spacing: 0.05em;"><i class="fa-solid fa-layer-group text-warning me-1"></i> Website Pages:</span>
+            <button type="button" class="btn btn-sm" :class="tab==='homepage' ? 'btn-gold' : 'btn-outline-secondary text-light'" @click="setTab('homepage')">
+              <i class="fa-solid fa-house me-1"></i> Home Page Editor
+            </button>
+            <button type="button" class="btn btn-sm" :class="tab==='pages' ? 'btn-gold' : 'btn-outline-secondary text-light'" @click="setTab('pages')">
+              <i class="fa-solid fa-file-lines me-1"></i> All Pages Directory ({{ allPagesList.length }})
+            </button>
+            <button type="button" class="btn btn-sm" :class="tab==='slides' ? 'btn-gold' : 'btn-outline-secondary text-light'" @click="setTab('slides')">
+              <i class="fa-solid fa-images me-1"></i> Hero Carousel Slides ({{ (cms.home.slides || []).length }})
+            </button>
+            <button type="button" class="btn btn-sm" :class="tab==='navigation' ? 'btn-gold' : 'btn-outline-secondary text-light'" @click="setTab('navigation')">
+              <i class="fa-solid fa-bars me-1"></i> Menu Navigation Links
+            </button>
+          </div>
+
           <div class="admin-card">
             <div class="card-title-lg d-flex justify-content-between align-items-center flex-wrap gap-2">
               <div class="d-flex align-items-center gap-3">
@@ -1653,11 +2166,103 @@
           </div>
         </section>
 
-        <!-- TAB: EXPERIENCE CARDS & HOMEPAGE -->
+        <!-- TAB: HOME PAGE EDITOR -->
         <section v-if="tab==='homepage'">
-          <!-- Welcome Section -->
-          <div class="admin-card">
-            <div class="card-title-lg">Homepage Welcome & Headline</div>
+          <!-- Top Sub-Navigation Bar for Pages -->
+          <div class="sub-nav-tabs-bar mb-4 p-2 rounded-3 d-flex align-items-center gap-2 flex-wrap" style="background: rgba(255,255,255,0.03); border: 1px solid var(--card-border);">
+            <span class="small text-muted fw-bold me-2 ps-1 text-uppercase" style="font-size: 0.72rem; letter-spacing: 0.05em;"><i class="fa-solid fa-layer-group text-warning me-1"></i> Website Pages:</span>
+            <button type="button" class="btn btn-sm" :class="tab==='homepage' ? 'btn-gold' : 'btn-outline-secondary text-light'" @click="setTab('homepage')">
+              <i class="fa-solid fa-house me-1"></i> Home Page Editor
+            </button>
+            <button type="button" class="btn btn-sm" :class="tab==='pages' ? 'btn-gold' : 'btn-outline-secondary text-light'" @click="setTab('pages')">
+              <i class="fa-solid fa-file-lines me-1"></i> All Pages Directory ({{ allPagesList.length }})
+            </button>
+            <button type="button" class="btn btn-sm" :class="tab==='slides' ? 'btn-gold' : 'btn-outline-secondary text-light'" @click="setTab('slides')">
+              <i class="fa-solid fa-images me-1"></i> Hero Carousel Slides ({{ (cms.home.slides || []).length }})
+            </button>
+            <button type="button" class="btn btn-sm" :class="tab==='navigation' ? 'btn-gold' : 'btn-outline-secondary text-light'" @click="setTab('navigation')">
+              <i class="fa-solid fa-bars me-1"></i> Menu Navigation Links
+            </button>
+          </div>
+
+          <!-- Home Page Header Card with Section Shortcuts -->
+          <div class="admin-card border-warning border-opacity-25 mb-4">
+            <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+              <div>
+                <div class="d-flex align-items-center gap-2">
+                  <h4 class="fw-bold m-0 text-white"><i class="fa-solid fa-house-chimney text-warning me-2"></i> Home Page Editor</h4>
+                  <span class="badge bg-gold text-dark fw-bold">Live Route: #/</span>
+                </div>
+                <p class="text-muted small m-0 mt-1">Configure your main hero carousel, welcome headline, 4 experience cards, prominent upcoming event banner, and identity section.</p>
+              </div>
+              <div class="d-flex align-items-center gap-2">
+                <a href="../#/" target="_blank" class="btn btn-sm btn-outline-light">
+                  <i class="fa-solid fa-arrow-up-right-from-square me-1"></i> View Live Home Page
+                </a>
+              </div>
+            </div>
+
+            <!-- In-page Section Anchor Shortcuts -->
+            <div class="d-flex align-items-center gap-2 flex-wrap pt-3 mt-3 border-top border-secondary border-opacity-25">
+              <span class="text-muted small fw-bold me-1">Jump to Section:</span>
+              <a href="#sec-home-slides" class="badge bg-dark border border-secondary text-decoration-none text-light py-2 px-3">
+                <i class="fa-solid fa-images text-info me-1"></i> 1. Hero Slides ({{ (cms.home.slides || []).length }})
+              </a>
+              <a href="#sec-home-welcome" class="badge bg-dark border border-secondary text-decoration-none text-light py-2 px-3">
+                <i class="fa-solid fa-heading text-warning me-1"></i> 2. Welcome Headline & CTA
+              </a>
+              <a href="#sec-home-cards" class="badge bg-dark border border-secondary text-decoration-none text-light py-2 px-3">
+                <i class="fa-solid fa-layer-group text-warning me-1"></i> 3. Experience Cards ({{ (cms.home.feature_banners || []).length }})
+              </a>
+              <a href="#sec-home-upcoming" class="badge bg-dark border border-secondary text-decoration-none text-light py-2 px-3">
+                <i class="fa-solid fa-calendar-check text-success me-1"></i> 4. Upcoming Event Banner
+              </a>
+              <a href="#sec-home-about" class="badge bg-dark border border-secondary text-decoration-none text-light py-2 px-3">
+                <i class="fa-solid fa-circle-info text-info me-1"></i> 5. Identity & About Mosaic
+              </a>
+            </div>
+          </div>
+
+          <!-- Section 1: Hero Carousel Slides Quick View -->
+          <div id="sec-home-slides" class="admin-card mb-4">
+            <div class="card-title-lg d-flex justify-content-between align-items-center flex-wrap gap-2">
+              <div class="d-flex align-items-center gap-2">
+                <i class="fa-solid fa-images text-info"></i>
+                <span>Section 1: Hero Carousel & Video Slides</span>
+              </div>
+              <div class="d-flex align-items-center gap-2">
+                <span class="badge bg-info text-dark fw-bold">{{ (cms.home.slides || []).length }} Slides Active</span>
+                <button type="button" class="btn btn-outline-info btn-sm" @click="setTab('slides')">
+                  <i class="fa-solid fa-pen-to-square me-1"></i> Manage All Slides in Full Editor
+                </button>
+              </div>
+            </div>
+            <p class="text-muted small">These full-screen slides or videos appear at the very top of the Home Page carousel with headline overlays and call-to-action buttons.</p>
+
+            <div class="row g-3">
+              <div v-for="(slide, sIdx) in (cms.home.slides || []).slice(0, 4)" :key="sIdx" class="col-md-6 col-xl-3">
+                <div class="p-2 rounded-3" style="background: rgba(255,255,255,0.02); border: 1px solid var(--card-border);">
+                  <div style="position: relative; aspect-ratio: 16 / 9; background: #000; border-radius: 6px; overflow: hidden;" class="mb-2">
+                    <img v-if="!isVideoUrl(slide.image)" :src="imgUrl(slide.image)" alt="Slide preview" style="width: 100%; height: 100%; object-fit: cover;">
+                    <video v-else :src="imgUrl(slide.image)" style="width: 100%; height: 100%; object-fit: cover;" muted playsinline></video>
+                    <span class="badge bg-dark text-light border" style="position: absolute; top: 6px; left: 6px; font-size: 0.7rem;">Slide #{{ sIdx + 1 }}</span>
+                    <span class="badge bg-primary" v-if="slide.media_type==='video' || isVideoUrl(slide.image)" style="position: absolute; bottom: 6px; right: 6px; font-size: 0.68rem;"><i class="fa-solid fa-video me-1"></i> Video</span>
+                  </div>
+                  <div class="fw-bold text-white small text-truncate">{{ slide.title || 'Untitled Slide' }}</div>
+                  <div class="text-muted small text-truncate" style="font-size: 0.75rem;">{{ slide.subtitle || 'No subtitle' }}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Section 2: Welcome Section -->
+          <div id="sec-home-welcome" class="admin-card">
+            <div class="card-title-lg">
+              <div class="d-flex align-items-center gap-2">
+                <i class="fa-solid fa-heading text-warning"></i>
+                <span>Section 2: Homepage Welcome & Headline</span>
+              </div>
+            </div>
             <div class="row g-3">
               <div class="col-md-12">
                 <label class="form-label">Main Welcome Header</label>
@@ -1686,10 +2291,13 @@
           </div>
 
           <!-- Homepage Experience Cards (Feature Banners) -->
-          <div class="admin-card">
+          <div id="sec-home-cards" class="admin-card">
             <div class="card-title-lg d-flex justify-content-between align-items-center flex-wrap gap-2">
               <div class="d-flex align-items-center gap-3">
-                <span>Homepage Experience Cards</span>
+                <div class="d-flex align-items-center gap-2">
+                  <i class="fa-solid fa-layer-group text-warning"></i>
+                  <span>Section 3: Homepage Experience Cards</span>
+                </div>
                 <label v-if="cms.home.feature_banners && cms.home.feature_banners.length" class="small text-muted d-flex align-items-center gap-1 mb-0" style="cursor: pointer;">
                   <input type="checkbox" :checked="isAllSelected('feature_banners')" @change="toggleSelectAll('feature_banners')" class="form-check-input me-1">
                   <span>Select All</span>
@@ -1702,7 +2310,7 @@
                 <button class="btn-gold btn-sm" @click="addFeatureBanner"><i class="fa-solid fa-plus"></i> Add Card</button>
               </div>
             </div>
-            <p class="text-muted small">These cards appear directly below the hero carousel on the homepage, guiding visitors to core church portals (Directory, Events, Giving, Live Stream, etc.).</p>
+            <p class="text-muted small">These 4 interactive cards appear directly below the hero carousel on the homepage, guiding visitors to core church portals (Directory, Events, Giving, Live Stream, etc.).</p>
 
             <!-- Section Title & Eyebrow Controls -->
             <div class="row g-2 mb-3 p-3 rounded" style="background: rgba(255,255,255,0.03); border: 1px solid var(--card-border);">
@@ -1820,11 +2428,11 @@
           </div>
 
           <!-- Homepage Upcoming Event Banner Section -->
-          <div class="admin-card" v-if="cms.home.upcoming_event">
+          <div id="sec-home-upcoming" class="admin-card" v-if="cms.home.upcoming_event">
             <div class="card-title-lg d-flex justify-content-between align-items-center flex-wrap gap-2">
               <div class="d-flex align-items-center gap-2">
                 <i class="fa-solid fa-calendar-star text-warning"></i>
-                <span>Homepage Upcoming Event Banner</span>
+                <span>Section 4: Homepage Upcoming Event Banner</span>
               </div>
               <span class="badge bg-gold text-dark"><i class="fa-solid fa-bullhorn me-1"></i> Prominent Banner</span>
             </div>
@@ -1874,12 +2482,49 @@
                   </div>
                 </div>
               </div>
+
+              <!-- LIVE BANNER PREVIEW BOX -->
+              <div class="col-12 mt-3">
+                <label class="form-label small text-warning fw-bold text-uppercase" style="letter-spacing: 0.05em;"><i class="fa-solid fa-eye me-1"></i> Live Visual Preview (How it looks on Homepage):</label>
+                <div class="p-4 rounded-3 position-relative overflow-hidden" style="min-height: 180px; background: #080f1a linear-gradient(135deg, #070d18 0%, #102542 50%, #1b3a6b 100%); border: 1px solid rgba(255,255,255,0.12);">
+                  <img v-if="cms.home.upcoming_event.image_url" :src="imgUrl(cms.home.upcoming_event.image_url)" alt="Banner preview" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; filter: brightness(0.55); z-index: 0;">
+                  <div style="position: relative; z-index: 2; max-width: 650px;">
+                    <div style="color: #55d6e4; font-weight: 800; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 6px;">{{ cms.home.upcoming_event.eyebrow || 'Upcoming Event' }}</div>
+                    <h3 class="text-white fw-bold mb-2" style="font-size: 1.6rem; line-height: 1.15;">{{ cms.home.upcoming_event.title || 'Event Title' }}</h3>
+                    <p class="text-light small mb-3" style="opacity: 0.9;">{{ cms.home.upcoming_event.subtitle || 'Event subtitle / meeting description...' }}</p>
+                    <div class="d-flex align-items-center gap-2 flex-wrap">
+                      <span v-if="cms.home.upcoming_event.event_date" class="badge" style="background: rgba(230,167,25,0.25); color: #fbbf24; border: 1px solid rgba(230,167,25,0.45); font-size: 0.78rem;">
+                        <i class="fa-solid fa-clock me-1"></i> {{ cms.home.upcoming_event.event_date }}
+                      </span>
+                      <span class="badge" style="background: rgba(255,255,255,0.15); color: #fff; border: 1px solid rgba(255,255,255,0.3); font-size: 0.78rem;">
+                        {{ cms.home.upcoming_event.link_text || 'View Details' }} <i class="fa-solid fa-arrow-right-long ms-1"></i>
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- DIRECT SAVE & PUBLISH ACTION BAR -->
+              <div class="col-12 d-flex justify-content-between align-items-center flex-wrap gap-2 pt-3 border-top border-secondary border-opacity-25 mt-3">
+                <a href="../#/" target="_blank" class="btn btn-outline-light btn-sm d-inline-flex align-items-center gap-1">
+                  <i class="fa-solid fa-arrow-up-right-from-square"></i> Open Live Homepage to View
+                </a>
+                <button type="button" class="btn-gold" @click="saveToServer" :disabled="saving">
+                  <i class="fa-solid" :class="saving ? 'fa-spinner fa-spin' : 'fa-floppy-disk'"></i>
+                  {{ saving ? 'Saving Changes...' : 'Save & Publish Banner Now' }}
+                </button>
+              </div>
             </div>
           </div>
 
           <!-- Mosaic / About Section on Homepage -->
-          <div class="admin-card" v-if="cms.home.about_section">
-            <div class="card-title-lg">Homepage Mosaic & Identity Section</div>
+          <div id="sec-home-about" class="admin-card" v-if="cms.home.about_section">
+            <div class="card-title-lg">
+              <div class="d-flex align-items-center gap-2">
+                <i class="fa-solid fa-circle-info text-info"></i>
+                <span>Section 5: Homepage Mosaic & Identity Section</span>
+              </div>
+            </div>
             <div class="row g-3">
               <div class="col-md-6">
                 <label class="form-label">Section Eyebrow</label>
@@ -1919,6 +2564,20 @@
 
         <!-- TAB: SERMONS -->
         <section v-if="tab==='sermons'">
+          <!-- Top Sub-Navigation Bar for Media & Teachings -->
+          <div class="sub-nav-tabs-bar mb-4 p-2 rounded-3 d-flex align-items-center gap-2 flex-wrap" style="background: rgba(255,255,255,0.03); border: 1px solid var(--card-border);">
+            <span class="small text-muted fw-bold me-2 ps-1 text-uppercase" style="font-size: 0.72rem; letter-spacing: 0.05em;"><i class="fa-solid fa-book-bible text-primary me-1"></i> Media & Stories:</span>
+            <button type="button" class="btn btn-sm" :class="tab==='sermons' ? 'btn-primary text-white' : 'btn-outline-secondary text-light'" @click="setTab('sermons')">
+              <i class="fa-solid fa-book-bible me-1"></i> Sermons & Video Library ({{ (cms.home.sermons || []).length }})
+            </button>
+            <button type="button" class="btn btn-sm" :class="tab==='stories' ? 'btn-gold' : 'btn-outline-secondary text-light'" @click="setTab('stories')">
+              <i class="fa-solid fa-quote-left me-1"></i> Testimonies & Stories ({{ (cms.home.stories || []).length }})
+            </button>
+            <button type="button" class="btn btn-sm" :class="tab==='live' ? 'btn-danger text-white' : 'btn-outline-secondary text-light'" @click="setTab('live')">
+              <i class="fa-solid fa-video me-1"></i> Live Stream Broadcast
+            </button>
+          </div>
+
           <!-- Watch Page Header, Hero & Spotlight Configuration -->
           <div class="admin-card mb-4" v-if="cms.pages && cms.pages.watch">
             <div class="card-title-lg d-flex align-items-center justify-content-between flex-wrap gap-2">
@@ -2190,6 +2849,32 @@
 
 <!-- TAB: EVENTS -->
         <section v-if="tab==='events'">
+          <!-- Top Sub-Navigation Bar for Church Life & Portals -->
+          <div class="sub-nav-tabs-bar mb-4 p-2 rounded-3 d-flex align-items-center gap-2 flex-wrap" style="background: rgba(255,255,255,0.03); border: 1px solid var(--card-border);">
+            <span class="small text-muted fw-bold me-2 ps-1 text-uppercase" style="font-size: 0.72rem; letter-spacing: 0.05em;"><i class="fa-solid fa-church text-warning me-1"></i> Church Life:</span>
+            <button type="button" class="btn btn-sm" :class="tab==='events' ? 'btn-gold' : 'btn-outline-secondary text-light'" @click="setTab('events')">
+              <i class="fa-solid fa-calendar-day me-1"></i> Events
+            </button>
+            <button type="button" class="btn btn-sm" :class="tab==='giving' ? 'btn-gold' : 'btn-outline-secondary text-light'" @click="setTab('giving')">
+              <i class="fa-solid fa-hand-holding-dollar me-1"></i> Giving & Accounts
+            </button>
+            <button type="button" class="btn btn-sm" :class="tab==='about' ? 'btn-gold' : 'btn-outline-secondary text-light'" @click="setTab('about')">
+              <i class="fa-solid fa-circle-info me-1"></i> About Us
+            </button>
+            <button type="button" class="btn btn-sm" :class="tab==='visit' ? 'btn-gold' : 'btn-outline-secondary text-light'" @click="setTab('visit')">
+              <i class="fa-solid fa-map-location-dot me-1"></i> Plan a Visit
+            </button>
+            <button type="button" class="btn btn-sm" :class="tab==='ministries' ? 'btn-gold' : 'btn-outline-secondary text-light'" @click="setTab('ministries')">
+              <i class="fa-solid fa-people-group me-1"></i> Ministries
+            </button>
+            <button type="button" class="btn btn-sm" :class="tab==='locations' || tab==='groups' ? 'btn-gold' : 'btn-outline-secondary text-light'" @click="setTab('locations')">
+              <i class="fa-solid fa-location-dot me-1"></i> Locations & Centers
+            </button>
+            <button type="button" class="btn btn-sm" :class="tab==='store' ? 'btn-gold' : 'btn-outline-secondary text-light'" @click="setTab('store')">
+              <i class="fa-solid fa-store me-1"></i> Store
+            </button>
+          </div>
+
           <!-- Events Page Header & Hero Banner -->
           <div class="admin-card mb-4" v-if="cms.pages && cms.pages.events">
             <div class="card-title-lg d-flex align-items-center justify-content-between flex-wrap gap-2">
@@ -2340,6 +3025,32 @@
 
 <!-- TAB: MINISTRIES -->
         <section v-if="tab==='ministries'">
+          <!-- Top Sub-Navigation Bar for Church Life & Portals -->
+          <div class="sub-nav-tabs-bar mb-4 p-2 rounded-3 d-flex align-items-center gap-2 flex-wrap" style="background: rgba(255,255,255,0.03); border: 1px solid var(--card-border);">
+            <span class="small text-muted fw-bold me-2 ps-1 text-uppercase" style="font-size: 0.72rem; letter-spacing: 0.05em;"><i class="fa-solid fa-church text-warning me-1"></i> Church Life:</span>
+            <button type="button" class="btn btn-sm" :class="tab==='events' ? 'btn-gold' : 'btn-outline-secondary text-light'" @click="setTab('events')">
+              <i class="fa-solid fa-calendar-day me-1"></i> Events
+            </button>
+            <button type="button" class="btn btn-sm" :class="tab==='giving' ? 'btn-gold' : 'btn-outline-secondary text-light'" @click="setTab('giving')">
+              <i class="fa-solid fa-hand-holding-dollar me-1"></i> Giving & Accounts
+            </button>
+            <button type="button" class="btn btn-sm" :class="tab==='about' ? 'btn-gold' : 'btn-outline-secondary text-light'" @click="setTab('about')">
+              <i class="fa-solid fa-circle-info me-1"></i> About Us
+            </button>
+            <button type="button" class="btn btn-sm" :class="tab==='visit' ? 'btn-gold' : 'btn-outline-secondary text-light'" @click="setTab('visit')">
+              <i class="fa-solid fa-map-location-dot me-1"></i> Plan a Visit
+            </button>
+            <button type="button" class="btn btn-sm" :class="tab==='ministries' ? 'btn-gold' : 'btn-outline-secondary text-light'" @click="setTab('ministries')">
+              <i class="fa-solid fa-people-group me-1"></i> Ministries
+            </button>
+            <button type="button" class="btn btn-sm" :class="tab==='locations' || tab==='groups' ? 'btn-gold' : 'btn-outline-secondary text-light'" @click="setTab('locations')">
+              <i class="fa-solid fa-location-dot me-1"></i> Locations & Centers
+            </button>
+            <button type="button" class="btn btn-sm" :class="tab==='store' ? 'btn-gold' : 'btn-outline-secondary text-light'" @click="setTab('store')">
+              <i class="fa-solid fa-store me-1"></i> Store
+            </button>
+          </div>
+
           <!-- Ministries Page Header & Hero Banner -->
           <div class="admin-card mb-4" v-if="cms.pages && cms.pages.ministries">
             <div class="card-title-lg d-flex align-items-center justify-content-between flex-wrap gap-2">
@@ -2472,6 +3183,20 @@
 
         <!-- TAB: TESTIMONIES & STORIES -->
         <section v-if="tab==='stories'">
+          <!-- Top Sub-Navigation Bar for Media & Teachings -->
+          <div class="sub-nav-tabs-bar mb-4 p-2 rounded-3 d-flex align-items-center gap-2 flex-wrap" style="background: rgba(255,255,255,0.03); border: 1px solid var(--card-border);">
+            <span class="small text-muted fw-bold me-2 ps-1 text-uppercase" style="font-size: 0.72rem; letter-spacing: 0.05em;"><i class="fa-solid fa-book-bible text-primary me-1"></i> Media & Stories:</span>
+            <button type="button" class="btn btn-sm" :class="tab==='sermons' ? 'btn-primary text-white' : 'btn-outline-secondary text-light'" @click="setTab('sermons')">
+              <i class="fa-solid fa-book-bible me-1"></i> Sermons & Video Library ({{ (cms.home.sermons || []).length }})
+            </button>
+            <button type="button" class="btn btn-sm" :class="tab==='stories' ? 'btn-gold' : 'btn-outline-secondary text-light'" @click="setTab('stories')">
+              <i class="fa-solid fa-quote-left me-1"></i> Testimonies & Stories ({{ (cms.home.stories || []).length }})
+            </button>
+            <button type="button" class="btn btn-sm" :class="tab==='live' ? 'btn-danger text-white' : 'btn-outline-secondary text-light'" @click="setTab('live')">
+              <i class="fa-solid fa-video me-1"></i> Live Stream Broadcast
+            </button>
+          </div>
+
           <!-- Stories & Testimonies Page Header & Hero Banner -->
           <div class="admin-card mb-4" v-if="cms.pages && cms.pages.stories">
             <div class="card-title-lg d-flex align-items-center justify-content-between flex-wrap gap-2">
@@ -2651,6 +3376,32 @@
 
         <!-- TAB: ABOUT US & LEADERSHIP VISION -->
         <section v-if="tab==='about'">
+          <!-- Top Sub-Navigation Bar for Church Life & Portals -->
+          <div class="sub-nav-tabs-bar mb-4 p-2 rounded-3 d-flex align-items-center gap-2 flex-wrap" style="background: rgba(255,255,255,0.03); border: 1px solid var(--card-border);">
+            <span class="small text-muted fw-bold me-2 ps-1 text-uppercase" style="font-size: 0.72rem; letter-spacing: 0.05em;"><i class="fa-solid fa-church text-warning me-1"></i> Church Life:</span>
+            <button type="button" class="btn btn-sm" :class="tab==='events' ? 'btn-gold' : 'btn-outline-secondary text-light'" @click="setTab('events')">
+              <i class="fa-solid fa-calendar-day me-1"></i> Events
+            </button>
+            <button type="button" class="btn btn-sm" :class="tab==='giving' ? 'btn-gold' : 'btn-outline-secondary text-light'" @click="setTab('giving')">
+              <i class="fa-solid fa-hand-holding-dollar me-1"></i> Giving & Accounts
+            </button>
+            <button type="button" class="btn btn-sm" :class="tab==='about' ? 'btn-gold' : 'btn-outline-secondary text-light'" @click="setTab('about')">
+              <i class="fa-solid fa-circle-info me-1"></i> About Us
+            </button>
+            <button type="button" class="btn btn-sm" :class="tab==='visit' ? 'btn-gold' : 'btn-outline-secondary text-light'" @click="setTab('visit')">
+              <i class="fa-solid fa-map-location-dot me-1"></i> Plan a Visit
+            </button>
+            <button type="button" class="btn btn-sm" :class="tab==='ministries' ? 'btn-gold' : 'btn-outline-secondary text-light'" @click="setTab('ministries')">
+              <i class="fa-solid fa-people-group me-1"></i> Ministries
+            </button>
+            <button type="button" class="btn btn-sm" :class="tab==='locations' || tab==='groups' ? 'btn-gold' : 'btn-outline-secondary text-light'" @click="setTab('locations')">
+              <i class="fa-solid fa-location-dot me-1"></i> Locations & Centers
+            </button>
+            <button type="button" class="btn btn-sm" :class="tab==='store' ? 'btn-gold' : 'btn-outline-secondary text-light'" @click="setTab('store')">
+              <i class="fa-solid fa-store me-1"></i> Store
+            </button>
+          </div>
+
           <!-- About Page Header -->
           <div class="admin-card">
             <div class="card-title-lg">About Us Page Header</div>
@@ -2807,6 +3558,32 @@
 
         <!-- TAB: PLAN A VISIT PAGE -->
         <section v-if="tab==='visit'">
+          <!-- Top Sub-Navigation Bar for Church Life & Portals -->
+          <div class="sub-nav-tabs-bar mb-4 p-2 rounded-3 d-flex align-items-center gap-2 flex-wrap" style="background: rgba(255,255,255,0.03); border: 1px solid var(--card-border);">
+            <span class="small text-muted fw-bold me-2 ps-1 text-uppercase" style="font-size: 0.72rem; letter-spacing: 0.05em;"><i class="fa-solid fa-church text-warning me-1"></i> Church Life:</span>
+            <button type="button" class="btn btn-sm" :class="tab==='events' ? 'btn-gold' : 'btn-outline-secondary text-light'" @click="setTab('events')">
+              <i class="fa-solid fa-calendar-day me-1"></i> Events
+            </button>
+            <button type="button" class="btn btn-sm" :class="tab==='giving' ? 'btn-gold' : 'btn-outline-secondary text-light'" @click="setTab('giving')">
+              <i class="fa-solid fa-hand-holding-dollar me-1"></i> Giving & Accounts
+            </button>
+            <button type="button" class="btn btn-sm" :class="tab==='about' ? 'btn-gold' : 'btn-outline-secondary text-light'" @click="setTab('about')">
+              <i class="fa-solid fa-circle-info me-1"></i> About Us
+            </button>
+            <button type="button" class="btn btn-sm" :class="tab==='visit' ? 'btn-gold' : 'btn-outline-secondary text-light'" @click="setTab('visit')">
+              <i class="fa-solid fa-map-location-dot me-1"></i> Plan a Visit
+            </button>
+            <button type="button" class="btn btn-sm" :class="tab==='ministries' ? 'btn-gold' : 'btn-outline-secondary text-light'" @click="setTab('ministries')">
+              <i class="fa-solid fa-people-group me-1"></i> Ministries
+            </button>
+            <button type="button" class="btn btn-sm" :class="tab==='locations' || tab==='groups' ? 'btn-gold' : 'btn-outline-secondary text-light'" @click="setTab('locations')">
+              <i class="fa-solid fa-location-dot me-1"></i> Locations & Centers
+            </button>
+            <button type="button" class="btn btn-sm" :class="tab==='store' ? 'btn-gold' : 'btn-outline-secondary text-light'" @click="setTab('store')">
+              <i class="fa-solid fa-store me-1"></i> Store
+            </button>
+          </div>
+
           <div class="admin-card">
             <div class="card-title-lg">Plan Your Visit Page Overview</div>
             <div class="row g-3">
@@ -2950,6 +3727,20 @@
 
         <!-- TAB: LOCATIONS -->
         <section v-if="tab==='locations'">
+          <!-- Top Sub-Navigation Bar for Locations & Centers -->
+          <div class="sub-nav-tabs-bar mb-4 p-2 rounded-3 d-flex align-items-center gap-2 flex-wrap" style="background: rgba(255,255,255,0.03); border: 1px solid var(--card-border);">
+            <span class="small text-muted fw-bold me-2 ps-1 text-uppercase" style="font-size: 0.72rem; letter-spacing: 0.05em;"><i class="fa-solid fa-location-dot text-danger me-1"></i> Locations & Fellowships:</span>
+            <button type="button" class="btn btn-sm" :class="tab==='locations' ? 'btn-danger text-white' : 'btn-outline-secondary text-light'" @click="setTab('locations')">
+              <i class="fa-solid fa-church me-1"></i> Church Locations & Sanctuaries ({{ (cms.home.locations || []).length }})
+            </button>
+            <button type="button" class="btn btn-sm" :class="tab==='groups' ? 'btn-primary text-white' : 'btn-outline-secondary text-light'" @click="setTab('groups')">
+              <i class="fa-solid fa-users-rectangle me-1"></i> Fellowship Centers & Cell Groups ({{ (cms.home.groups || []).length }})
+            </button>
+            <button type="button" class="btn btn-sm" :class="tab==='visit' ? 'btn-success text-white' : 'btn-outline-secondary text-light'" @click="setTab('visit')">
+              <i class="fa-solid fa-map-location-dot me-1"></i> Plan a Visit Page
+            </button>
+          </div>
+
           <!-- Locations Page Header -->
           <div class="admin-card mb-4" v-if="cms.pages && cms.pages.locations">
             <div class="card-title-lg d-flex align-items-center justify-content-between flex-wrap gap-2">
@@ -3050,6 +3841,20 @@
 
         <!-- TAB: GROUPS -->
         <section v-if="tab==='groups'">
+          <!-- Top Sub-Navigation Bar for Locations & Centers -->
+          <div class="sub-nav-tabs-bar mb-4 p-2 rounded-3 d-flex align-items-center gap-2 flex-wrap" style="background: rgba(255,255,255,0.03); border: 1px solid var(--card-border);">
+            <span class="small text-muted fw-bold me-2 ps-1 text-uppercase" style="font-size: 0.72rem; letter-spacing: 0.05em;"><i class="fa-solid fa-location-dot text-danger me-1"></i> Locations & Fellowships:</span>
+            <button type="button" class="btn btn-sm" :class="tab==='locations' ? 'btn-danger text-white' : 'btn-outline-secondary text-light'" @click="setTab('locations')">
+              <i class="fa-solid fa-church me-1"></i> Church Locations & Sanctuaries ({{ (cms.home.locations || []).length }})
+            </button>
+            <button type="button" class="btn btn-sm" :class="tab==='groups' ? 'btn-primary text-white' : 'btn-outline-secondary text-light'" @click="setTab('groups')">
+              <i class="fa-solid fa-users-rectangle me-1"></i> Fellowship Centers & Cell Groups ({{ (cms.home.groups || []).length }})
+            </button>
+            <button type="button" class="btn btn-sm" :class="tab==='visit' ? 'btn-success text-white' : 'btn-outline-secondary text-light'" @click="setTab('visit')">
+              <i class="fa-solid fa-map-location-dot me-1"></i> Plan a Visit Page
+            </button>
+          </div>
+
           <!-- Groups Page Header -->
           <div class="admin-card mb-4" v-if="cms.pages && cms.pages.groups">
             <div class="card-title-lg d-flex align-items-center justify-content-between flex-wrap gap-2">
@@ -3135,6 +3940,32 @@
 
         <!-- TAB: STORE -->
         <section v-if="tab==='store'">
+          <!-- Top Sub-Navigation Bar for Church Life & Portals -->
+          <div class="sub-nav-tabs-bar mb-4 p-2 rounded-3 d-flex align-items-center gap-2 flex-wrap" style="background: rgba(255,255,255,0.03); border: 1px solid var(--card-border);">
+            <span class="small text-muted fw-bold me-2 ps-1 text-uppercase" style="font-size: 0.72rem; letter-spacing: 0.05em;"><i class="fa-solid fa-church text-warning me-1"></i> Church Life:</span>
+            <button type="button" class="btn btn-sm" :class="tab==='events' ? 'btn-gold' : 'btn-outline-secondary text-light'" @click="setTab('events')">
+              <i class="fa-solid fa-calendar-day me-1"></i> Events
+            </button>
+            <button type="button" class="btn btn-sm" :class="tab==='giving' ? 'btn-gold' : 'btn-outline-secondary text-light'" @click="setTab('giving')">
+              <i class="fa-solid fa-hand-holding-dollar me-1"></i> Giving & Accounts
+            </button>
+            <button type="button" class="btn btn-sm" :class="tab==='about' ? 'btn-gold' : 'btn-outline-secondary text-light'" @click="setTab('about')">
+              <i class="fa-solid fa-circle-info me-1"></i> About Us
+            </button>
+            <button type="button" class="btn btn-sm" :class="tab==='visit' ? 'btn-gold' : 'btn-outline-secondary text-light'" @click="setTab('visit')">
+              <i class="fa-solid fa-map-location-dot me-1"></i> Plan a Visit
+            </button>
+            <button type="button" class="btn btn-sm" :class="tab==='ministries' ? 'btn-gold' : 'btn-outline-secondary text-light'" @click="setTab('ministries')">
+              <i class="fa-solid fa-people-group me-1"></i> Ministries
+            </button>
+            <button type="button" class="btn btn-sm" :class="tab==='locations' || tab==='groups' ? 'btn-gold' : 'btn-outline-secondary text-light'" @click="setTab('locations')">
+              <i class="fa-solid fa-location-dot me-1"></i> Locations & Centers
+            </button>
+            <button type="button" class="btn btn-sm" :class="tab==='store' ? 'btn-gold' : 'btn-outline-secondary text-light'" @click="setTab('store')">
+              <i class="fa-solid fa-store me-1"></i> Store
+            </button>
+          </div>
+
           <div class="admin-card mb-4" v-if="cms.pages && cms.pages.store">
             <div class="card-title-lg d-flex align-items-center justify-content-between flex-wrap gap-2">
               <span><i class="fa-solid fa-store text-gold me-2"></i> Store & Resources Page Settings</span>
@@ -3179,6 +4010,17 @@
 
         <!-- TAB: CHURCH INFO & LOGO -->
         <section v-if="tab==='settings'">
+          <!-- Top Sub-Navigation Bar for Settings -->
+          <div class="sub-nav-tabs-bar mb-4 p-2 rounded-3 d-flex align-items-center gap-2 flex-wrap" style="background: rgba(255,255,255,0.03); border: 1px solid var(--card-border);">
+            <span class="small text-muted fw-bold me-2 ps-1 text-uppercase" style="font-size: 0.72rem; letter-spacing: 0.05em;"><i class="fa-solid fa-gear text-warning me-1"></i> System Settings:</span>
+            <button type="button" class="btn btn-sm" :class="tab==='settings' ? 'btn-gold' : 'btn-outline-secondary text-light'" @click="setTab('settings')">
+              <i class="fa-solid fa-gear me-1"></i> Church Settings & Branding
+            </button>
+            <button type="button" class="btn btn-sm" :class="tab==='navigation' ? 'btn-gold' : 'btn-outline-secondary text-light'" @click="setTab('navigation')">
+              <i class="fa-solid fa-bars me-1"></i> Menu Navigation Links
+            </button>
+          </div>
+
           <div class="admin-card">
             <div class="card-title-lg">Official Church Branding & Logo</div>
             <div class="row g-3">
@@ -3306,6 +4148,23 @@
 
         <!-- TAB: ATTENDANCE REGISTER (GROUPED BY SERVICE, DATE & TIME) -->
         <section v-if="tab==='attendance'">
+          <!-- Top Sub-Navigation Bar for Live Sanctuary -->
+          <div class="sub-nav-tabs-bar mb-4 p-2 rounded-3 d-flex align-items-center gap-2 flex-wrap" style="background: rgba(255,255,255,0.03); border: 1px solid var(--card-border);">
+            <span class="small text-muted fw-bold me-2 ps-1 text-uppercase" style="font-size: 0.72rem; letter-spacing: 0.05em;"><i class="fa-solid fa-tower-broadcast text-danger me-1"></i> Live Sanctuary:</span>
+            <button type="button" class="btn btn-sm" :class="tab==='live' ? 'btn-danger text-white' : 'btn-outline-secondary text-light'" @click="setTab('live')">
+              <i class="fa-solid fa-video me-1"></i> Broadcast Stream
+            </button>
+            <button type="button" class="btn btn-sm" :class="tab==='livechat' ? 'btn-success text-white' : 'btn-outline-secondary text-light'" @click="setTab('livechat')">
+              <i class="fa-solid fa-comments me-1"></i> Live Chat Moderation
+            </button>
+            <button type="button" class="btn btn-sm" :class="tab==='attendance' ? 'btn-info text-dark' : 'btn-outline-secondary text-light'" @click="setTab('attendance')">
+              <i class="fa-solid fa-clipboard-user me-1"></i> Attendance & Souls
+            </button>
+            <button type="button" class="btn btn-sm" :class="tab==='announcements' ? 'btn-warning text-dark' : 'btn-outline-secondary text-light'" @click="setTab('announcements')">
+              <i class="fa-solid fa-bullhorn me-1"></i> Announcements
+            </button>
+          </div>
+
           <!-- Attendance KPI Summary Row -->
           <div class="kpi-row">
             <div class="kpi-card">
@@ -3703,6 +4562,23 @@
 
         <!-- TAB: LIVE CHAT MODERATION & BROADCAST -->
         <section v-if="tab==='livechat'">
+          <!-- Top Sub-Navigation Bar for Live Sanctuary -->
+          <div class="sub-nav-tabs-bar mb-4 p-2 rounded-3 d-flex align-items-center gap-2 flex-wrap" style="background: rgba(255,255,255,0.03); border: 1px solid var(--card-border);">
+            <span class="small text-muted fw-bold me-2 ps-1 text-uppercase" style="font-size: 0.72rem; letter-spacing: 0.05em;"><i class="fa-solid fa-tower-broadcast text-danger me-1"></i> Live Sanctuary:</span>
+            <button type="button" class="btn btn-sm" :class="tab==='live' ? 'btn-danger text-white' : 'btn-outline-secondary text-light'" @click="setTab('live')">
+              <i class="fa-solid fa-video me-1"></i> Broadcast Stream
+            </button>
+            <button type="button" class="btn btn-sm" :class="tab==='livechat' ? 'btn-success text-white' : 'btn-outline-secondary text-light'" @click="setTab('livechat')">
+              <i class="fa-solid fa-comments me-1"></i> Live Chat Moderation
+            </button>
+            <button type="button" class="btn btn-sm" :class="tab==='attendance' ? 'btn-info text-dark' : 'btn-outline-secondary text-light'" @click="setTab('attendance')">
+              <i class="fa-solid fa-clipboard-user me-1"></i> Attendance & Souls
+            </button>
+            <button type="button" class="btn btn-sm" :class="tab==='announcements' ? 'btn-warning text-dark' : 'btn-outline-secondary text-light'" @click="setTab('announcements')">
+              <i class="fa-solid fa-bullhorn me-1"></i> Announcements
+            </button>
+          </div>
+
           <!-- Live Chat Summary Cards -->
           <div class="kpi-row">
             <div class="kpi-card">
@@ -3876,8 +4752,8 @@ createApp({
       tab: savedTab,
       tabTitles: {
         dashboard: 'Dashboard Overview',
-        settings: 'Church Settings & Logo',
-        pages: 'All Website Pages Manager',
+        settings: 'Church Settings & Branding',
+        pages: 'All Website Pages Directory',
         navigation: 'Header & Footer Menu Navigation',
         live: 'Live Stream & Broadcast Manager',
         attendance: 'Live Attendance Register & Souls Harvest',
@@ -3885,7 +4761,7 @@ createApp({
         announcements: 'Announcements & Alert Notices',
         sermons: 'Sermons & Video Library',
         slides: 'Hero Carousel & Slides',
-        homepage: 'Experience Cards & Homepage',
+        homepage: 'Home Page Editor (Headline, Cards, Upcoming Event, Identity)',
         stories: 'Testimonies & Stories',
         giving: 'Online Giving & Bank Accounts',
         events: 'Events & Church Calendar',
@@ -5419,6 +6295,9 @@ createApp({
     isVideoUrl(url) {
       if (!url) return false;
       return /\.(mp4|mov|webm|mkv|avi|m4v)(\?.*)?$/i.test(url) || (url.startsWith('assets/uploaded_media/') && !this.isAudioUrl(url));
+    },
+    saveCms() {
+      return this.saveToServer();
     },
     async saveToServer() {
       this.saving = true;

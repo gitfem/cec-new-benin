@@ -37,7 +37,7 @@
         "handle": "CE New Benin"
       }
     ],
-    "paypal_email": "[— To Be Supplied]",
+    "paypal_email": "",
     "bank_transfer_details": "Bank: [— To Be Supplied]\nAccount Name: Christ Embassy New Benin\nAccount Number: [— To Be Supplied]",
     "help": "08024700454",
     "zone": "MidWest Zone",
@@ -125,10 +125,10 @@
     "upcoming_event": {
       "id": "2",
       "eyebrow": "Upcoming Event",
-      "title": "4 Nights of Advancement",
-      "subtitle": "A Capacity Building Meeting — Building Champions in Christ",
+      "title": "LEARDER DISCIPLESHIP",
+      "subtitle": "Training Program",
       "event_date": "Sundays 8:00 AM & 10:00 AM • Wednesdays 6:00 PM",
-      "image_url": "assets/uploaded_media/1789685373_WhatsApp_Image_2026-09-17_at_4.32.28_PM.jpeg",
+      "image_url": "assets/uploaded_media/1790493008_ce_newbenin_banner.webp",
       "link_text": "View Details",
       "link_url": "#/events",
       "sort_order": "20"
@@ -1043,7 +1043,7 @@
           "purpose": "Continental Euro Partnership"
         }
       ],
-      "kingspay_code": "CENEWBENIN",
+      "kingspay_code": "",
       "paypal_email": "giving@christembassynewbenin.org",
       "scriptures": [
         {

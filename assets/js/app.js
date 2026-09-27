@@ -110,14 +110,16 @@ const HomePage = {
     },
     upcomingEvent(){
       const event = this.cms && this.cms.home && this.cms.home.upcoming_event ? this.cms.home.upcoming_event : {};
+      const rawImg = event.image_url || (this.watch && this.watch.image_url) || '';
+      const cleanImg = rawImg ? rawImg.replace(/^(\.\.\/)+/, '') : '';
       return {
-        eyebrow: event.eyebrow || this.watch.eyebrow || '',
-        title: event.title || this.watch.title || '',
-        subtitle: event.subtitle || this.watch.subtitle || '',
+        eyebrow: event.eyebrow || (this.watch && this.watch.eyebrow) || 'Upcoming Event',
+        title: event.title || (this.watch && this.watch.title) || '',
+        subtitle: event.subtitle || (this.watch && this.watch.subtitle) || '',
         event_date: event.event_date || '',
-        image_url: event.image_url || this.watch.image_url || '',
-        link_text: event.link_text || this.watch.link_text || 'View Details',
-        link_url: event.link_url || this.watch.link_url || '#/events'
+        image_url: cleanImg,
+        link_text: event.link_text || (this.watch && this.watch.link_text) || 'View Details',
+        link_url: event.link_url || (this.watch && this.watch.link_url) || '#/events'
       };
     },
     featuredStory(){
@@ -246,9 +248,17 @@ const HomePage = {
       </div>
     </section>
 
-    <a v-if="upcomingEvent.title || upcomingEvent.image_url" :href="upcomingEvent.link_url" class="current-series upcoming-event-band">
+    <a v-if="upcomingEvent.title || upcomingEvent.image_url" :href="upcomingEvent.link_url || '#/events'" class="current-series upcoming-event-band">
       <img v-if="upcomingEvent.image_url" :src="upcomingEvent.image_url" alt="upcoming event" @error="$event.target.style.display='none'" loading="lazy">
-      <div class="series-copy"><div class="eyebrow">{{upcomingEvent.eyebrow}}</div><h2>{{upcomingEvent.title}}</h2><p v-if="upcomingEvent.subtitle">{{upcomingEvent.subtitle}}</p><div class="series-meta"><span v-if="upcomingEvent.event_date" class="event-chip">{{upcomingEvent.event_date}}</span><span v-if="upcomingEvent.link_text" class="series-link">{{upcomingEvent.link_text}} -></span></div></div>
+      <div class="series-copy">
+        <div class="eyebrow">{{upcomingEvent.eyebrow || 'Upcoming Event'}}</div>
+        <h2>{{upcomingEvent.title}}</h2>
+        <p v-if="upcomingEvent.subtitle">{{upcomingEvent.subtitle}}</p>
+        <div class="series-meta">
+          <span v-if="upcomingEvent.event_date" class="event-chip"><i class="fa-solid fa-clock me-1"></i> {{upcomingEvent.event_date}}</span>
+          <span class="series-link">{{upcomingEvent.link_text || 'View Details'}} <i class="fa-solid fa-arrow-right-long ms-1"></i></span>
+        </div>
+      </div>
     </a>
 
     <section class="story-section">
