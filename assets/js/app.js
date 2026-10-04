@@ -1253,12 +1253,6 @@ const LivePage = {
                   <div class="spinner-border text-danger me-2"></div> Loading YouTube Live Stream...
                 </div>
               </div>
-              <div class="d-flex align-items-center justify-content-between mt-2 pt-2 border-top border-secondary border-opacity-10">
-                <span class="text-muted small"><i class="fa-brands fa-youtube text-danger me-1"></i> YouTube Live Stream</span>
-                <a :href="youtubePage" target="_blank" rel="noopener" class="btn btn-sm btn-outline-danger d-inline-flex align-items-center gap-2" style="font-weight:600; border-radius:999px; padding:5px 16px;">
-                  <i class="fa-brands fa-youtube"></i> Watch on YouTube App / Site
-                </a>
-              </div>
             </div>
             <div v-else class="p-4 text-center rounded" style="background:#0f172a; border:1px solid #1e293b; color:#94a3b8; border-radius:14px;">
               <i class="fa-brands fa-youtube mb-3" style="font-size:2.8rem; color:#ef4444; display:block;"></i>
