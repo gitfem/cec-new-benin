@@ -402,7 +402,7 @@ const LivePage = {
     youtubeUrl(){
       const vid = this.ytResolvedVideoId || (this.youtubeData && this.youtubeData.type === 'video' ? this.youtubeData.id : '');
       if(vid){
-        return 'https://www.youtube-nocookie.com/embed/' + encodeURIComponent(vid) + '?autoplay=1&playsinline=1&controls=1&rel=0&modestbranding=1';
+        return 'https://www.youtube.com/embed/' + encodeURIComponent(vid) + '?autoplay=1&playsinline=1&controls=1&rel=0&modestbranding=1&enablejsapi=1&origin=' + encodeURIComponent(window.location.origin);
       }
       return this.youtubeData ? this.youtubeData.embedUrl : '';
     },
@@ -424,6 +424,16 @@ const LivePage = {
         if(item.announcement) h += '<div style="color:#1e293b; line-height:1.65; font-size:0.98rem;">' + item.announcement + '</div>';
         return '<div class="announcement-item mb-4 pb-3" style="border-bottom:1px solid #e2e8f0;">' + h + '</div>';
       }).join('');
+    }
+  },
+  watch:{
+    youtubeData:{
+      immediate: true,
+      handler(val){
+        if(val && val.id){
+          this.resolveYoutubeLiveId();
+        }
+      }
     }
   },
   mounted(){
@@ -1242,6 +1252,12 @@ const LivePage = {
                 <div v-else class="d-flex align-items-center justify-content-center text-white" style="position:absolute; inset:0;">
                   <div class="spinner-border text-danger me-2"></div> Loading YouTube Live Stream...
                 </div>
+              </div>
+              <div class="d-flex align-items-center justify-content-between mt-2 pt-2 border-top border-secondary border-opacity-10">
+                <span class="text-muted small"><i class="fa-brands fa-youtube text-danger me-1"></i> YouTube Live Stream</span>
+                <a :href="youtubePage" target="_blank" rel="noopener" class="btn btn-sm btn-outline-danger d-inline-flex align-items-center gap-2" style="font-weight:600; border-radius:999px; padding:5px 16px;">
+                  <i class="fa-brands fa-youtube"></i> Watch on YouTube App / Site
+                </a>
               </div>
             </div>
             <div v-else class="p-4 text-center rounded" style="background:#0f172a; border:1px solid #1e293b; color:#94a3b8; border-radius:14px;">

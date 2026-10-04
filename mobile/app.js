@@ -447,7 +447,7 @@ createApp({
     youtubeUrl(){
       const vid = this.ytResolvedVideoId || (this.youtubeData && this.youtubeData.type === 'video' ? this.youtubeData.id : '');
       if(vid){
-        return 'https://www.youtube-nocookie.com/embed/' + encodeURIComponent(vid) + '?autoplay=1&playsinline=1&controls=1&rel=0&modestbranding=1';
+        return 'https://www.youtube.com/embed/' + encodeURIComponent(vid) + '?autoplay=1&playsinline=1&controls=1&rel=0&modestbranding=1&enablejsapi=1&origin=' + encodeURIComponent(window.location.origin);
       }
       return this.youtubeData ? this.youtubeData.embedUrl : '';
     },
@@ -502,6 +502,16 @@ createApp({
         return (this.cms.site && this.cms.site.bank_transfer_details) ? this.cms.site.bank_transfer_details : 'Select bank account below to copy details.';
       }
       return 'Payments are completed securely.';
+    }
+  },
+  watch:{
+    youtubeData:{
+      immediate: true,
+      handler(val){
+        if(val && val.id){
+          this.resolveYoutubeLiveId();
+        }
+      }
     }
   },
   methods:{
@@ -1459,6 +1469,8 @@ createApp({
     try{ this.member=JSON.parse(localStorage.getItem('kh_member') || 'null'); }catch(error){}
     this.syncRoute();
     this.loadCms();
+    this.resolveYoutubeLiveId();
+    this.ytResolveTimer = setInterval(() => this.resolveYoutubeLiveId(), 45000);
     window.addEventListener('hashchange', this.syncRoute);
     window.addEventListener('focus', () => {
       if(this.route === 'live' && this.member && this.activeStream === 'player'){

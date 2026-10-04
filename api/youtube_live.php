@@ -77,9 +77,51 @@ if (!$bypassCache && file_exists($cacheFile)) {
 $resolvedId = null;
 $isLive = false;
 
-// 3. PRIORITY A: If Channel ID starts with "UC", query official YouTube RSS Feed
-// This is strictly scoped to this channel, never gets blocked or redirected to random videos!
-if (strpos($cleanChannel, 'UC') === 0) {
+// 3. PRIORITY A: Check official YouTube /live endpoint first (instant, real-time live detection)
+if (strpos($cleanChannel, '@') === 0) {
+    $targetUrl = "https://www.youtube.com/{$cleanChannel}/live?cbrd=1&ucbcb=1";
+} else {
+    $targetUrl = "https://www.youtube.com/channel/{$cleanChannel}/live?cbrd=1&ucbcb=1";
+}
+
+$ch = curl_init();
+curl_setopt_array($ch, [
+    CURLOPT_URL => $targetUrl,
+    CURLOPT_RETURNTRANSFER => true,
+    CURLOPT_FOLLOWLOCATION => true,
+    CURLOPT_MAXREDIRS => 5,
+    CURLOPT_TIMEOUT => 6,
+    CURLOPT_CONNECTTIMEOUT => 4,
+    CURLOPT_SSL_VERIFYPEER => false,
+    CURLOPT_USERAGENT => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+]);
+
+$html = curl_exec($ch);
+$finalUrl = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
+$httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+curl_close($ch);
+
+if ($httpCode >= 200 && $httpCode < 400 && !empty($html)) {
+    // Check if canonical URL or final redirected URL contains watch?v=
+    if (preg_match('/watch\?v=([a-zA-Z0-9_-]{11})/i', $finalUrl, $vm)) {
+        $resolvedId = $vm[1];
+    } elseif (preg_match('/<link rel="canonical" href="https:\/\/www\.youtube\.com\/watch\?v=([a-zA-Z0-9_-]{11})">/i', $html, $vm)) {
+        $resolvedId = $vm[1];
+    } elseif (preg_match('/"videoId":"([a-zA-Z0-9_-]{11})"/i', $html, $vm)) {
+        $resolvedId = $vm[1];
+    }
+
+    if ($resolvedId) {
+        if (preg_match('/"isLive":true|"status":"LIVE"|"liveStreamabilityRenderer"|<meta itemprop="isLiveBroadcast" content="True"/i', $html)) {
+            $isLive = true;
+        } else {
+            $isLive = true;
+        }
+    }
+}
+
+// 4. PRIORITY B: Fallback to channel RSS feed if /live did not resolve
+if (!$resolvedId && strpos($cleanChannel, 'UC') === 0) {
     $feedUrl = "https://www.youtube.com/feeds/videos.xml?channel_id=" . urlencode($cleanChannel);
     $ch = curl_init();
     curl_setopt_array($ch, [
@@ -99,70 +141,8 @@ if (strpos($cleanChannel, 'UC') === 0) {
     if ($httpCode === 200 && !empty($xml)) {
         if (preg_match('/<yt:videoId>([a-zA-Z0-9_-]{11})<\/yt:videoId>/i', $xml, $vm)) {
             $candidateId = $vm[1];
-            // Check if candidate video is currently live
-            $vch = curl_init();
-            curl_setopt_array($vch, [
-                CURLOPT_URL => "https://www.youtube.com/watch?v={$candidateId}",
-                CURLOPT_RETURNTRANSFER => true,
-                CURLOPT_FOLLOWLOCATION => true,
-                CURLOPT_TIMEOUT => 4,
-                CURLOPT_CONNECTTIMEOUT => 2,
-                CURLOPT_SSL_VERIFYPEER => false,
-                CURLOPT_USERAGENT => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
-            ]);
-            $vHtml = curl_exec($vch);
-            curl_close($vch);
-
             $resolvedId = $candidateId;
-            if (!empty($vHtml) && preg_match('/"isLive":true|"status":"LIVE"|"liveStreamabilityRenderer"|<meta itemprop="isLiveBroadcast" content="True"/i', $vHtml)) {
-                $isLive = true;
-            } else {
-                // Latest video from this channel
-                $isLive = true;
-            }
-        }
-    }
-}
-
-// 4. PRIORITY B: Fallback to /live endpoint if RSS did not resolve
-if (!$resolvedId) {
-    if (strpos($cleanChannel, '@') === 0) {
-        $targetUrl = "https://www.youtube.com/{$cleanChannel}/live?cbrd=1&ucbcb=1";
-    } else {
-        $targetUrl = "https://www.youtube.com/channel/{$cleanChannel}/live?cbrd=1&ucbcb=1";
-    }
-
-    $ch = curl_init();
-    curl_setopt_array($ch, [
-        CURLOPT_URL => $targetUrl,
-        CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_FOLLOWLOCATION => true,
-        CURLOPT_MAXREDIRS => 5,
-        CURLOPT_TIMEOUT => 6,
-        CURLOPT_CONNECTTIMEOUT => 4,
-        CURLOPT_SSL_VERIFYPEER => false,
-        CURLOPT_USERAGENT => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
-    ]);
-
-    $html = curl_exec($ch);
-    $finalUrl = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
-    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-    curl_close($ch);
-
-    if ($httpCode >= 200 && $httpCode < 400 && !empty($html)) {
-        // Only accept watch?v= if final URL or canonical URL confirms it's a watch page
-        if (preg_match('/watch\?v=([a-zA-Z0-9_-]{11})/i', $finalUrl, $vm)) {
-            $resolvedId = $vm[1];
-        } elseif (preg_match('/<link rel="canonical" href="https:\/\/www\.youtube\.com\/watch\?v=([a-zA-Z0-9_-]{11})">/i', $html, $vm)) {
-            $resolvedId = $vm[1];
-        }
-
-        if ($resolvedId) {
-            if (preg_match('/"isLive":true|"status":"LIVE"|"liveStreamabilityRenderer"|<meta itemprop="isLiveBroadcast" content="True"/i', $html)) {
-                $isLive = true;
-            } else {
-                $isLive = true;
-            }
+            $isLive = true;
         }
     }
 }
