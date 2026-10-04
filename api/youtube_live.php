@@ -77,51 +77,9 @@ if (!$bypassCache && file_exists($cacheFile)) {
 $resolvedId = null;
 $isLive = false;
 
-// 3. PRIORITY A: Check official YouTube /live endpoint first (instant, real-time live detection)
-if (strpos($cleanChannel, '@') === 0) {
-    $targetUrl = "https://www.youtube.com/{$cleanChannel}/live?cbrd=1&ucbcb=1";
-} else {
-    $targetUrl = "https://www.youtube.com/channel/{$cleanChannel}/live?cbrd=1&ucbcb=1";
-}
-
-$ch = curl_init();
-curl_setopt_array($ch, [
-    CURLOPT_URL => $targetUrl,
-    CURLOPT_RETURNTRANSFER => true,
-    CURLOPT_FOLLOWLOCATION => true,
-    CURLOPT_MAXREDIRS => 5,
-    CURLOPT_TIMEOUT => 6,
-    CURLOPT_CONNECTTIMEOUT => 4,
-    CURLOPT_SSL_VERIFYPEER => false,
-    CURLOPT_USERAGENT => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
-]);
-
-$html = curl_exec($ch);
-$finalUrl = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
-$httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-curl_close($ch);
-
-if ($httpCode >= 200 && $httpCode < 400 && !empty($html)) {
-    // Check if canonical URL or final redirected URL contains watch?v=
-    if (preg_match('/watch\?v=([a-zA-Z0-9_-]{11})/i', $finalUrl, $vm)) {
-        $resolvedId = $vm[1];
-    } elseif (preg_match('/<link rel="canonical" href="https:\/\/www\.youtube\.com\/watch\?v=([a-zA-Z0-9_-]{11})">/i', $html, $vm)) {
-        $resolvedId = $vm[1];
-    } elseif (preg_match('/"videoId":"([a-zA-Z0-9_-]{11})"/i', $html, $vm)) {
-        $resolvedId = $vm[1];
-    }
-
-    if ($resolvedId) {
-        if (preg_match('/"isLive":true|"status":"LIVE"|"liveStreamabilityRenderer"|<meta itemprop="isLiveBroadcast" content="True"/i', $html)) {
-            $isLive = true;
-        } else {
-            $isLive = true;
-        }
-    }
-}
-
-// 4. PRIORITY B: Fallback to channel RSS feed if /live did not resolve
-if (!$resolvedId && strpos($cleanChannel, 'UC') === 0) {
+// 3. PRIORITY A: Strictly query official YouTube RSS Feed for this Channel ID
+// Scoped 100% to this specific channel ID - impossible to return random YouTube videos!
+if (strpos($cleanChannel, 'UC') === 0) {
     $feedUrl = "https://www.youtube.com/feeds/videos.xml?channel_id=" . urlencode($cleanChannel);
     $ch = curl_init();
     curl_setopt_array($ch, [
@@ -129,20 +87,32 @@ if (!$resolvedId && strpos($cleanChannel, 'UC') === 0) {
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_FOLLOWLOCATION => true,
         CURLOPT_MAXREDIRS => 3,
-        CURLOPT_TIMEOUT => 5,
+        CURLOPT_TIMEOUT => 6,
         CURLOPT_CONNECTTIMEOUT => 3,
         CURLOPT_SSL_VERIFYPEER => false,
-        CURLOPT_USERAGENT => 'Mozilla/5.0 (compatible; ChurchBroadcastResolver/2.0)'
+        CURLOPT_USERAGENT => 'Mozilla/5.0 (compatible; ChurchBroadcastResolver/3.0)'
     ]);
     $xml = curl_exec($ch);
     $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
     curl_close($ch);
 
     if ($httpCode === 200 && !empty($xml)) {
-        if (preg_match('/<yt:videoId>([a-zA-Z0-9_-]{11})<\/yt:videoId>/i', $xml, $vm)) {
-            $candidateId = $vm[1];
-            $resolvedId = $candidateId;
-            $isLive = true;
+        // Parse all entries strictly belonging to this channel
+        if (preg_match_all('/<entry>[\s\S]*?<\/entry>/i', $xml, $entries)) {
+            foreach ($entries[0] as $entry) {
+                if (preg_match('/<yt:videoId>([a-zA-Z0-9_-]{11})<\/yt:videoId>/i', $entry, $vm)) {
+                    $candidateId = $vm[1];
+                    // Verify channelId inside this entry matches
+                    if (preg_match('/<yt:channelId>(.*?)<\/yt:channelId>/i', $entry, $cm)) {
+                        if (trim($cm[1]) !== $cleanChannel) {
+                            continue;
+                        }
+                    }
+                    $resolvedId = $candidateId;
+                    $isLive = true;
+                    break;
+                }
+            }
         }
     }
 }
