@@ -802,7 +802,14 @@
       "Christ Embassy Universal",
       "Christ Embassy Lawani Model",
       "Christ Embassy GRA",
-      "Christ Embassy Okhoro"
+      "Christ Embassy Okhoro",
+      "Church of Excellence 1",
+      "Church of Excellence 2",
+      "Christ Embassy Oluku",
+      "Sapele Road Service Center",
+      "Bob Oshodin Service Center",
+      "Utuka Service center",
+      "Temboga Service Center"
     ]
   },
   "pages": {

@@ -314,7 +314,21 @@ const LivePage = {
       category:'Church Member',
       categoryOptions:['Church Member','First-Time Visitor','Cell Leader','Teen/Youth','Visiting Minister'],
       viewingMode:'individual', groupName:'Christ Embassy Lagos Street', groupCount:1,
-      groupOptions:['Christ Embassy Lagos Street','Christ Embassy Upper Mission 2','Christ Embassy Universal','Christ Embassy Lawani Model','Christ Embassy GRA','Christ Embassy Okhoro'],
+      groupOptions:[
+        'Christ Embassy Lagos Street',
+        'Christ Embassy Upper Mission 2',
+        'Christ Embassy Universal',
+        'Christ Embassy Lawani Model',
+        'Christ Embassy GRA',
+        'Christ Embassy Okhoro',
+        'Church of Excellence 1',
+        'Church of Excellence 2',
+        'Christ Embassy Oluku',
+        'Sapele Road Service Center',
+        'Bob Oshodin Service Center',
+        'Utuka Service center',
+        'Temboga Service Center'
+      ],
       DATA, OLD, announcementOpen:true, activeStream:'player',
       isPlaying:false, muted:false, volume:0.85, progress:0,
       liveStatus:'checking', chat:[], chatText:'', chatError:'',
@@ -335,7 +349,14 @@ const LivePage = {
         'Christ Embassy Universal',
         'Christ Embassy Lawani Model',
         'Christ Embassy GRA',
-        'Christ Embassy Okhoro'
+        'Christ Embassy Okhoro',
+        'Church of Excellence 1',
+        'Church of Excellence 2',
+        'Christ Embassy Oluku',
+        'Sapele Road Service Center',
+        'Bob Oshodin Service Center',
+        'Utuka Service center',
+        'Temboga Service Center'
       ];
     },
     siteName(){ return (this.cms && this.cms.site && this.cms.site.name) ? this.cms.site.name : ''; },

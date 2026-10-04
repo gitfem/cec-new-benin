@@ -93,7 +93,21 @@ createApp({
       giveForm:{currency:'NGN', amount:10000, customAmount:'', name:'', phone:'', email:'', towards:'Tithe', frequency:'One Time', method:'Bank Transfer', note:'', error:'', copiedKey:''},
       visitPreReg:{name:'', phone:'', email:'', date:'', guests:1, submitted:false, submitting:false, error:''},
       openVisitFaq:null,
-      groupOptions:['Christ Embassy Lagos Street','Christ Embassy Upper Mission 2','Christ Embassy Universal','Christ Embassy Lawani Model','Christ Embassy GRA','Christ Embassy Okhoro'],
+      groupOptions:[
+        'Christ Embassy Lagos Street',
+        'Christ Embassy Upper Mission 2',
+        'Christ Embassy Universal',
+        'Christ Embassy Lawani Model',
+        'Christ Embassy GRA',
+        'Christ Embassy Okhoro',
+        'Church of Excellence 1',
+        'Church of Excellence 2',
+        'Christ Embassy Oluku',
+        'Sapele Road Service Center',
+        'Bob Oshodin Service Center',
+        'Utuka Service center',
+        'Temboga Service Center'
+      ],
       activeSermonCategory:'All Messages',
       sermonCategories:['All Messages', 'Sunday Services', 'Faith & Healing', 'Leadership & Excellence', 'Mid-Week Teachings', 'Kingdom Prosperity', 'Evangelism & Missions'],
       sermonShareCopied:false,
@@ -120,7 +134,14 @@ createApp({
         'Christ Embassy Universal',
         'Christ Embassy Lawani Model',
         'Christ Embassy GRA',
-        'Christ Embassy Okhoro'
+        'Christ Embassy Okhoro',
+        'Church of Excellence 1',
+        'Church of Excellence 2',
+        'Christ Embassy Oluku',
+        'Sapele Road Service Center',
+        'Bob Oshodin Service Center',
+        'Utuka Service center',
+        'Temboga Service Center'
       ];
     },
     siteLogo(){ return this.cms.site.logo || ''; },

@@ -70,6 +70,10 @@ if ($contentBackup && file_exists($contentFile)) {
             $merged['site']['title'] = $gitContent['site']['title'];
             $merged['site']['zone'] = $gitContent['site']['zone'];
         }
+        if (!empty($gitContent['live']['service_groups'])) {
+            $existingGroups = is_array($existing['live']['service_groups'] ?? null) ? $existing['live']['service_groups'] : [];
+            $merged['live']['service_groups'] = array_values(array_unique(array_merge($gitContent['live']['service_groups'], $existingGroups)));
+        }
         file_put_contents($contentFile, json_encode($merged, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
     } elseif ($existing && !empty($existing['site']['address']) && strpos($existing['site']['address'], 'To Be Supplied') === false) {
         file_put_contents($contentFile, $contentBackup);

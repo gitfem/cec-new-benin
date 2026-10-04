@@ -1722,10 +1722,12 @@
                   </tr>
                 </tbody>
               </table>
-            </div>
-
-            <div class="mt-3 text-end">
-              <small class="text-muted me-3"><i class="fa-solid fa-circle-info me-1"></i> Changes take effect immediately when you click Save Changes.</small>
+            <div class="mt-4 pt-3 border-top border-secondary border-opacity-25 d-flex align-items-center justify-content-between flex-wrap gap-2">
+              <small class="text-muted"><i class="fa-solid fa-circle-info me-1"></i> Changes take effect on the live site when you save.</small>
+              <button type="button" class="btn btn-gold" @click="saveToServer" :disabled="saving">
+                <i class="fa-solid" :class="saving ? 'fa-spinner fa-spin' : 'fa-floppy-disk'"></i>
+                {{ saving ? 'Saving Changes...' : 'Save Live Settings & Groups' }}
+              </button>
             </div>
           </div>
         </section>
@@ -4869,7 +4871,7 @@ createApp({
       cms: {
         site: {},
         home: { slides: [], sermons: [], events: [], ministries: [], stories: [], member_announcements: [] },
-        live: { is_live: true, title: '', description: '', minister: '', theme: '', hls_url: '', youtube_channel_id: '' },
+        live: { is_live: true, title: '', description: '', minister: '', theme: '', hls_url: '', youtube_channel_id: '', service_groups: [] },
         pages: {
           about: {},
           give: { categories: [], bank_details: [] },
@@ -5172,7 +5174,14 @@ createApp({
         'Christ Embassy Universal',
         'Christ Embassy Lawani Model',
         'Christ Embassy GRA',
-        'Christ Embassy Okhoro'
+        'Christ Embassy Okhoro',
+        'Church of Excellence 1',
+        'Church of Excellence 2',
+        'Christ Embassy Oluku',
+        'Sapele Road Service Center',
+        'Bob Oshodin Service Center',
+        'Utuka Service center',
+        'Temboga Service Center'
       ];
     },
     youtubeFallbackInfo() {
@@ -6300,6 +6309,13 @@ createApp({
       return this.saveToServer();
     },
     async saveToServer() {
+      if (this.newGroupInput && this.newGroupInput.trim()) {
+        this.addGroup();
+      }
+      if (!this.cms.live) this.cms.live = {};
+      if (!Array.isArray(this.cms.live.service_groups) || !this.cms.live.service_groups.length) {
+        this.cms.live.service_groups = [...this.activeGroupOptions];
+      }
       this.saving = true;
       if (this.cms && this.cms.site && this.cms.site.admin_pin) {
         localStorage.setItem('cec_admin_custom_pin', String(this.cms.site.admin_pin).trim());
@@ -6564,46 +6580,51 @@ createApp({
       const name = (this.newGroupInput || '').trim();
       if (!name) return;
       if (!this.cms.live) this.cms.live = {};
-      if (!Array.isArray(this.cms.live.service_groups)) {
-        this.cms.live.service_groups = [...this.activeGroupOptions];
-      }
-      if (this.cms.live.service_groups.includes(name)) {
-        alert('This group is already listed.');
+      const current = Array.isArray(this.cms.live.service_groups) && this.cms.live.service_groups.length
+        ? [...this.cms.live.service_groups]
+        : [...this.activeGroupOptions];
+      if (current.includes(name)) {
+        this.showToast(`"${name}" is already listed.`);
         return;
       }
-      this.cms.live.service_groups.push(name);
+      current.push(name);
+      this.cms.live.service_groups = current;
       this.newGroupInput = '';
       this.showToast(`Added "${name}" to prelisted groups.`);
     },
     startEditGroup(index) {
       if (!this.cms.live) this.cms.live = {};
-      if (!Array.isArray(this.cms.live.service_groups)) {
-        this.cms.live.service_groups = [...this.activeGroupOptions];
-      }
+      const current = Array.isArray(this.cms.live.service_groups) && this.cms.live.service_groups.length
+        ? this.cms.live.service_groups
+        : [...this.activeGroupOptions];
       this.editingGroupIndex = index;
-      this.editingGroupName = this.cms.live.service_groups[index] || '';
+      this.editingGroupName = current[index] || '';
     },
     saveEditGroup(index) {
       const name = (this.editingGroupName || '').trim();
       if (!name) return;
-      this.cms.live.service_groups[index] = name;
+      const current = Array.isArray(this.cms.live.service_groups) && this.cms.live.service_groups.length
+        ? [...this.cms.live.service_groups]
+        : [...this.activeGroupOptions];
+      current[index] = name;
+      this.cms.live.service_groups = current;
       this.editingGroupIndex = null;
       this.editingGroupName = '';
       this.showToast('Group name updated.');
     },
     deleteGroup(index) {
-      if (!this.cms.live) this.cms.live = {};
-      if (!Array.isArray(this.cms.live.service_groups)) {
-        this.cms.live.service_groups = [...this.activeGroupOptions];
-      }
-      const removed = this.cms.live.service_groups[index];
+      const current = Array.isArray(this.cms.live.service_groups) && this.cms.live.service_groups.length
+        ? [...this.cms.live.service_groups]
+        : [...this.activeGroupOptions];
+      const removed = current[index];
       if (!confirm(`Are you sure you want to delete "${removed}" from the prelisted groups?`)) return;
-      this.cms.live.service_groups.splice(index, 1);
+      current.splice(index, 1);
+      this.cms.live.service_groups = current;
       if (this.editingGroupIndex === index) this.editingGroupIndex = null;
       this.showToast(`Deleted "${removed}".`);
     },
     resetDefaultGroups() {
-      if (!confirm('Reset groups to the standard 6 Christ Embassy groups?')) return;
+      if (!confirm('Reset groups to the default 6 Christ Embassy groups?')) return;
       if (!this.cms.live) this.cms.live = {};
       this.cms.live.service_groups = [
         'Christ Embassy Lagos Street',
