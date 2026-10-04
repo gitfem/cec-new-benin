@@ -1,5 +1,104 @@
 const { createApp } = Vue;
 
+const SiteValidators = window.SiteValidators || {
+  isEmpty(val) { return val === null || val === undefined || String(val).trim() === ''; },
+  validatePhone(phone, required = true) {
+    if (this.isEmpty(phone)) {
+      return required ? { valid: false, message: 'Please enter your phone number.' } : { valid: true, formatted: '' };
+    }
+    const raw = String(phone).trim();
+    const cleaned = raw.replace(/[\s\-\(\)\.]/g, '');
+    if (!/^\+?[0-9]{8,15}$/.test(cleaned)) {
+      return { valid: false, message: 'Please enter a valid phone number (8 to 15 digits, local or international with country code).' };
+    }
+    const digitsOnly = cleaned.replace(/^\+/, '');
+    if (/^(\d)\1+$/.test(digitsOnly)) {
+      return { valid: false, message: 'Please enter an active phone number, not repeated digits.' };
+    }
+    const dummySequences = ['12345678', '87654321', '01234567', '76543210', '98765432'];
+    for (let i = 0; i < dummySequences.length; i++) {
+      if (digitsOnly.indexOf(dummySequences[i]) !== -1) {
+        return { valid: false, message: 'Please enter an active phone number, not a sequential test number.' };
+      }
+    }
+    const distinctDigits = new Set(digitsOnly.split('')).size;
+    if (distinctDigits < 3) {
+      return { valid: false, message: 'Please enter a genuine active phone number.' };
+    }
+    if (cleaned.charAt(0) === '0') {
+      if (cleaned.length !== 11) {
+        return { valid: false, message: 'Local Nigerian phone numbers must be 11 digits (e.g. 08023456789).' };
+      }
+      if (!/^0(?:[789][01]\d{8}|[1-9]\d{7,8})$/.test(cleaned)) {
+        return { valid: false, message: 'Please enter a valid Nigerian phone number prefix (e.g. 080, 081, 070, 090, 091).' };
+      }
+      const sub = cleaned.slice(3);
+      if (/^(\d)\1+$/.test(sub)) {
+        return { valid: false, message: 'Please enter a genuine active phone number.' };
+      }
+      return { valid: true, formatted: cleaned };
+    }
+    if (cleaned.indexOf('+234') === 0 || cleaned.indexOf('234') === 0) {
+      let norm = cleaned.indexOf('+234') === 0 ? cleaned.slice(4) : cleaned.slice(3);
+      if (norm.charAt(0) === '0') norm = norm.slice(1);
+      if (norm.length !== 10) {
+        return { valid: false, message: 'Nigerian international numbers must have 10 digits after +234 (e.g. +234 802 345 6789).' };
+      }
+      if (!/^[789][01]\d{8}$|^[1-9]\d{7,8}$/.test(norm)) {
+        return { valid: false, message: 'Invalid Nigerian phone number format after +234.' };
+      }
+      if (/^(\d)\1+$/.test(norm.slice(2))) {
+        return { valid: false, message: 'Please enter a genuine active phone number.' };
+      }
+      return { valid: true, formatted: '+234' + norm };
+    }
+    if (digitsOnly.length < 8 || digitsOnly.length > 15) {
+      return { valid: false, message: 'International phone numbers must be between 8 and 15 digits.' };
+    }
+    return { valid: true, formatted: cleaned };
+  },
+  validateEmail(email, required = false) {
+    if (this.isEmpty(email)) {
+      return required ? { valid: false, message: 'Please enter your email address.' } : { valid: true, formatted: '' };
+    }
+    const raw = String(email).trim().toLowerCase();
+    const placeholders = ['name@email.com', 'you@example.com', 'johndoe@gmail.com', 'email@email.com'];
+    if (placeholders.includes(raw)) {
+      return { valid: false, message: 'Please enter your actual email address, not placeholder text.' };
+    }
+    const pattern = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+$/;
+    if (!pattern.test(raw)) {
+      return { valid: false, message: 'Please enter a valid email address (e.g. name@domain.com).' };
+    }
+    const parts = raw.split('@');
+    if (parts.length !== 2) return { valid: false, message: 'Please enter a valid email address.' };
+    const user = parts[0];
+    const domain = parts[1];
+    const domainParts = domain.split('.');
+    const tld = domainParts[domainParts.length - 1];
+    if (!tld || tld.length < 2 || !/^[a-zA-Z]+$/.test(tld)) {
+      return { valid: false, message: 'Please enter an email with a valid domain extension (e.g. .com, .org, .ng).' };
+    }
+    const dummyUsers = ['test', 'testing', 'fake', 'none', 'noemail', 'dummy', 'asdf', 'sample', 'random', 'fakemail'];
+    if (dummyUsers.includes(user)) {
+      return { valid: false, message: `"${user}" is not a valid email username. Please enter your real email.` };
+    }
+    if (user.length >= 4 && /^([a-zA-Z0-9])\1+$/.test(user)) {
+      return { valid: false, message: 'Please enter an active email address.' };
+    }
+    const fakeDomains = [
+      'test.com', 'fake.com', 'none.com', 'domain.com', 'sample.com', 'noemail.com',
+      'mailinator.com', 'tempmail.com', 'guerrillamail.com', '10minutemail.com',
+      'throwawaymail.com', 'sharklasers.com', 'yopmail.com', 'trashmail.com',
+      'example.com', 'example.org', 'xyz.com', 'abc.com'
+    ];
+    if (fakeDomains.includes(domain)) {
+      return { valid: false, message: `"${domain}" is not an active email provider. Please use your real email (e.g. @gmail.com, @yahoo.com).` };
+    }
+    return { valid: true, formatted: raw };
+  }
+};
+
 const API_URL = '../assets/data/content.json';
 const STORY_COMMENT_URL = '../bridge_story_comment.php';
 const LIVE = {
@@ -569,10 +668,22 @@ createApp({
       this.openVisitFaq = this.openVisitFaq === idx ? null : idx;
     },
     submitVisitPreReg(){
-      if (!this.visitPreReg.name || !this.visitPreReg.phone) {
-        this.visitPreReg.error = 'Please enter your name and phone number.';
+      if (!this.visitPreReg.name.trim()) {
+        this.visitPreReg.error = 'Please enter your full name.';
         return;
       }
+      const phoneCheck = SiteValidators.validatePhone(this.visitPreReg.phone, true);
+      if (!phoneCheck.valid) {
+        this.visitPreReg.error = phoneCheck.message;
+        return;
+      }
+      const emailCheck = SiteValidators.validateEmail(this.visitPreReg.email, false);
+      if (!emailCheck.valid) {
+        this.visitPreReg.error = emailCheck.message;
+        return;
+      }
+      this.visitPreReg.phone = phoneCheck.formatted || this.visitPreReg.phone.trim();
+      this.visitPreReg.email = emailCheck.formatted || '';
       this.visitPreReg.submitting = true;
       this.visitPreReg.error = '';
       setTimeout(() => {
@@ -618,6 +729,20 @@ createApp({
       return base + '/' + this.selectedGiveAmount.toFixed(2) + this.giveForm.currency;
     },
     submitGive(){
+      if (this.giveForm.phone && this.giveForm.phone.trim()) {
+        const phoneCheck = SiteValidators.validatePhone(this.giveForm.phone, false);
+        if (!phoneCheck.valid) {
+          this.giveForm.error = phoneCheck.message;
+          return;
+        }
+      }
+      if (this.giveForm.method === 'PayPal' || (this.giveForm.email && this.giveForm.email.trim())) {
+        const emailCheck = SiteValidators.validateEmail(this.giveForm.email, this.giveForm.method === 'PayPal');
+        if (!emailCheck.valid) {
+          this.giveForm.error = emailCheck.message;
+          return;
+        }
+      }
       if(this.giveForm.method === 'PayPal'){
         if(!this.paypalRecipient){ this.giveForm.error='PayPal payment link or email has not been set yet.'; return; }
         if(this.selectedGiveAmount < 1){ this.giveForm.error='Enter an amount of at least 1 ' + this.giveForm.currency; return; }
@@ -724,11 +849,16 @@ createApp({
     },
     loginLive(){
       if(!this.liveForm.name.trim()){ this.liveError='Please enter your full name.'; return; }
-      if(!/^[0-9+\-\s()]{6,}$/.test(this.liveForm.phone.trim())){ this.liveError='Please enter a valid phone number.'; return; }
+      const phoneCheck = SiteValidators.validatePhone(this.liveForm.phone, true);
+      if(!phoneCheck.valid){ this.liveError = phoneCheck.message; return; }
+      const emailCheck = SiteValidators.validateEmail(this.liveForm.email, false);
+      if(!emailCheck.valid){ this.liveError = emailCheck.message; return; }
       if(!this.liveForm.group){ this.liveError='Please select your group.'; return; }
       const attendance = this.liveForm.mode === 'group' ? Math.max(1, parseInt(this.liveForm.count || 1, 10)) : 1;
       const serviceName = (this.cms && this.cms.live && this.cms.live.title) ? this.cms.live.title : 'Sunday Service of Excellence';
-      const member = {name:this.liveForm.name.trim(), email:this.liveForm.email.trim(), phone:this.liveForm.phone.trim(), group:this.liveForm.group, category:this.liveForm.category || 'Church Member', viewingMode:this.liveForm.mode, attendance, service_name:serviceName};
+      const cleanPhone = phoneCheck.formatted || this.liveForm.phone.trim();
+      const cleanEmail = emailCheck.formatted || '';
+      const member = {name:this.liveForm.name.trim(), email:cleanEmail, phone:cleanPhone, group:this.liveForm.group, category:this.liveForm.category || 'Church Member', viewingMode:this.liveForm.mode, attendance, service_name:serviceName};
       this.member = member;
       if(this.liveForm.remember){ localStorage.setItem('kh_member', JSON.stringify(this.member)); }
       this.liveError='';

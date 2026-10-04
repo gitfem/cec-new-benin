@@ -4727,6 +4727,7 @@
 </div>
 
 <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+<script src="../assets/js/validators.js?v=76"></script>
 <script>
 const { createApp } = Vue;
 
@@ -5702,6 +5703,22 @@ createApp({
       if (!this.manualRecord.name.trim()) {
         alert('Please enter attendee full name.');
         return;
+      }
+      if (this.manualRecord.phone && this.manualRecord.phone.trim()) {
+        const pCheck = (window.SiteValidators ? window.SiteValidators.validatePhone(this.manualRecord.phone, false) : { valid: true });
+        if (!pCheck.valid) {
+          alert(pCheck.message);
+          return;
+        }
+        this.manualRecord.phone = pCheck.formatted || this.manualRecord.phone.trim();
+      }
+      if (this.manualRecord.email && this.manualRecord.email.trim()) {
+        const eCheck = (window.SiteValidators ? window.SiteValidators.validateEmail(this.manualRecord.email, false) : { valid: true });
+        if (!eCheck.valid) {
+          alert(eCheck.message);
+          return;
+        }
+        this.manualRecord.email = eCheck.formatted || this.manualRecord.email.trim();
       }
       fetch('/api/attendance/manual', {
         method: 'POST',

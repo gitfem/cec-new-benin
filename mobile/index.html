@@ -143,7 +143,7 @@
       <form v-if="!member" class="live-login-card" @submit.prevent="loginLive">
         <div v-if="liveError" class="form-alert">{{ liveError }}</div>
         <label>Full Name<input v-model="liveForm.name" placeholder="Your full name"></label>
-        <label>Phone Number<input v-model="liveForm.phone" placeholder="080..."></label>
+        <label>Phone Number<input v-model="liveForm.phone" placeholder="080... or +234..."></label>
         <label>Email Address <span>optional</span><input v-model="liveForm.email" placeholder="name@email.com"></label>
         <label>Membership Status<select v-model="liveForm.category"><option v-for="cat in categoryOptions" :value="cat">{{ cat }}</option></select></label>
         <label>Group<select v-model="liveForm.group"><option value="">Select group</option><option v-for="group in groupOptions" :value="group">{{ group }}</option></select></label>
@@ -1011,6 +1011,7 @@
 
 <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/hls.js@1"></script>
-<script src="app.js?v=75"></script>
+<script src="../assets/js/validators.js?v=76"></script>
+<script src="app.js?v=76"></script>
 </body>
 </html>

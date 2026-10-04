@@ -1,5 +1,104 @@
 const { createApp } = Vue;
 
+const SiteValidators = window.SiteValidators || {
+  isEmpty(val) { return val === null || val === undefined || String(val).trim() === ''; },
+  validatePhone(phone, required = true) {
+    if (this.isEmpty(phone)) {
+      return required ? { valid: false, message: 'Please enter your phone number.' } : { valid: true, formatted: '' };
+    }
+    const raw = String(phone).trim();
+    const cleaned = raw.replace(/[\s\-\(\)\.]/g, '');
+    if (!/^\+?[0-9]{8,15}$/.test(cleaned)) {
+      return { valid: false, message: 'Please enter a valid phone number (8 to 15 digits, local or international with country code).' };
+    }
+    const digitsOnly = cleaned.replace(/^\+/, '');
+    if (/^(\d)\1+$/.test(digitsOnly)) {
+      return { valid: false, message: 'Please enter an active phone number, not repeated digits.' };
+    }
+    const dummySequences = ['12345678', '87654321', '01234567', '76543210', '98765432'];
+    for (let i = 0; i < dummySequences.length; i++) {
+      if (digitsOnly.indexOf(dummySequences[i]) !== -1) {
+        return { valid: false, message: 'Please enter an active phone number, not a sequential test number.' };
+      }
+    }
+    const distinctDigits = new Set(digitsOnly.split('')).size;
+    if (distinctDigits < 3) {
+      return { valid: false, message: 'Please enter a genuine active phone number.' };
+    }
+    if (cleaned.charAt(0) === '0') {
+      if (cleaned.length !== 11) {
+        return { valid: false, message: 'Local Nigerian phone numbers must be 11 digits (e.g. 08023456789).' };
+      }
+      if (!/^0(?:[789][01]\d{8}|[1-9]\d{7,8})$/.test(cleaned)) {
+        return { valid: false, message: 'Please enter a valid Nigerian phone number prefix (e.g. 080, 081, 070, 090, 091).' };
+      }
+      const sub = cleaned.slice(3);
+      if (/^(\d)\1+$/.test(sub)) {
+        return { valid: false, message: 'Please enter a genuine active phone number.' };
+      }
+      return { valid: true, formatted: cleaned };
+    }
+    if (cleaned.indexOf('+234') === 0 || cleaned.indexOf('234') === 0) {
+      let norm = cleaned.indexOf('+234') === 0 ? cleaned.slice(4) : cleaned.slice(3);
+      if (norm.charAt(0) === '0') norm = norm.slice(1);
+      if (norm.length !== 10) {
+        return { valid: false, message: 'Nigerian international numbers must have 10 digits after +234 (e.g. +234 802 345 6789).' };
+      }
+      if (!/^[789][01]\d{8}$|^[1-9]\d{7,8}$/.test(norm)) {
+        return { valid: false, message: 'Invalid Nigerian phone number format after +234.' };
+      }
+      if (/^(\d)\1+$/.test(norm.slice(2))) {
+        return { valid: false, message: 'Please enter a genuine active phone number.' };
+      }
+      return { valid: true, formatted: '+234' + norm };
+    }
+    if (digitsOnly.length < 8 || digitsOnly.length > 15) {
+      return { valid: false, message: 'International phone numbers must be between 8 and 15 digits.' };
+    }
+    return { valid: true, formatted: cleaned };
+  },
+  validateEmail(email, required = false) {
+    if (this.isEmpty(email)) {
+      return required ? { valid: false, message: 'Please enter your email address.' } : { valid: true, formatted: '' };
+    }
+    const raw = String(email).trim().toLowerCase();
+    const placeholders = ['name@email.com', 'you@example.com', 'johndoe@gmail.com', 'email@email.com'];
+    if (placeholders.includes(raw)) {
+      return { valid: false, message: 'Please enter your actual email address, not placeholder text.' };
+    }
+    const pattern = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+$/;
+    if (!pattern.test(raw)) {
+      return { valid: false, message: 'Please enter a valid email address (e.g. name@domain.com).' };
+    }
+    const parts = raw.split('@');
+    if (parts.length !== 2) return { valid: false, message: 'Please enter a valid email address.' };
+    const user = parts[0];
+    const domain = parts[1];
+    const domainParts = domain.split('.');
+    const tld = domainParts[domainParts.length - 1];
+    if (!tld || tld.length < 2 || !/^[a-zA-Z]+$/.test(tld)) {
+      return { valid: false, message: 'Please enter an email with a valid domain extension (e.g. .com, .org, .ng).' };
+    }
+    const dummyUsers = ['test', 'testing', 'fake', 'none', 'noemail', 'dummy', 'asdf', 'sample', 'random', 'fakemail'];
+    if (dummyUsers.includes(user)) {
+      return { valid: false, message: `"${user}" is not a valid email username. Please enter your real email.` };
+    }
+    if (user.length >= 4 && /^([a-zA-Z0-9])\1+$/.test(user)) {
+      return { valid: false, message: 'Please enter an active email address.' };
+    }
+    const fakeDomains = [
+      'test.com', 'fake.com', 'none.com', 'domain.com', 'sample.com', 'noemail.com',
+      'mailinator.com', 'tempmail.com', 'guerrillamail.com', '10minutemail.com',
+      'throwawaymail.com', 'sharklasers.com', 'yopmail.com', 'trashmail.com',
+      'example.com', 'example.org', 'xyz.com', 'abc.com'
+    ];
+    if (fakeDomains.includes(domain)) {
+      return { valid: false, message: `"${domain}" is not an active email provider. Please use your real email (e.g. @gmail.com, @yahoo.com).` };
+    }
+    return { valid: true, formatted: raw };
+  }
+};
+
 function loadYoutubeIframeApi(callback) {
   if (window.YT && window.YT.Player) {
     if (callback) callback();
@@ -541,12 +640,16 @@ const LivePage = {
     },
     login(){
       if(!this.name.trim()){ this.error='Please enter your full name.'; return; }
-      if(!this.phone.trim()){ this.error='Please enter your phone number.'; return; }
-      if(!/^[0-9+\-\s()]{6,}$/.test(this.phone.trim())){ this.error='Please enter a valid phone number.'; return; }
+      const phoneCheck = SiteValidators.validatePhone(this.phone, true);
+      if(!phoneCheck.valid){ this.error = phoneCheck.message; return; }
+      const emailCheck = SiteValidators.validateEmail(this.email, false);
+      if(!emailCheck.valid){ this.error = emailCheck.message; return; }
       if(!this.groupName){ this.error='Please select your group.'; return; }
       const attendance = this.viewingMode === 'group' ? Math.max(1, parseInt(this.groupCount || 1, 10)) : 1;
       const serviceName = (this.liveSettings && this.liveSettings.title) ? this.liveSettings.title : 'Sunday Service of Excellence';
-      const member = {name:this.name.trim(), email:this.email.trim(), phone:this.phone.trim(), group:this.groupName, category:this.category, viewingMode:this.viewingMode, attendance, service_name:serviceName};
+      const cleanPhone = phoneCheck.formatted || this.phone.trim();
+      const cleanEmail = emailCheck.formatted || '';
+      const member = {name:this.name.trim(), email:cleanEmail, phone:cleanPhone, group:this.groupName, category:this.category, viewingMode:this.viewingMode, attendance, service_name:serviceName};
       this.$root.member = member;
       if(this.remember){ localStorage.setItem('kh_member', JSON.stringify(member)); }
       this.error='';
@@ -1215,7 +1318,7 @@ const LivePage = {
           <div class="alert alert-danger" v-if="error">{{error}}</div>
           <div class="row g-3 mt-1">
             <div class="col-12"><label>Full Name</label><div class="input-icon"><i class="fa-solid fa-user"></i><input v-model="name" class="form-control form-control-lg" placeholder="e.g. Clarke Johnson" @keyup.enter="login"></div></div>
-            <div class="col-md-6"><label>Phone Number</label><div class="input-icon"><i class="fa-solid fa-phone"></i><input v-model="phone" class="form-control form-control-lg" placeholder="080..." @keyup.enter="login"></div></div>
+            <div class="col-md-6"><label>Phone Number</label><div class="input-icon"><i class="fa-solid fa-phone"></i><input v-model="phone" class="form-control form-control-lg" placeholder="080... or +234..." @keyup.enter="login"></div></div>
             <div class="col-md-6"><label>Email Address <span>optional</span></label><div class="input-icon"><i class="fa-solid fa-envelope"></i><input v-model="email" class="form-control form-control-lg" placeholder="name@email.com" @keyup.enter="login"></div></div>
             <div class="col-md-6"><label>Membership Status</label><div class="input-icon"><i class="fa-solid fa-id-badge"></i><select v-model="category" class="form-control form-control-lg"><option v-for="cat in categoryOptions" :value="cat">{{cat}}</option></select></div></div>
             <div class="col-md-6"><label>Select Your Group</label><div class="input-icon"><i class="fa-solid fa-users"></i><select v-model="groupName" class="form-control form-control-lg"><option value="">Select your group</option><option v-for="group in groupOptions" :value="group">{{group}}</option></select></div></div>
@@ -1770,10 +1873,22 @@ const MinistriesPage = {
       this.joinForm.submitted = false;
     },
     submitJoinForm(){
-      if (!this.joinForm.name.trim() || !this.joinForm.phone.trim()) {
-        alert('Please provide your name and phone/WhatsApp number.');
+      if (!this.joinForm.name.trim()) {
+        alert('Please provide your full name.');
         return;
       }
+      const phoneCheck = SiteValidators.validatePhone(this.joinForm.phone, true);
+      if (!phoneCheck.valid) {
+        alert(phoneCheck.message);
+        return;
+      }
+      const emailCheck = SiteValidators.validateEmail(this.joinForm.email, false);
+      if (!emailCheck.valid) {
+        alert(emailCheck.message);
+        return;
+      }
+      this.joinForm.phone = phoneCheck.formatted || this.joinForm.phone.trim();
+      this.joinForm.email = emailCheck.formatted || '';
       this.joinForm.submitting = true;
       setTimeout(() => {
         this.joinForm.submitting = false;
@@ -2116,10 +2231,22 @@ const MinistryDetailPage = {
       this.joinForm.submitted = false;
     },
     submitJoinForm(){
-      if (!this.joinForm.name.trim() || !this.joinForm.phone.trim()) {
-        alert('Please provide your name and phone/WhatsApp number.');
+      if (!this.joinForm.name.trim()) {
+        alert('Please provide your full name.');
         return;
       }
+      const phoneCheck = SiteValidators.validatePhone(this.joinForm.phone, true);
+      if (!phoneCheck.valid) {
+        alert(phoneCheck.message);
+        return;
+      }
+      const emailCheck = SiteValidators.validateEmail(this.joinForm.email, false);
+      if (!emailCheck.valid) {
+        alert(emailCheck.message);
+        return;
+      }
+      this.joinForm.phone = phoneCheck.formatted || this.joinForm.phone.trim();
+      this.joinForm.email = emailCheck.formatted || '';
       this.joinForm.submitting = true;
       setTimeout(() => {
         this.joinForm.submitting = false;
@@ -2943,6 +3070,14 @@ const GivePage = {
       return base + '/' + this.selectedAmount.toFixed(2) + this.selectedCurrency;
     },
     submitGiving(){
+      if (this.donorPhone && this.donorPhone.trim()) {
+        const pCheck = SiteValidators.validatePhone(this.donorPhone, false);
+        if (!pCheck.valid) { this.error = pCheck.message; return; }
+      }
+      if (this.paymentMethod === 'PayPal' || (this.donorEmail && this.donorEmail.trim())) {
+        const eCheck = SiteValidators.validateEmail(this.donorEmail, this.paymentMethod === 'PayPal');
+        if (!eCheck.valid) { this.error = eCheck.message; return; }
+      }
       if (this.paymentMethod === 'PayPal') {
         if (!this.paypalRecipient) {
           this.error = 'PayPal recipient email/link has not been configured.';
@@ -3399,7 +3534,12 @@ const VisitPage = {
   methods:{
     submitPreReg(){
       if(!this.regForm.name.trim()){ this.regForm.error = 'Please enter your name.'; return; }
-      if(!this.regForm.phone.trim()){ this.regForm.error = 'Please enter your phone number.'; return; }
+      const phoneCheck = SiteValidators.validatePhone(this.regForm.phone, true);
+      if(!phoneCheck.valid){ this.regForm.error = phoneCheck.message; return; }
+      const emailCheck = SiteValidators.validateEmail(this.regForm.email, false);
+      if(!emailCheck.valid){ this.regForm.error = emailCheck.message; return; }
+      this.regForm.phone = phoneCheck.formatted || this.regForm.phone.trim();
+      this.regForm.email = emailCheck.formatted || '';
       this.regForm.submitting = true;
       this.regForm.error = '';
       setTimeout(() => {
@@ -4137,6 +4277,15 @@ const StoriesPage = {
       this.visible += 6;
     },
     submitTestimony(){
+      if(!this.testimonyForm.name.trim()){ alert('Please enter your full name.'); return; }
+      const contact = this.testimonyForm.contact.trim();
+      if(!contact){ alert('Please enter your phone number or email address for verification.'); return; }
+      const isEmail = contact.includes('@');
+      const check = isEmail ? SiteValidators.validateEmail(contact, true) : SiteValidators.validatePhone(contact, true);
+      if(!check.valid){
+        alert(check.message);
+        return;
+      }
       this.testimonyForm.submitting = true;
       setTimeout(() => {
         this.testimonyForm.submitting = false;
@@ -4492,6 +4641,15 @@ const StoryDetailPage = {
       }
     },
     submitTestimony(){
+      if(!this.testimonyForm.name.trim()){ alert('Please enter your full name.'); return; }
+      const contact = this.testimonyForm.contact.trim();
+      if(!contact){ alert('Please enter your phone number or email address for verification.'); return; }
+      const isEmail = contact.includes('@');
+      const check = isEmail ? SiteValidators.validateEmail(contact, true) : SiteValidators.validatePhone(contact, true);
+      if(!check.valid){
+        alert(check.message);
+        return;
+      }
       this.testimonyForm.submitting = true;
       setTimeout(() => {
         this.testimonyForm.submitting = false;

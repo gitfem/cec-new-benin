@@ -267,10 +267,89 @@ if ($method === 'POST' && (strpos($uri, '/api/attendance/delete') !== false)) {
 
 if ($method === 'POST' && (strpos($uri, '/api/attendance') !== false || strpos($uri, '/bridge_live_login.php') !== false)) {
     $p = getPayload();
-    $name = $p['fullname'] ?? $p['name'] ?? 'Guest';
-    $group = $p['group'] ?? 'Christ Embassy Lagos Street';
-    $phone = $p['phone'] ?? '';
-    $email = $p['email'] ?? '';
+    $name = trim($p['fullname'] ?? $p['name'] ?? 'Guest');
+    $group = trim($p['group'] ?? 'Christ Embassy Lagos Street');
+    $phoneRaw = trim($p['phone'] ?? '');
+    $emailRaw = trim($p['email'] ?? '');
+
+    // Validate Phone (local or international)
+    $phoneCleaned = preg_replace('/[\s\-\(\)\.]/', '', $phoneRaw);
+    if (!preg_match('/^\+?[0-9]{8,15}$/', $phoneCleaned)) {
+        http_response_code(400);
+        echo json_encode(['ok' => false, 'error' => 'Phone number must be between 8 and 15 digits (local or international format).']);
+        exit;
+    }
+    $digitsOnly = ltrim($phoneCleaned, '+');
+    if (preg_match('/^(\d)\1+$/', $digitsOnly)) {
+        http_response_code(400);
+        echo json_encode(['ok' => false, 'error' => 'Please enter an active phone number, not repeated digits.']);
+        exit;
+    }
+    $dummySeq = ['12345678', '87654321', '01234567', '76543210', '98765432'];
+    foreach ($dummySeq as $seq) {
+        if (strpos($digitsOnly, $seq) !== false) {
+            http_response_code(400);
+            echo json_encode(['ok' => false, 'error' => 'Please enter an active phone number, not a sequential test number.']);
+            exit;
+        }
+    }
+    if (count(count_chars($digitsOnly, 1)) < 3) {
+        http_response_code(400);
+        echo json_encode(['ok' => false, 'error' => 'Please enter a genuine active phone number.']);
+        exit;
+    }
+    if (strpos($phoneCleaned, '0') === 0) {
+        if (strlen($phoneCleaned) !== 11 || !preg_match('/^0(?:[789][01]\d{8}|[1-9]\d{7,8})$/', $phoneCleaned)) {
+            http_response_code(400);
+            echo json_encode(['ok' => false, 'error' => 'Local Nigerian phone numbers must be 11 digits with a valid prefix (e.g. 08023456789).']);
+            exit;
+        }
+        $sub = substr($phoneCleaned, 3);
+        if (preg_match('/^(\d)\1+$/', $sub)) {
+            http_response_code(400);
+            echo json_encode(['ok' => false, 'error' => 'Please enter an active phone number.']);
+            exit;
+        }
+        $phone = $phoneCleaned;
+    } elseif (strpos($phoneCleaned, '+234') === 0 || strpos($phoneCleaned, '234') === 0) {
+        $norm = (strpos($phoneCleaned, '+234') === 0) ? substr($phoneCleaned, 4) : substr($phoneCleaned, 3);
+        if (strpos($norm, '0') === 0) $norm = substr($norm, 1);
+        if (strlen($norm) !== 10 || !preg_match('/^[789][01]\d{8}$|^[1-9]\d{7,8}$/', $norm)) {
+            http_response_code(400);
+            echo json_encode(['ok' => false, 'error' => 'Invalid Nigerian phone number format after +234.']);
+            exit;
+        }
+        $phone = '+234' . $norm;
+    } else {
+        $phone = $phoneCleaned;
+    }
+
+    // Validate Email if entered
+    $email = strtolower($emailRaw);
+    if ($email !== '') {
+        $placeholders = ['name@email.com', 'you@example.com', 'johndoe@gmail.com', 'email@email.com'];
+        if (in_array($email, $placeholders, true) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            http_response_code(400);
+            echo json_encode(['ok' => false, 'error' => 'Please enter a valid email address (e.g. name@domain.com).']);
+            exit;
+        }
+        $parts = explode('@', $email, 2);
+        $user = $parts[0] ?? '';
+        $domain = $parts[1] ?? '';
+        $dummyUsers = ['test', 'testing', 'fake', 'none', 'noemail', 'dummy', 'asdf', 'sample', 'random', 'fakemail'];
+        if (in_array($user, $dummyUsers, true) || (strlen($user) >= 4 && preg_match('/^([a-z0-9])\1+$/', $user))) {
+            http_response_code(400);
+            echo json_encode(['ok' => false, 'error' => 'Please enter an active email address, not a dummy or test email.']);
+            exit;
+        }
+        $fakeDomains = ['test.com', 'fake.com', 'none.com', 'domain.com', 'sample.com', 'noemail.com', 'mailinator.com', 'tempmail.com', 'example.com', 'example.org'];
+        if (in_array($domain, $fakeDomains, true)) {
+            http_response_code(400);
+            echo json_encode(['ok' => false, 'error' => "\"$domain\" is not an active email provider. Please use your active email."]);
+            exit;
+        }
+    }
+
     $category = $p['category'] ?? 'Church Member';
     $viewing_mode = $p['viewing_mode'] ?? 'individual';
     $count = intval($p['attendance'] ?? $p['count'] ?? 1);
