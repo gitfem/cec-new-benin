@@ -809,7 +809,8 @@
       "Sapele Road Service Center",
       "Bob Oshodin Service Center",
       "Utuka Service center",
-      "Temboga Service Center"
+      "Temboga Service Center",
+      "new church"
     ]
   },
   "pages": {

@@ -413,21 +413,6 @@ const LivePage = {
       category:'Church Member',
       categoryOptions:['Church Member','First-Time Visitor','Cell Leader','Teen/Youth','Visiting Minister'],
       viewingMode:'individual', groupName:'Christ Embassy Lagos Street', groupCount:1,
-      groupOptions:[
-        'Christ Embassy Lagos Street',
-        'Christ Embassy Upper Mission 2',
-        'Christ Embassy Universal',
-        'Christ Embassy Lawani Model',
-        'Christ Embassy GRA',
-        'Christ Embassy Okhoro',
-        'Church of Excellence 1',
-        'Church of Excellence 2',
-        'Christ Embassy Oluku',
-        'Sapele Road Service Center',
-        'Bob Oshodin Service Center',
-        'Utuka Service center',
-        'Temboga Service Center'
-      ],
       DATA, OLD, announcementOpen:true, activeStream:'player',
       isPlaying:false, muted:false, volume:0.85, progress:0,
       liveStatus:'checking', chat:[], chatText:'', chatError:'',
@@ -439,8 +424,10 @@ const LivePage = {
     member(){return this.$root.member},
 
     groupOptions(){
-      if (this.cms && this.cms.live && Array.isArray(this.cms.live.service_groups) && this.cms.live.service_groups.length) {
-        return this.cms.live.service_groups;
+      const rootCms = (this.$root && this.$root.cms) ? this.$root.cms : null;
+      const live = (rootCms && rootCms.live) ? rootCms.live : ((this.cms && this.cms.live) ? this.cms.live : {});
+      if (live && Array.isArray(live.service_groups) && live.service_groups.length) {
+        return live.service_groups;
       }
       return [
         'Christ Embassy Lagos Street',
@@ -591,6 +578,9 @@ const LivePage = {
     document.addEventListener('fullscreenchange', this._onFullscreenChange);
     document.addEventListener('webkitfullscreenchange', this._onFullscreenChange);
 
+    if(this.$root && typeof this.$root.loadContent === 'function'){
+      this.$root.loadContent();
+    }
     if(this.member){
       this.$nextTick(()=>this.autoplayPlayer());
       this.ensureAttendanceCaptured();
@@ -5270,7 +5260,7 @@ const SermonDetailPage = {
 createApp({
   components:{HomePage,LivePage,WatchPage,SermonDetailPage,MinistriesPage,MinistryDetailPage,GroupsPage,GroupDetailPage,LocationsPage,EventsPage,EventDetailPage,StorePage,GivePage,VisitPage,AboutPage,StoriesPage,StoryDetailPage},
   provide(){ return {cms:this.cms}; },
-  data(){return {ready:false, route:'home', routeParts:['home'], mobileMenu:false, scrolled:false, member:null, liveFloatEnabled:false, liveFloatClosed:false, liveFloatMuted:false, liveFloatVolume:0.85, liveFloatPlaying:false, miniHls:null, miniHlsReady:'', cms:{site:{},home:{},pages:{}}, navItems:[{label:'Home',href:'#/'},{label:'Locations',href:'#/locations'},{label:'Watch',href:'#/watch'},{label:'Live Service',href:'#/live'},{label:'Join a Group',href:'#/groups'},{label:'Plan a Visit',href:'#/visit'},{label:'Ministries',href:'#/ministries'},{label:'Events',href:'#/events'},{label:'Store',href:'#/store'},{label:'Give',href:'#/give'},{label:'Stories',href:'#/stories'},{label:'About',href:'#/about'}] }},
+  data(){return {ready:false, route:'home', routeParts:['home'], mobileMenu:false, scrolled:false, member:null, liveFloatEnabled:false, liveFloatClosed:false, liveFloatMuted:false, liveFloatVolume:0.85, liveFloatPlaying:false, miniHls:null, miniHlsReady:'', cms:{site:{},home:{},pages:{},live:{service_groups:[]}}, navItems:[{label:'Home',href:'#/'},{label:'Locations',href:'#/locations'},{label:'Watch',href:'#/watch'},{label:'Live Service',href:'#/live'},{label:'Join a Group',href:'#/groups'},{label:'Plan a Visit',href:'#/visit'},{label:'Ministries',href:'#/ministries'},{label:'Events',href:'#/events'},{label:'Store',href:'#/store'},{label:'Give',href:'#/give'},{label:'Stories',href:'#/stories'},{label:'About',href:'#/about'}] }},
   computed:{
     currentPage(){return this.route === 'stories' && this.routeParts[1] ? 'StoryDetailPage' : this.route === 'events' && this.routeParts[1] ? 'EventDetailPage' : (this.route === 'watch' || this.route === 'sermons') && this.routeParts[1] ? 'SermonDetailPage' : this.route === 'ministries' && this.routeParts[1] ? 'MinistryDetailPage' : this.route === 'groups' && this.routeParts[1] ? 'GroupDetailPage' : ({home:'HomePage',live:'LivePage',watch:'WatchPage',sermons:'WatchPage',ministries:'MinistriesPage',events:'EventsPage',store:'StorePage',give:'GivePage',visit:'VisitPage',contact:'VisitPage',about:'AboutPage',locations:'LocationsPage',groups:'GroupsPage',stories:'StoriesPage'}[this.route] || 'HomePage')},
     siteName(){ return (this.cms.site && this.cms.site.name) ? this.cms.site.name : ''; },
@@ -5465,7 +5455,7 @@ createApp({
       fetch(OLD.content + '?t=' + Date.now(), {cache:'no-store'})
         .then(r=>r.json())
         .then(data=>{
-          Object.assign(this.cms, data);
+          this.cms = Object.assign({}, this.cms, data);
           if(data.site && data.site.title){ document.title=data.site.title; }
           else if(data.site && data.site.name){ document.title=data.site.name + ' | Church of Excellence'; }
         })

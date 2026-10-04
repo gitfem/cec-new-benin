@@ -191,26 +191,10 @@ createApp({
       ],
       giveForm:{currency:'NGN', amount:10000, customAmount:'', name:'', phone:'', email:'', towards:'Tithe', frequency:'One Time', method:'Bank Transfer', note:'', error:'', copiedKey:''},
       visitPreReg:{name:'', phone:'', email:'', date:'', guests:1, submitted:false, submitting:false, error:''},
-      openVisitFaq:null,
-      groupOptions:[
-        'Christ Embassy Lagos Street',
-        'Christ Embassy Upper Mission 2',
-        'Christ Embassy Universal',
-        'Christ Embassy Lawani Model',
-        'Christ Embassy GRA',
-        'Christ Embassy Okhoro',
-        'Church of Excellence 1',
-        'Church of Excellence 2',
-        'Christ Embassy Oluku',
-        'Sapele Road Service Center',
-        'Bob Oshodin Service Center',
-        'Utuka Service center',
-        'Temboga Service Center'
-      ],
       activeSermonCategory:'All Messages',
       sermonCategories:['All Messages', 'Sunday Services', 'Faith & Healing', 'Leadership & Excellence', 'Mid-Week Teachings', 'Kingdom Prosperity', 'Evangelism & Missions'],
       sermonShareCopied:false,
-      cms:{site:{}, home:{slides:[], feature_banners:[], sermons:[], events:[], sections:[]}, nav:[], pages:{}},
+      cms:{site:{}, home:{slides:[], feature_banners:[], sermons:[], events:[], sections:[]}, nav:[], pages:{}, live:{service_groups:[]}},
       fallbackNav:[
         {label:'Home', href:'#/'},
         {label:'Live Service', href:'#/live'},
@@ -798,6 +782,9 @@ createApp({
       this.storyCommentForm.message='';
       this.storyCommentForm.error='';
       window.scrollTo(0,0);
+      if(this.route === 'live'){
+        this.loadCms();
+      }
       if(this.route === 'live' && this.member){
         this.ensureAttendanceCaptured();
       }
@@ -808,7 +795,7 @@ createApp({
       try{
         const response = await fetch(API_URL + '?t=' + Date.now(), {cache:'no-store'});
         const data = await response.json();
-        Object.assign(this.cms, data);
+        this.cms = Object.assign({}, this.cms, data);
         if(data.site && data.site.title){ document.title = data.site.title; }
         else if(data.site && data.site.name){ document.title = data.site.name + ' | Church of Excellence'; }
       }catch(error){}
