@@ -795,7 +795,7 @@ createApp({
       try{
         const response = await fetch(API_URL + '?t=' + Date.now(), {cache:'no-store'});
         const data = await response.json();
-        this.cms = Object.assign({}, this.cms, data);
+        Object.assign(this.cms, data);
         if(data.site && data.site.title){ document.title = data.site.title; }
         else if(data.site && data.site.name){ document.title = data.site.name + ' | Church of Excellence'; }
       }catch(error){}

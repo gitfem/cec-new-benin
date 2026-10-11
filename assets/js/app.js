@@ -5260,7 +5260,7 @@ const SermonDetailPage = {
 createApp({
   components:{HomePage,LivePage,WatchPage,SermonDetailPage,MinistriesPage,MinistryDetailPage,GroupsPage,GroupDetailPage,LocationsPage,EventsPage,EventDetailPage,StorePage,GivePage,VisitPage,AboutPage,StoriesPage,StoryDetailPage},
   provide(){ return {cms:this.cms}; },
-  data(){return {ready:false, route:'home', routeParts:['home'], mobileMenu:false, scrolled:false, member:null, liveFloatEnabled:false, liveFloatClosed:false, liveFloatMuted:false, liveFloatVolume:0.85, liveFloatPlaying:false, miniHls:null, miniHlsReady:'', cms:{site:{},home:{},pages:{},live:{service_groups:[]}}, navItems:[{label:'Home',href:'#/'},{label:'Locations',href:'#/locations'},{label:'Watch',href:'#/watch'},{label:'Live Service',href:'#/live'},{label:'Join a Group',href:'#/groups'},{label:'Plan a Visit',href:'#/visit'},{label:'Ministries',href:'#/ministries'},{label:'Events',href:'#/events'},{label:'Store',href:'#/store'},{label:'Give',href:'#/give'},{label:'Stories',href:'#/stories'},{label:'About',href:'#/about'}] }},
+  data(){return {ready:false, route:'home', routeParts:['home'], mobileMenu:false, scrolled:false, member:null, liveFloatEnabled:false, liveFloatClosed:false, liveFloatMuted:false, liveFloatVolume:0.85, liveFloatPlaying:false, miniHls:null, miniHlsReady:'', cms:{site:{},home:{slides:[],feature_banners:[],sections:[],upcoming_event:{},featured_story:{},stories:[],sermons:[],events:[]},pages:{},live:{service_groups:[]},nav:[]}, navItems:[{label:'Home',href:'#/'},{label:'Locations',href:'#/locations'},{label:'Watch',href:'#/watch'},{label:'Live Service',href:'#/live'},{label:'Join a Group',href:'#/groups'},{label:'Plan a Visit',href:'#/visit'},{label:'Ministries',href:'#/ministries'},{label:'Events',href:'#/events'},{label:'Store',href:'#/store'},{label:'Give',href:'#/give'},{label:'Stories',href:'#/stories'},{label:'About',href:'#/about'}] }},
   computed:{
     currentPage(){return this.route === 'stories' && this.routeParts[1] ? 'StoryDetailPage' : this.route === 'events' && this.routeParts[1] ? 'EventDetailPage' : (this.route === 'watch' || this.route === 'sermons') && this.routeParts[1] ? 'SermonDetailPage' : this.route === 'ministries' && this.routeParts[1] ? 'MinistryDetailPage' : this.route === 'groups' && this.routeParts[1] ? 'GroupDetailPage' : ({home:'HomePage',live:'LivePage',watch:'WatchPage',sermons:'WatchPage',ministries:'MinistriesPage',events:'EventsPage',store:'StorePage',give:'GivePage',visit:'VisitPage',contact:'VisitPage',about:'AboutPage',locations:'LocationsPage',groups:'GroupsPage',stories:'StoriesPage'}[this.route] || 'HomePage')},
     siteName(){ return (this.cms.site && this.cms.site.name) ? this.cms.site.name : ''; },
@@ -5455,7 +5455,7 @@ createApp({
       fetch(OLD.content + '?t=' + Date.now(), {cache:'no-store'})
         .then(r=>r.json())
         .then(data=>{
-          this.cms = Object.assign({}, this.cms, data);
+          Object.assign(this.cms, data);
           if(data.site && data.site.title){ document.title=data.site.title; }
           else if(data.site && data.site.name){ document.title=data.site.name + ' | Church of Excellence'; }
         })
