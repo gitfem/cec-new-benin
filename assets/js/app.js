@@ -1367,6 +1367,19 @@ const LivePage = {
                   <div class="spinner-border text-danger me-2"></div> Loading YouTube Live Stream...
                 </div>
               </div>
+              <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mt-2 px-3 py-2 rounded" style="background:#0f172a; border:1px solid #1e293b;">
+                <div class="d-flex align-items-center gap-2">
+                  <a :href="youtubePage" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-danger fw-bold d-inline-flex align-items-center gap-2" style="background:#e62117; border:0; border-radius:8px; padding:7px 16px; text-decoration:none; color:#ffffff;">
+                    <i class="fa-brands fa-youtube"></i> Watch on YouTube
+                  </a>
+                  <button type="button" @click="switchStream('player')" class="btn btn-sm btn-outline-light fw-bold d-inline-flex align-items-center gap-2" style="border-radius:8px; padding:7px 16px;">
+                    <i class="fa-solid fa-play"></i> Switch to HD Player
+                  </button>
+                </div>
+                <small style="color:#94a3b8; font-size:0.82rem;">
+                  <i class="fa-solid fa-circle-info text-warning me-1"></i> Seeing <em>"Playback on other websites disabled"</em>? Click <b>Watch on YouTube</b> or switch to <b>HD Player</b>.
+                </small>
+              </div>
             </div>
             <div v-else class="p-4 text-center rounded" style="background:#0f172a; border:1px solid #1e293b; color:#94a3b8; border-radius:14px;">
               <i class="fa-brands fa-youtube mb-3" style="font-size:2.8rem; color:#ef4444; display:block;"></i>

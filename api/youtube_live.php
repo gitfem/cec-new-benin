@@ -104,7 +104,8 @@ if (strpos($cleanChannel, 'UC') === 0) {
                     $candidateId = $vm[1];
                     // Verify channelId inside this entry matches
                     if (preg_match('/<yt:channelId>(.*?)<\/yt:channelId>/i', $entry, $cm)) {
-                        if (trim($cm[1]) !== $cleanChannel) {
+                        $entryCh = trim($cm[1]);
+                        if ($entryCh !== $cleanChannel && ('UC' . $entryCh) !== $cleanChannel && $entryCh !== ltrim($cleanChannel, 'UC')) {
                             continue;
                         }
                     }
@@ -113,6 +114,41 @@ if (strpos($cleanChannel, 'UC') === 0) {
                     break;
                 }
             }
+        }
+    }
+}
+
+// 4. PRIORITY B: Fallback to /live channel endpoint if RSS feed did not yield a video
+if (!$resolvedId) {
+    $liveUrl = (strpos($cleanChannel, '@') === 0)
+        ? "https://www.youtube.com/" . urlencode($cleanChannel) . "/live"
+        : "https://www.youtube.com/channel/" . urlencode($cleanChannel) . "/live";
+
+    $ch = curl_init();
+    curl_setopt_array($ch, [
+        CURLOPT_URL => $liveUrl,
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_FOLLOWLOCATION => true,
+        CURLOPT_MAXREDIRS => 3,
+        CURLOPT_TIMEOUT => 6,
+        CURLOPT_CONNECTTIMEOUT => 3,
+        CURLOPT_SSL_VERIFYPEER => false,
+        CURLOPT_USERAGENT => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36'
+    ]);
+    $html = curl_exec($ch);
+    $lastUrl = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
+    curl_close($ch);
+
+    if ($lastUrl && preg_match('/(?:watch\?v=|live\/)([a-zA-Z0-9_-]{11})/i', $lastUrl, $lm)) {
+        $resolvedId = $lm[1];
+        $isLive = true;
+    } elseif (!empty($html)) {
+        if (preg_match('/<link\s+rel=["\']canonical["\']\s+href=["\']https?:\/\/www\.youtube\.com\/watch\?v=([a-zA-Z0-9_-]{11})["\']/i', $html, $cm)) {
+            $resolvedId = $cm[1];
+            $isLive = true;
+        } elseif (preg_match('/"videoId":"([a-zA-Z0-9_-]{11})"/i', $html, $vm)) {
+            $resolvedId = $vm[1];
+            $isLive = (strpos($html, '"isLive":true') !== false || strpos($html, '"isLiveContent":true') !== false);
         }
     }
 }
