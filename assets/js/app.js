@@ -899,27 +899,20 @@ const LivePage = {
     },
     async checkStreamLiveFreshness(url) {
       if (!url) return false;
-      // 1. Direct HEAD request to check Last-Modified header
+      // 1. Server-side probe fallback
       try {
-        const res = await fetch(url, { method: 'HEAD', cache: 'no-store' });
-        if (!res.ok) return false;
-        const lastMod = res.headers.get('last-modified');
-        if (lastMod) {
-          const age = (Date.now() - new Date(lastMod).getTime()) / 1000;
-          // If manifest hasn't updated in > 25 seconds, encoder stopped streaming
-          if (age > 25) {
-            return false;
-          }
-          return true;
-        }
-      } catch(e) {}
-
-      // 2. Server-side probe fallback
-      try {
-        const probe = await fetch('api/index.php?route=stream_status&url=' + encodeURIComponent(url), { cache: 'no-store' }).then(r => r.json()).catch(() => null);
+        const probe = await fetch('api/index.php?route=stream_status&url=' + encodeURIComponent(url) + '&t=' + Date.now(), { cache: 'no-store' }).then(r => r.json()).catch(() => null);
         if (probe && typeof probe.is_live === 'boolean') {
           return probe.is_live;
         }
+      } catch(e) {}
+
+      // 2. Direct manifest check fallback
+      try {
+        const res = await fetch(url, { method: 'GET', cache: 'no-store' });
+        if (!res.ok) return false;
+        const text = await res.text();
+        return (text.includes('#EXTINF') || text.includes('.ts') || text.includes('#EXT-X-TARGETDURATION')) && !text.includes('#EXT-X-ENDLIST');
       } catch(e2) {}
 
       return true;

@@ -108,61 +108,32 @@ if ($method === 'GET' && ($matchRoute('stream_status') || $matchRoute('live_stat
         exit;
     }
 
-    // Fast HEAD request to the HLS URL to verify manifest freshness
+    // Fetch the HLS manifest to check for active broadcast segments
     $ch = curl_init($url);
     curl_setopt_array($ch, [
-        CURLOPT_NOBODY => true,
         CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_HEADER => true,
-        CURLOPT_TIMEOUT => 3,
+        CURLOPT_TIMEOUT => 4,
         CURLOPT_FOLLOWLOCATION => true,
         CURLOPT_SSL_VERIFYPEER => false,
-        CURLOPT_USERAGENT => 'CEC-Benin-LiveProbe/1.0'
+        CURLOPT_USERAGENT => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36'
     ]);
-    $resp = curl_exec($ch);
+    $body = curl_exec($ch);
     $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
     curl_close($ch);
 
-    if ($httpCode !== 200 || empty($resp)) {
+    if ($httpCode !== 200 || empty($body)) {
         echo json_encode(['ok' => true, 'is_live' => false, 'http_code' => $httpCode, 'reason' => 'Stream offline or unreachable']);
         exit;
     }
 
-    $lastModified = null;
-    if (preg_match('/Last-Modified:\s*([^\r\n]+)/i', $resp, $m)) {
-        $lastModified = trim($m[1]);
-    }
-
-    $age = null;
-    $isLive = false;
-    if ($lastModified) {
-        $ts = strtotime($lastModified);
-        if ($ts !== false) {
-            $age = time() - $ts;
-            // Active live stream updates manifest every segment (4-7s).
-            // If manifest hasn't updated in > 25 seconds, broadcast has stopped!
-            $isLive = ($age <= 25);
-        }
-    } else {
-        // Fallback: fetch manifest body
-        $ch2 = curl_init($url);
-        curl_setopt_array($ch2, [
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_TIMEOUT => 3,
-            CURLOPT_FOLLOWLOCATION => true,
-            CURLOPT_SSL_VERIFYPEER => false,
-            CURLOPT_USERAGENT => 'CEC-Benin-LiveProbe/1.0'
-        ]);
-        $body = curl_exec($ch2);
-        curl_close($ch2);
-        $isLive = ($body && strpos($body, '#EXT-X-ENDLIST') === false && strpos($body, '.ts') !== false);
-    }
+    // A live HLS stream contains media segments/targetduration and does NOT have #EXT-X-ENDLIST
+    $hasSegments = (strpos($body, '#EXTINF') !== false || strpos($body, '.ts') !== false || strpos($body, '#EXT-X-TARGETDURATION') !== false);
+    $hasEnded = (strpos($body, '#EXT-X-ENDLIST') !== false);
+    $isLive = ($hasSegments && !$hasEnded);
 
     echo json_encode([
         'ok' => true,
         'is_live' => $isLive,
-        'age_seconds' => $age,
-        'last_modified' => $lastModified,
         'http_code' => $httpCode
     ]);
     exit;
