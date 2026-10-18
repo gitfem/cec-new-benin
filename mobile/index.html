@@ -187,36 +187,20 @@
             <i class="fa-solid fa-volume-xmark"></i> Tap for Sound
           </div>
         </div>
-        <div v-else style="margin-bottom:14px;">
-          <div class="player-card youtube-panel" style="position:relative; aspect-ratio:16/9; border-radius:14px; overflow:hidden; background:#000;">
-            <template v-if="hasYoutubeLive">
-              <div style="position:relative; width:100%; height:100%; aspect-ratio:16/9; border-radius:14px; overflow:hidden; background:#000;">
-                <iframe v-if="youtubeUrl" :src="youtubeUrl" title="YouTube Live Stream" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen style="position:absolute; inset:0; width:100%; height:100%; border:0; display:block;"></iframe>
-                <div v-else style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center; color:#ffffff; font-size:0.85rem;">
-                  <div class="spinner-border text-danger me-2" style="width:1.5rem; height:1.5rem;"></div> Loading YouTube Live Stream...
-                </div>
+        <div v-else class="player-card youtube-panel" style="margin-bottom:14px; position:relative; aspect-ratio:16/9; border-radius:14px; overflow:hidden; background:#000;">
+          <template v-if="hasYoutubeLive">
+            <div style="position:relative; width:100%; height:100%; aspect-ratio:16/9; border-radius:14px; overflow:hidden; background:#000;">
+              <iframe v-if="youtubeUrl" :src="youtubeUrl" title="YouTube Live Stream" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen style="position:absolute; inset:0; width:100%; height:100%; border:0; display:block;"></iframe>
+              <div v-else style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center; color:#ffffff; font-size:0.85rem;">
+                <div class="spinner-border text-danger me-2" style="width:1.5rem; height:1.5rem;"></div> Loading YouTube Live Stream...
               </div>
-            </template>
-            <div v-else style="background:#0f172a; padding:32px 16px; text-align:center; border-radius:14px; width:100%; display:flex; flex-direction:column; align-items:center; justify-content:center;">
-              <i class="fa-brands fa-youtube" style="font-size:2.4rem; color:#ef4444; margin-bottom:8px; display:block;"></i>
-              <h4 style="color:#ffffff; font-weight:700; margin:0 0 6px; font-size:1.05rem;">No YouTube Stream Configured</h4>
-              <p style="color:#94a3b8; font-size:0.85rem; margin:0 0 14px; line-height:1.45;">There is currently no external YouTube stream configured for this service.</p>
-              <button type="button" @click="switchStream('player')" style="background:#0d9488; color:#ffffff; border:0; padding:8px 18px; border-radius:999px; font-size:0.85rem; font-weight:700; display:inline-flex; align-items:center; gap:6px; cursor:pointer;"><i class="fa-solid fa-play"></i> Switch to HD Player</button>
             </div>
-          </div>
-          <div v-if="hasYoutubeLive" style="margin-top:8px; background:#0f172a; border:1px solid #1e293b; border-radius:12px; padding:10px 12px; display:flex; flex-direction:column; gap:8px;">
-            <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
-              <a :href="youtubePage" target="_blank" rel="noopener noreferrer" style="background:#e62117; color:#ffffff; border:0; padding:8px 16px; border-radius:999px; font-size:0.84rem; font-weight:700; text-decoration:none; display:inline-flex; align-items:center; gap:6px;">
-                <i class="fa-brands fa-youtube"></i> Open in YouTube App
-              </a>
-              <button type="button" @click="switchStream('player')" style="background:#1e293b; color:#ffffff; border:1px solid #334155; padding:8px 14px; border-radius:999px; font-size:0.84rem; font-weight:700; display:inline-flex; align-items:center; gap:6px; cursor:pointer;">
-                <i class="fa-solid fa-play"></i> Switch to HD Player
-              </button>
-            </div>
-            <div style="color:#94a3b8; font-size:0.78rem; line-height:1.4;">
-              <i class="fa-solid fa-circle-info text-warning" style="margin-right:4px;"></i>
-              If your device or browser restricts embedding, tap <b>Open in YouTube App</b> or switch to our <b>HD Player</b>.
-            </div>
+          </template>
+          <div v-else style="background:#0f172a; padding:32px 16px; text-align:center; border-radius:14px; width:100%; display:flex; flex-direction:column; align-items:center; justify-content:center;">
+            <i class="fa-brands fa-youtube" style="font-size:2.4rem; color:#ef4444; margin-bottom:8px; display:block;"></i>
+            <h4 style="color:#ffffff; font-weight:700; margin:0 0 6px; font-size:1.05rem;">No YouTube Stream Configured</h4>
+            <p style="color:#94a3b8; font-size:0.85rem; margin:0 0 14px; line-height:1.45;">There is currently no external YouTube stream configured for this service.</p>
+            <button type="button" @click="switchStream('player')" style="background:#0d9488; color:#ffffff; border:0; padding:8px 18px; border-radius:999px; font-size:0.85rem; font-weight:700; display:inline-flex; align-items:center; gap:6px; cursor:pointer;"><i class="fa-solid fa-play"></i> Switch to HD Player</button>
           </div>
         </div>
         <article v-if="announcementHtml" class="announcement-card" style="background:#ffffff !important; border:1px solid #e2e8f0 !important; border-radius:14px !important; padding:16px !important; margin-bottom:14px !important;">
@@ -1028,6 +1012,6 @@
 <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/hls.js@1"></script>
 <script src="../assets/js/validators.js?v=78"></script>
-<script src="app.js?v=79"></script>
+<script src="app.js?v=80"></script>
 </body>
 </html>
